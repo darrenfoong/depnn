@@ -1,4 +1,4 @@
-package utils;
+package uk.ac.cam.cl.depnn.utils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

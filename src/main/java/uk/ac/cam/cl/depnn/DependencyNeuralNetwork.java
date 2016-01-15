@@ -31,7 +31,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
-import utils.ModelUtils;
+import uk.ac.cam.cl.depnn.utils.ModelUtils;
 
 public class DependencyNeuralNetwork {
 	private final int W2V_MIN_WORD_FREQUENCY = 5;
@@ -91,7 +91,7 @@ public class DependencyNeuralNetwork {
 			WordVectorSerializer.writeFullModel(word2vec, modelFile);
 	}
 
-	public void trainNetwork(String dependenciesFile) {
+	public void trainNetwork(String dependenciesDir) {
 		int numInput = word2vec.getLayerSize() * 2;
 		int numOutput = 1;
 
@@ -101,7 +101,7 @@ public class DependencyNeuralNetwork {
 		DataSet train = null;
 
 		try {
-			train = importData(dependenciesFile);
+			train = importData(dependenciesDir);
 		} catch (Exception e) {
 			System.err.println(e);
 			// implement better exception handling!
@@ -148,9 +148,9 @@ public class DependencyNeuralNetwork {
 		ModelUtils.saveModelAndParameters(network, new File(configJsonFile), coefficientsFile);
 	}
 
-	public DataSet importData(String dependenciesFile) throws FileNotFoundException, IOException, InterruptedException {
+	public DataSet importData(String dependenciesDir) throws FileNotFoundException, IOException, InterruptedException {
 		RecordReader recordReader = new CSVRecordReader(0, " ");
-		recordReader.initialize(new FileSplit(new ClassPathResource("deps").getFile()));
+		recordReader.initialize(new FileSplit(new ClassPathResource(dependenciesDir).getFile()));
 
 		// bug in
 		// https://github.com/deeplearning4j/Canova/blob/master/canova-api/src/main/java/org/canova/api/records/reader/impl/LineRecordReader.java
