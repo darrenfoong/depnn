@@ -1,0 +1,7 @@
+logs
+src/main/resources
+target
+.classpath
+.project
+.settings
+*.tar.gz
