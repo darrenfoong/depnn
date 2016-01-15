@@ -55,8 +55,6 @@ public class ModelUtils {
 
 	public static Layer loadLayerParameters(Layer layer, String paramPath) throws IOException {
 		// load parameters for each layer
-		String name = layer.conf().getLayer().getLayerName();
-
 		DataInputStream dis = new DataInputStream(new FileInputStream(paramPath));
 		INDArray param = Nd4j.read(dis);
 		dis.close();
@@ -81,8 +79,7 @@ public class ModelUtils {
 		for (String layerId : layerIds) {
 			layer = model.getLayer(layerId);
 			if (!layer.paramTable().isEmpty()) {
-				ModelUtils.saveLayerParameters(layer.params(),
-						paramPaths.get(layerId));
+				ModelUtils.saveLayerParameters(layer.params(), paramPaths.get(layerId));
 			}
 		}
 	}
@@ -108,5 +105,4 @@ public class ModelUtils {
 
 		return model;
 	}
-
 }
