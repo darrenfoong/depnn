@@ -25,8 +25,8 @@ import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-import org.jblas.DoubleMatrix;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -93,7 +93,7 @@ public class DependencyNeuralNetwork {
 
 	public void trainNetwork(String dependenciesDir) {
 		int numInput = word2vec.getLayerSize() * 2;
-		int numOutput = 1;
+		int numOutput = 2;
 
 		Nd4j.MAX_SLICES_TO_PRINT = -1;
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
@@ -148,36 +148,58 @@ public class DependencyNeuralNetwork {
 		ModelUtils.saveModelAndParameters(network, new File(configJsonFile), coefficientsFile);
 	}
 
-	public DataSet importData(String dependenciesDir) throws FileNotFoundException, IOException, InterruptedException {
+	public int predict(String head, String dependent) {
+		return network.predict(makeVector(head, dependent))[0];
+	}
+
+	private INDArray makeVector(String head, String dependent) {
+		INDArray headVector = word2vec.getWordVectorMatrix(head);
+		INDArray dependentVector = word2vec.getWordVectorMatrix(dependent);
+		ArrayList<INDArray> vectorList = new ArrayList<INDArray>();
+		vectorList.add(headVector);
+		vectorList.add(dependentVector);
+
+		return Nd4j.concat(1, headVector, dependentVector);
+	}
+
+	private DataSet importData(String dependenciesDir) throws FileNotFoundException, IOException, InterruptedException {
 		RecordReader recordReader = new CSVRecordReader(0, " ");
 		recordReader.initialize(new FileSplit(new ClassPathResource(dependenciesDir).getFile()));
+
+		int numRecords = 0;
+
+		while ( recordReader.hasNext() ) {
+			recordReader.next();
+			numRecords++;
+		}
 
 		// bug in
 		// https://github.com/deeplearning4j/Canova/blob/master/canova-api/src/main/java/org/canova/api/records/reader/impl/LineRecordReader.java
 
-		DoubleMatrix deps = new DoubleMatrix();
-		DoubleMatrix labels = new DoubleMatrix();
+		INDArray deps = new NDArray(numRecords, word2vec.getLayerSize() * 2);
+		INDArray labels = new NDArray(numRecords, 2);
+
+		int i = 0;
 
 		while ( recordReader.hasNext() ) {
 			ArrayList<Writable> record = (ArrayList<Writable>) recordReader.next();
-			System.out.println("number of examples: " + record);
 
 			String head = record.get(0).toString();
 			String dependent = record.get(1).toString();
 			int value = Integer.parseInt(record.get(2).toString());
 
-			DoubleMatrix headVector = (DoubleMatrix) word2vec.getWordVectorMatrix(head).transpose();
-			DoubleMatrix dependentVector = (DoubleMatrix) word2vec.getWordVectorMatrix(dependent).transpose();
-			
-			DoubleMatrix label = new DoubleMatrix(1, 2);
-			label.put(value, 1);
+			NDArray label = new NDArray(1, 2);
+			label.putScalar(value, 1);
 
-			deps.addRowVector(DoubleMatrix.concatHorizontally(headVector, dependentVector));
-			labels.addRowVector(label);
+			INDArray dep = makeVector(head, dependent);
+
+			deps.putRow(i, dep);
+			labels.putRow(i, label);
+			i++;
 		}
 
 		recordReader.close();
 
-		return new DataSet((INDArray) deps, (INDArray) labels);
+		return new DataSet(deps, labels);
 	}
 }
