@@ -170,9 +170,6 @@ public class DependencyNeuralNetwork {
 			numRecords++;
 		}
 
-		// bug in
-		// https://github.com/deeplearning4j/Canova/blob/master/canova-api/src/main/java/org/canova/api/records/reader/impl/LineRecordReader.java
-
 		INDArray deps = new NDArray(numRecords, word2vec.getLayerSize() * 2);
 		INDArray labels = new NDArray(numRecords, 2);
 
