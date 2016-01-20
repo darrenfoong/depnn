@@ -155,9 +155,6 @@ public class DependencyNeuralNetwork {
 	private INDArray makeVector(String head, String dependent) {
 		INDArray headVector = word2vec.getWordVectorMatrix(head);
 		INDArray dependentVector = word2vec.getWordVectorMatrix(dependent);
-		ArrayList<INDArray> vectorList = new ArrayList<INDArray>();
-		vectorList.add(headVector);
-		vectorList.add(dependentVector);
 
 		return Nd4j.concat(1, headVector, dependentVector);
 	}
