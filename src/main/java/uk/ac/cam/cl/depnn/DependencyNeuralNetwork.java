@@ -40,11 +40,19 @@ public class DependencyNeuralNetwork {
 	private final int W2V_SEED = 42;
 	private final int W2V_WINDOW_SIZE = 5;
 
+	private final int NN_NUM_PROPERTIES = 7;
 	private final int NN_ITERATIONS = 5;
+	private final int NN_HIDDEN_LAYER_SIZE = 200;
 	private final int NN_SEED = 123;
+	private final double NN_LEARNING_RATE = 1e-6;
+	private final double NN_L1_REG = 1e-1;
+	private final double NN_L2_REG = 2e-4;
+	private final double NN_DROPOUT = 0.5;
 
 	private Word2Vec word2vec;
 	private MultiLayerNetwork network;
+
+	// private final static Logger logger = LogManager.getLogger(DependencyNeuralNetwork.class);
 
 	public Word2Vec getWord2Vec() {
 		return word2vec;
@@ -91,51 +99,45 @@ public class DependencyNeuralNetwork {
 			WordVectorSerializer.writeFullModel(word2vec, modelFile);
 	}
 
-	public void trainNetwork(String dependenciesDir) {
-		int numInput = word2vec.getLayerSize() * 2;
+	public void trainNetwork(String dependenciesDir) throws IOException, InterruptedException {
+		int numInput = W2V_LAYER_SIZE * NN_NUM_PROPERTIES;
 		int numOutput = 2;
 
 		Nd4j.MAX_SLICES_TO_PRINT = -1;
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
 
-		DataSet train = null;
-
-		try {
-			train = importData(dependenciesDir);
-		} catch (Exception e) {
-			System.err.println(e);
-			// implement better exception handling!
-			return;
-		}
+		DataSet train = importData(dependenciesDir);
 
 		train.normalizeZeroMeanZeroUnitVariance();
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-				.seed(NN_SEED) // Locks in weight initialization for tuning
-				.iterations(NN_ITERATIONS) // # training iterations predict/classify & backprop
-				.learningRate(1e-6f) // Optimization step size
-				.optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT) // Backprop to calculate gradients
-				.l1(1e-1).regularization(true).l2(2e-4)
+				.seed(NN_SEED)
+				.iterations(NN_ITERATIONS)
+				.learningRate(NN_LEARNING_RATE)
+				.optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT)
+				.l1(NN_L1_REG)
+				.regularization(true)
+				.l2(NN_L2_REG)
 				.useDropConnect(true)
-				.list(2) // # NN layers (doesn't count input layer)
+				.list(2)
 				.layer(0, new RBM.Builder(RBM.HiddenUnit.RECTIFIED, RBM.VisibleUnit.GAUSSIAN)
-								.nIn(numInput) // # input nodes
-								.nOut(3) // # fully connected hidden layer nodes. Add list if multiple layers.
-								.weightInit(WeightInit.XAVIER) // Weight initialization
+								.nIn(numInput)
+								.nOut(NN_HIDDEN_LAYER_SIZE)
+								.weightInit(WeightInit.XAVIER)
 								.k(1) // # contrastive divergence iterations
-								.activation("relu") // Activation function type
-								.lossFunction( LossFunctions.LossFunction.RMSE_XENT) // Loss function type
+								.activation("relu")
+								.lossFunction(LossFunctions.LossFunction.RMSE_XENT)
 								.updater(Updater.ADAGRAD)
-								.dropOut(0.5)
+								.dropOut(NN_DROPOUT)
 								.build()
-				) // NN layer type
+				)
 				.layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
-								.nIn(3) // # input nodes
-								.nOut(numOutput) // # output nodes
+								.nIn(NN_HIDDEN_LAYER_SIZE)
+								.nOut(numOutput)
 								.activation("softmax")
 								.build()
-				) // NN layer type
+				)
 				.build();
 
 		network = new MultiLayerNetwork(conf);
@@ -148,18 +150,49 @@ public class DependencyNeuralNetwork {
 		ModelUtils.saveModelAndParameters(network, new File(configJsonFile), coefficientsFile);
 	}
 
-	public int predict(String head, String dependent) {
-		return network.predict(makeVector(head, dependent))[0];
+	public int predict(String head,
+                       String category,
+                       String slot,
+                       String dependent,
+                       String distance,
+                       String headPos,
+                       String dependentPos) {
+		return network.predict(makeVector(head,
+									category,
+									slot,
+									dependent,
+									distance,
+									headPos,
+									dependentPos))[0];
 	}
 
-	private INDArray makeVector(String head, String dependent) {
+	private INDArray makeVector(String head,
+	                            String category,
+	                            String slot,
+	                            String dependent,
+	                            String distance,
+	                            String headPos,
+	                            String dependentPos) {
 		INDArray headVector = word2vec.getWordVectorMatrix(head);
 		INDArray dependentVector = word2vec.getWordVectorMatrix(dependent);
 
-		return Nd4j.concat(1, headVector, dependentVector);
+		// to use another embedding space
+		INDArray categoryVector = word2vec.getWordVectorMatrix(category);
+		INDArray slotVector = word2vec.getWordVectorMatrix(slot);
+		INDArray distanceVector = word2vec.getWordVectorMatrix(distance);
+		INDArray headPosVector = word2vec.getWordVectorMatrix(headPos);
+		INDArray dependentPosVector= word2vec.getWordVectorMatrix(dependentPos);
+
+		return Nd4j.concat(1, headVector,
+							categoryVector,
+							slotVector,
+							dependentVector,
+							distanceVector,
+							headPosVector,
+							dependentPosVector);
 	}
 
-	private DataSet importData(String dependenciesDir) throws FileNotFoundException, IOException, InterruptedException {
+	private DataSet importData(String dependenciesDir) throws IOException, InterruptedException {
 		RecordReader recordReader = new CSVRecordReader(0, " ");
 		recordReader.initialize(new FileSplit(new ClassPathResource(dependenciesDir).getFile()));
 
@@ -170,7 +203,7 @@ public class DependencyNeuralNetwork {
 			numRecords++;
 		}
 
-		INDArray deps = new NDArray(numRecords, word2vec.getLayerSize() * 2);
+		INDArray deps = new NDArray(numRecords, W2V_LAYER_SIZE * NN_NUM_PROPERTIES);
 		INDArray labels = new NDArray(numRecords, 2);
 
 		int i = 0;
@@ -178,14 +211,23 @@ public class DependencyNeuralNetwork {
 		while ( recordReader.hasNext() ) {
 			ArrayList<Writable> record = (ArrayList<Writable>) recordReader.next();
 
+			// head category slot dependent distance head_pos dependent_pos value count
 			String head = record.get(0).toString();
-			String dependent = record.get(1).toString();
-			int value = Integer.parseInt(record.get(2).toString());
+			String category = record.get(1).toString();
+			String slot = record.get(2).toString();
+			String dependent = record.get(3).toString();
+			String distance = record.get(4).toString();
+			String headPos = record.get(5).toString();
+			String dependentPos = record.get(6).toString();
 
+			int value = Integer.parseInt(record.get(7).toString());
+
+			// make label for labels matrix
 			NDArray label = new NDArray(1, 2);
 			label.putScalar(value, 1);
 
-			INDArray dep = makeVector(head, dependent);
+			// make dep for deps matrix
+			INDArray dep = makeVector(head, category, slot, dependent, distance, headPos, dependentPos);
 
 			deps.putRow(i, dep);
 			labels.putRow(i, label);
