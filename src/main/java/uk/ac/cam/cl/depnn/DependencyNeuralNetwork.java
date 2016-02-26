@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.canova.api.records.reader.RecordReader;
 import org.canova.api.records.reader.impl.CSVRecordReader;
@@ -41,6 +42,7 @@ public class DependencyNeuralNetwork {
 	private final int W2V_WINDOW_SIZE = 5;
 
 	private final int NN_NUM_PROPERTIES = 7;
+	private final int NN_BATCH_SIZE = 1000;
 	private final int NN_ITERATIONS = 5;
 	private final int NN_HIDDEN_LAYER_SIZE = 200;
 	private final int NN_SEED = 123;
@@ -105,11 +107,9 @@ public class DependencyNeuralNetwork {
 
 		Nd4j.MAX_SLICES_TO_PRINT = -1;
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
-
-		DataSet train = importData(dependenciesDir);
-
-		train.normalizeZeroMeanZeroUnitVariance();
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
+
+		List<DataSet> train = importData(dependenciesDir).batchBy(NN_BATCH_SIZE);
 
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
 				.seed(NN_SEED)
@@ -143,7 +143,10 @@ public class DependencyNeuralNetwork {
 		network = new MultiLayerNetwork(conf);
 		network.init();
 
-		network.fit(train);
+		for ( DataSet trainBatch: train ) {
+			trainBatch.normalizeZeroMeanZeroUnitVariance();
+			network.fit(trainBatch);
+		}
 	}
 
 	public void serializeNetwork(String configJsonFile, String coefficientsFile) throws IOException {
