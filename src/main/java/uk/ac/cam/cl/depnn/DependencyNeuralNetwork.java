@@ -19,6 +19,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.conf.layers.RBM;
+import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -32,6 +33,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 import uk.ac.cam.cl.depnn.utils.ModelUtils;
 
 public class DependencyNeuralNetwork {
@@ -50,6 +52,11 @@ public class DependencyNeuralNetwork {
 	private final double NN_L1_REG = 1e-1;
 	private final double NN_L2_REG = 2e-4;
 	private final double NN_DROPOUT = 0.5;
+
+	private Embeddings catEmbeddings;
+	private Embeddings slotEmbeddings;
+	private Embeddings distEmbeddings;
+	private Embeddings posEmbeddings;
 
 	private Word2Vec word2vec;
 	private MultiLayerNetwork network;
@@ -72,6 +79,10 @@ public class DependencyNeuralNetwork {
 	public DependencyNeuralNetwork(Word2Vec word2vec, String configJsonFile, String coefficientsFile) throws IOException {
 		this.word2vec = word2vec;
 		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
+	}
+
+	public DependencyNeuralNetwork(String modelFile) {
+		word2vec = WordVectorSerializer.loadFullModel(modelFile);
 	}
 
 	public DependencyNeuralNetwork() {
@@ -98,7 +109,7 @@ public class DependencyNeuralNetwork {
 	}
 
 	public void serializeWord2Vec(String modelFile) {
-			WordVectorSerializer.writeFullModel(word2vec, modelFile);
+		WordVectorSerializer.writeFullModel(word2vec, modelFile);
 	}
 
 	public void trainNetwork(String dependenciesDir) throws IOException, InterruptedException {
@@ -143,9 +154,14 @@ public class DependencyNeuralNetwork {
 		network = new MultiLayerNetwork(conf);
 		network.init();
 
+		// need to invent a DataSetIterator
+		// next DataSet needs to use the updated embeddings!
 		for ( DataSet trainBatch: train ) {
 			trainBatch.normalizeZeroMeanZeroUnitVariance();
 			network.fit(trainBatch);
+
+			Gradient gradient = network.gradient();
+			// update non-word embeddings
 		}
 	}
 
@@ -180,11 +196,11 @@ public class DependencyNeuralNetwork {
 		INDArray dependentVector = word2vec.getWordVectorMatrix(dependent);
 
 		// to use another embedding space
-		INDArray categoryVector = word2vec.getWordVectorMatrix(category);
-		INDArray slotVector = word2vec.getWordVectorMatrix(slot);
-		INDArray distanceVector = word2vec.getWordVectorMatrix(distance);
-		INDArray headPosVector = word2vec.getWordVectorMatrix(headPos);
-		INDArray dependentPosVector= word2vec.getWordVectorMatrix(dependentPos);
+		INDArray categoryVector = catEmbeddings.getINDArray(category);
+		INDArray slotVector = slotEmbeddings.getINDArray(slot);
+		INDArray distanceVector = distEmbeddings.getINDArray(distance);
+		INDArray headPosVector = posEmbeddings.getINDArray(headPos);
+		INDArray dependentPosVector= posEmbeddings.getINDArray(dependentPos);
 
 		return Nd4j.concat(1, headVector,
 							categoryVector,
