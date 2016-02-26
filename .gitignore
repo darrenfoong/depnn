@@ -1,6 +1,7 @@
 logs
 src/main/resources
 target
+dependency-reduced-pom.xml
 .classpath
 .project
 .settings
