@@ -120,7 +120,7 @@ public class DependencyNeuralNetwork {
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-		List<DataSet> train = importData(dependenciesDir).batchBy(NN_BATCH_SIZE);
+		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, dependenciesDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, NN_NUM_PROPERTIES);
 
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
 				.seed(NN_SEED)
@@ -154,9 +154,8 @@ public class DependencyNeuralNetwork {
 		network = new MultiLayerNetwork(conf);
 		network.init();
 
-		// need to invent a DataSetIterator
-		// next DataSet needs to use the updated embeddings!
-		for ( DataSet trainBatch: train ) {
+		while ( iter.hasNext() ) {
+			DataSet trainBatch = iter.next();
 			trainBatch.normalizeZeroMeanZeroUnitVariance();
 			network.fit(trainBatch);
 
@@ -185,7 +184,7 @@ public class DependencyNeuralNetwork {
 									dependentPos))[0];
 	}
 
-	private INDArray makeVector(String head,
+	protected INDArray makeVector(String head,
 	                            String category,
 	                            String slot,
 	                            String dependent,
@@ -209,52 +208,5 @@ public class DependencyNeuralNetwork {
 							distanceVector,
 							headPosVector,
 							dependentPosVector);
-	}
-
-	private DataSet importData(String dependenciesDir) throws IOException, InterruptedException {
-		RecordReader recordReader = new CSVRecordReader(0, " ");
-		recordReader.initialize(new FileSplit(new ClassPathResource(dependenciesDir).getFile()));
-
-		int numRecords = 0;
-
-		while ( recordReader.hasNext() ) {
-			recordReader.next();
-			numRecords++;
-		}
-
-		INDArray deps = new NDArray(numRecords, W2V_LAYER_SIZE * NN_NUM_PROPERTIES);
-		INDArray labels = new NDArray(numRecords, 2);
-
-		int i = 0;
-
-		while ( recordReader.hasNext() ) {
-			ArrayList<Writable> record = (ArrayList<Writable>) recordReader.next();
-
-			// head category slot dependent distance head_pos dependent_pos value count
-			String head = record.get(0).toString();
-			String category = record.get(1).toString();
-			String slot = record.get(2).toString();
-			String dependent = record.get(3).toString();
-			String distance = record.get(4).toString();
-			String headPos = record.get(5).toString();
-			String dependentPos = record.get(6).toString();
-
-			int value = Integer.parseInt(record.get(7).toString());
-
-			// make label for labels matrix
-			NDArray label = new NDArray(1, 2);
-			label.putScalar(value, 1);
-
-			// make dep for deps matrix
-			INDArray dep = makeVector(head, category, slot, dependent, distance, headPos, dependentPos);
-
-			deps.putRow(i, dep);
-			labels.putRow(i, label);
-			i++;
-		}
-
-		recordReader.close();
-
-		return new DataSet(deps, labels);
 	}
 }
