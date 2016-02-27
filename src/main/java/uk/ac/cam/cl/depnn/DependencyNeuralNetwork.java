@@ -202,4 +202,14 @@ public class DependencyNeuralNetwork {
 							headPosVector,
 							dependentPosVector);
 	}
+
+	public void serializeEmbeddings(String catEmbeddingsFile,
+	                                String slotEmbeddingsFile,
+	                                String distEmbeddingsFile,
+	                                String posEmbeddingsFile) throws IOException {
+		catEmbeddings.serializeEmbeddings(catEmbeddingsFile);
+		slotEmbeddings.serializeEmbeddings(slotEmbeddingsFile);
+		distEmbeddings.serializeEmbeddings(distEmbeddingsFile);
+		posEmbeddings.serializeEmbeddings(posEmbeddingsFile);
+	}
 }
