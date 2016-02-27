@@ -1,6 +1,12 @@
 package uk.ac.cam.cl.depnn.embeddings;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -10,14 +16,63 @@ public class Embeddings {
 	private HashMap<String, Integer> map;
 	private double[][] embeddings;
 
-	public Embeddings(String embeddingsFile) {
+	public Embeddings(String embeddingsFile) throws IOException {
 		int numEmbeddings = 0;
 		int sizeEmbeddings = 0;
+		int count = 0;
 
-		// read embeddings
-		// embedding 0 is the UNK embedding
+		try ( BufferedReader in = new BufferedReader(new FileReader(embeddingsFile)) ) {
+			// first pass to count numEmbeddings and sizeEmbeddings
+			String line = in.readLine();
+			sizeEmbeddings = line.split(" ").length - 1;
+			numEmbeddings++;
 
-		embeddings = new double[numEmbeddings][sizeEmbeddings];
+			while ( in.readLine() != null ) {
+				numEmbeddings++;
+			}
+
+			embeddings = new double[numEmbeddings][sizeEmbeddings];
+
+			in.reset();
+
+			// second pass to read embeddings
+			while ( (line = in.readLine()) != null ) {
+				String[] lineSplit = line.split(" ");
+				map.put(lineSplit[0], count);
+
+				for ( int i = 0; i < sizeEmbeddings; i++ ) {
+					embeddings[count][0] = Double.parseDouble(lineSplit[1+i]);
+				}
+
+				count++;
+			}
+		} catch ( IOException e ) {
+			throw e;
+		}
+	}
+
+	public void serializeEmbeddings(String embeddingsFile) throws IOException {
+		try ( PrintWriter out = new PrintWriter(new FileWriter(embeddingsFile)) ) {
+			String[] keys = new String[embeddings.length];
+
+			// get mapping from values to keys
+			for ( Map.Entry<String, Integer> entry : map.entrySet() ) {
+				keys[entry.getValue()] = entry.getKey();
+			}
+
+			for ( int i = 0; i < embeddings.length; i++ ) {
+				StringBuilder outBuilder = new StringBuilder(keys[i]);
+
+				for ( int j = 0; j < embeddings[i].length; j++ ) {
+					outBuilder.append(embeddings[i][j]);
+					outBuilder.append(" ");
+				}
+
+				out.println(outBuilder.toString());
+			}
+		} catch ( IOException e ) {
+			throw e;
+		}
 	}
 
 	public void randomWeights(double randomRange) {
