@@ -20,6 +20,14 @@ public class Embeddings {
 		embeddings = new double[numEmbeddings][sizeEmbeddings];
 	}
 
+	public void randomWeights(double randomRange) {
+		for ( int i = 0; i < embeddings.length; i++ ) {
+			for ( int j = 0; j < embeddings[i].length; j++ ) {
+				embeddings[i][j] = Math.random() * 2 * randomRange - randomRange;
+			}
+		}
+	}
+
 	public double[] getArray(String key) {
 		if ( map.containsKey(key) ) {
 			return embeddings[map.get(key)].clone();
