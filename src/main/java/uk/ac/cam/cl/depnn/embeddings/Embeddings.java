@@ -6,15 +6,35 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 public class Embeddings {
 	private final static int UNK = 0;
+	private final static String UNK_STRING = "_UNK_";
 
 	private HashMap<String, Integer> map;
 	private double[][] embeddings;
+
+	public Embeddings(HashSet<String> lexicon, int sizeEmbeddings, double randomRange) {
+		int numEmbeddings = lexicon.size() + 1;
+
+		embeddings = new double[numEmbeddings][sizeEmbeddings];
+
+		// starts from 1 because of UNK
+		Iterator<String> iter = lexicon.iterator();
+
+		map.put(UNK_STRING, 0);
+
+		for ( int count = 1; count < numEmbeddings; count++ ) {
+			map.put(iter.next(), count);
+		}
+
+		randomWeights(randomRange);
+	}
 
 	public Embeddings(String embeddingsFile) throws IOException {
 		int numEmbeddings = 0;
@@ -75,7 +95,7 @@ public class Embeddings {
 		}
 	}
 
-	public void randomWeights(double randomRange) {
+	private void randomWeights(double randomRange) {
 		for ( int i = 0; i < embeddings.length; i++ ) {
 			for ( int j = 0; j < embeddings[i].length; j++ ) {
 				embeddings[i][j] = Math.random() * 2 * randomRange - randomRange;

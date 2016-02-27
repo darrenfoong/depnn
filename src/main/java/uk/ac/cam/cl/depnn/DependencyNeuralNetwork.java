@@ -45,6 +45,7 @@ public class DependencyNeuralNetwork {
 	private final double NN_L1_REG = 1e-1;
 	private final double NN_L2_REG = 2e-4;
 	private final double NN_DROPOUT = 0.5;
+	private final double NN_EMBED_RANDOM_RANGE = 0.01;
 
 	private Embeddings catEmbeddings;
 	private Embeddings slotEmbeddings;
@@ -64,21 +65,29 @@ public class DependencyNeuralNetwork {
 		return network;
 	}
 
-	public DependencyNeuralNetwork(String modelFile, String configJsonFile, String coefficientsFile) throws IOException {
-		word2vec = WordVectorSerializer.loadFullModel(modelFile);
-		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
-	}
-
-	public DependencyNeuralNetwork(Word2Vec word2vec, String configJsonFile, String coefficientsFile) throws IOException {
-		this.word2vec = word2vec;
-		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
+	// training
+	public DependencyNeuralNetwork() {
 	}
 
 	public DependencyNeuralNetwork(String modelFile) {
 		word2vec = WordVectorSerializer.loadFullModel(modelFile);
 	}
 
-	public DependencyNeuralNetwork() {
+	// running
+	public DependencyNeuralNetwork(String modelFile,
+	                               String configJsonFile,
+	                               String coefficientsFile,
+	                               String catEmbeddingsFile,
+	                               String slotEmbeddingsFile,
+	                               String distEmbeddingsFile,
+	                               String posEmbeddingsFile) throws IOException {
+		word2vec = WordVectorSerializer.loadFullModel(modelFile);
+		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
+
+		catEmbeddings = new Embeddings(catEmbeddingsFile);
+		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
+		distEmbeddings = new Embeddings(distEmbeddingsFile);
+		posEmbeddings = new Embeddings(posEmbeddingsFile);
 	}
 
 	public void trainWord2Vec(String sentencesFile) throws FileNotFoundException {
@@ -114,6 +123,11 @@ public class DependencyNeuralNetwork {
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
 		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, dependenciesDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, NN_NUM_PROPERTIES);
+
+		catEmbeddings = new Embeddings(iter.getCatLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
+		slotEmbeddings = new Embeddings(iter.getSlotLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
+		distEmbeddings = new Embeddings(iter.getDistLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
+		posEmbeddings = new Embeddings(iter.getPosLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
 
 		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
 				.seed(NN_SEED)
@@ -153,7 +167,7 @@ public class DependencyNeuralNetwork {
 			network.fit(trainBatch);
 
 			Gradient gradient = network.gradient();
-			// update non-word embeddings
+			// TODO: update non-word embeddings
 		}
 	}
 

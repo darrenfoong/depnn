@@ -2,6 +2,7 @@ package uk.ac.cam.cl.depnn;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -31,6 +32,11 @@ public class DependencyDataSetIterator implements Iterator<DataSet> {
 	private LinkedList<ArrayList<Writable>> correctDeps = new LinkedList<ArrayList<Writable>>();
 	private LinkedList<ArrayList<Writable>> incorrectDeps = new LinkedList<ArrayList<Writable>>();
 
+	private HashSet<String> catLexicon = new HashSet<String>();
+	private HashSet<String> slotLexicon = new HashSet<String>();
+	private HashSet<String> distLexicon = new HashSet<String>();
+	private HashSet<String> posLexicon = new HashSet<String>();
+
 	private DataSet next;
 
 	private boolean dataSetRead = false;
@@ -50,9 +56,38 @@ public class DependencyDataSetIterator implements Iterator<DataSet> {
 		readAll();
 	}
 
+	public HashSet<String> getCatLexicon() {
+		return catLexicon;
+	}
+
+	public HashSet<String> getSlotLexicon() {
+		return slotLexicon;
+	}
+
+	public HashSet<String> getDistLexicon() {
+		return distLexicon;
+	}
+
+	public HashSet<String> getPosLexicon() {
+		return posLexicon;
+	}
+
 	private void readAll() throws IOException {
 		while ( recordReader.hasNext() ) {
 			ArrayList<Writable> record = (ArrayList<Writable>) recordReader.next();
+
+			String category = record.get(1).toString();
+			String slot = record.get(2).toString();
+			String distance = record.get(4).toString();
+			String headPos = record.get(5).toString();
+			String dependentPos = record.get(6).toString();
+
+			catLexicon.add(category);
+			slotLexicon.add(slot);
+			distLexicon.add(distance);
+			posLexicon.add(headPos);
+			posLexicon.add(dependentPos);
+
 			int value = Integer.parseInt(record.get(7).toString());
 
 			if ( value == 0 ) {
