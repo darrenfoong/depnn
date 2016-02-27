@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -97,9 +98,10 @@ public class Embeddings {
 	}
 
 	private void randomWeights(double randomRange) {
+		Random random = new Random();
 		for ( int i = 0; i < embeddings.length; i++ ) {
 			for ( int j = 0; j < embeddings[i].length; j++ ) {
-				embeddings[i][j] = Math.random() * 2 * randomRange - randomRange;
+				embeddings[i][j] = random.nextDouble() * 2 * randomRange - randomRange;
 			}
 		}
 	}
