@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 public class Embeddings {
 	private final static int UNK = 0;
@@ -112,8 +113,7 @@ public class Embeddings {
 	}
 
 	public INDArray getINDArray(String key) {
-		double[] array = getArray(key);
-		return null;
+		return Nd4j.create(getArray(key));
 	}
 
 	public void setEmbedding(String key, double[] embedding) {
@@ -123,7 +123,12 @@ public class Embeddings {
 	}
 
 	public void setEmbedding(String key, INDArray embedding) {
-		double[] array = {0.0};
+		double[] array = new double[embedding.length()];
+
+		for ( int i = 0; i < embedding.length(); i++ ) {
+			array[i] = embedding.getDouble(i);
+		}
+
 		setEmbedding(key, array);
 	}
 }
