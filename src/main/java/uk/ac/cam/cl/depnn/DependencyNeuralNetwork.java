@@ -11,8 +11,8 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
-import org.deeplearning4j.nn.conf.layers.RBM;
 import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -133,19 +133,17 @@ public class DependencyNeuralNetwork {
 				.seed(NN_SEED)
 				.iterations(NN_ITERATIONS)
 				.learningRate(NN_LEARNING_RATE)
-				.optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT)
-				.l1(NN_L1_REG)
+				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
 				.regularization(true)
+				.l1(NN_L1_REG)
 				.l2(NN_L2_REG)
 				.useDropConnect(true)
 				.list(2)
-				.layer(0, new RBM.Builder(RBM.HiddenUnit.RECTIFIED, RBM.VisibleUnit.GAUSSIAN)
+				.layer(0, new DenseLayer.Builder()
 								.nIn(numInput)
 								.nOut(NN_HIDDEN_LAYER_SIZE)
-								.weightInit(WeightInit.XAVIER)
-								.k(1) // # contrastive divergence iterations
 								.activation("relu")
-								.lossFunction(LossFunctions.LossFunction.RMSE_XENT)
+								.weightInit(WeightInit.XAVIER)
 								.updater(Updater.ADAGRAD)
 								.dropOut(NN_DROPOUT)
 								.build()
@@ -154,6 +152,7 @@ public class DependencyNeuralNetwork {
 								.nIn(NN_HIDDEN_LAYER_SIZE)
 								.nOut(numOutput)
 								.activation("softmax")
+								.weightInit(WeightInit.XAVIER)
 								.build()
 				)
 				.build();
