@@ -3,8 +3,12 @@ package uk.ac.cam.cl.depnn;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.canova.api.util.ClassPathResource;
+import org.canova.api.writable.Writable;
+import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -155,18 +159,25 @@ public class DependencyNeuralNetwork {
 								.weightInit(WeightInit.XAVIER)
 								.build()
 				)
+				.pretrain(false)
+				.backprop(true)
 				.build();
 
 		network = new MultiLayerNetwork(conf);
 		network.init();
 
 		while ( iter.hasNext() ) {
-			DataSet trainBatch = iter.next();
+			Pair<DataSet, List<ArrayList<Writable>>> next = iter.next();
+			DataSet trainBatch = next.getFirst();
+			List<ArrayList<Writable>> trainList = next.getSecond();
+
 			trainBatch.normalizeZeroMeanZeroUnitVariance();
 			network.fit(trainBatch);
 
-			Gradient gradient = network.gradient();
+			// INDArray epsilon = network.epsilon()
 			// TODO: update non-word embeddings
+			// for each training example in epsilon:
+			//   update embeddings using epsilons
 		}
 	}
 

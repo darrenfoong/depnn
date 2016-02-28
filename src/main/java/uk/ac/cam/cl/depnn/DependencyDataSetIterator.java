@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,11 +15,12 @@ import org.canova.api.records.reader.impl.CSVRecordReader;
 import org.canova.api.split.FileSplit;
 import org.canova.api.util.ClassPathResource;
 import org.canova.api.writable.Writable;
+import org.deeplearning4j.berkeley.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
-public class DependencyDataSetIterator implements Iterator<DataSet> {
+public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<ArrayList<Writable>>>> {
 	private final DependencyNeuralNetwork depnn;
 
 	private final RecordReader recordReader;
@@ -29,6 +31,7 @@ public class DependencyDataSetIterator implements Iterator<DataSet> {
 	private final int W2V_LAYER_SIZE;
 	private final int NN_NUM_PROPERTIES;
 
+	// LinkedLists used here because require only inserts and removes at ends
 	private LinkedList<ArrayList<Writable>> correctDeps = new LinkedList<ArrayList<Writable>>();
 	private LinkedList<ArrayList<Writable>> incorrectDeps = new LinkedList<ArrayList<Writable>>();
 
@@ -37,7 +40,8 @@ public class DependencyDataSetIterator implements Iterator<DataSet> {
 	private HashSet<String> distLexicon = new HashSet<String>();
 	private HashSet<String> posLexicon = new HashSet<String>();
 
-	private DataSet next;
+	private DataSet nextDataSet;
+	private List<ArrayList<Writable>> nextList;
 
 	private boolean dataSetRead = false;
 
@@ -157,7 +161,8 @@ public class DependencyDataSetIterator implements Iterator<DataSet> {
 			logger.error(e);
 		}
 
-		next = new DataSet(deps, labels);
+		nextDataSet = new DataSet(deps, labels);
+		nextList = depsInBatch;
 	}
 
 	@Override
@@ -167,21 +172,21 @@ public class DependencyDataSetIterator implements Iterator<DataSet> {
 			dataSetRead = true;
 		}
 
-		return next != null;
+		return nextDataSet != null;
 	}
 
 	@Override
-	public DataSet next() {
+	public Pair<DataSet, List<ArrayList<Writable>>> next() {
 		if ( !dataSetRead ) {
 			readDataSet();
 			dataSetRead = true;
 		}
 
-		if ( next == null ) {
+		if ( nextDataSet == null ) {
 			throw new NoSuchElementException();
 		} else {
 			dataSetRead = false;
-			return next;
+			return new Pair<DataSet, List<ArrayList<Writable>>>(nextDataSet, nextList);
 		}
 	}
 
