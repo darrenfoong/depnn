@@ -18,7 +18,7 @@ public class Embeddings {
 	private final static int UNK = 0;
 	private final static String UNK_STRING = "_UNK_";
 
-	private HashMap<String, Integer> map;
+	private HashMap<String, Integer> map = new HashMap<String, Integer>();
 	private double[][] embeddings;
 
 	public Embeddings(HashSet<String> lexicon, int sizeEmbeddings, double randomRange) {
