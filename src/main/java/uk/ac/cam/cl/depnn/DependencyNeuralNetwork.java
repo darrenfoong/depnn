@@ -17,7 +17,6 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
-import org.deeplearning4j.nn.gradient.Gradient;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -142,7 +141,7 @@ public class DependencyNeuralNetwork {
 				.l1(NN_L1_REG)
 				.l2(NN_L2_REG)
 				.useDropConnect(true)
-				.list(2)
+				.list()
 				.layer(0, new DenseLayer.Builder()
 								.nIn(numInput)
 								.nOut(NN_HIDDEN_LAYER_SIZE)
@@ -174,10 +173,18 @@ public class DependencyNeuralNetwork {
 			trainBatch.normalizeZeroMeanZeroUnitVariance();
 			network.fit(trainBatch);
 
-			// INDArray epsilon = network.epsilon()
-			// TODO: update non-word embeddings
-			// for each training example in epsilon:
-			//   update embeddings using epsilons
+			INDArray epsilon = network.epsilon();
+
+			for ( int i = 0; i < epsilon.rows(); i++ ) {
+				INDArray errors = epsilon.getRow(i);
+				ArrayList<Writable> record = trainList.get(i);
+
+				catEmbeddings.addEmbedding(record.get(1).toString(), errors, 1 * W2V_LAYER_SIZE);
+				slotEmbeddings.addEmbedding(record.get(2).toString(), errors, 2 * W2V_LAYER_SIZE);
+				distEmbeddings.addEmbedding(record.get(4).toString(), errors, 4 * W2V_LAYER_SIZE);
+				posEmbeddings.addEmbedding(record.get(5).toString(), errors, 5 * W2V_LAYER_SIZE);
+				posEmbeddings.addEmbedding(record.get(6).toString(), errors , 6 * W2V_LAYER_SIZE);
+			}
 		}
 	}
 
@@ -211,7 +218,6 @@ public class DependencyNeuralNetwork {
 		INDArray headVector = word2vec.getWordVectorMatrix(head);
 		INDArray dependentVector = word2vec.getWordVectorMatrix(dependent);
 
-		// to use another embedding space
 		INDArray categoryVector = catEmbeddings.getINDArray(category);
 		INDArray slotVector = slotEmbeddings.getINDArray(slot);
 		INDArray distanceVector = distEmbeddings.getINDArray(distance);
