@@ -86,10 +86,11 @@ public class TrainNetwork {
 
 		try {
 			depnn.trainWord2Vec(sentencesFile);
-			depnn.trainNetwork(dependenciesDir);
 
 			logger.info("Serializing word2vec to " + modelFile);
 			depnn.serializeWord2Vec(modelFile);
+
+			depnn.trainNetwork(dependenciesDir);
 
 			logger.info("Serializing network to " + configJsonFile + ", " + coefficientsFile);
 			depnn.serializeNetwork(configJsonFile, coefficientsFile);
