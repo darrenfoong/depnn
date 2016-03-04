@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.canova.api.util.ClassPathResource;
 import org.canova.api.writable.Writable;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.eval.Evaluation;
@@ -125,9 +124,7 @@ public class DependencyNeuralNetwork {
 	public void trainWord2Vec(String sentencesFile) throws FileNotFoundException {
 		logger.info("Training word2vec using " + sentencesFile);
 
-		String filePath = new ClassPathResource(sentencesFile).getFile().getAbsolutePath();
-
-		SentenceIterator iter = new BasicLineIterator(filePath);
+		SentenceIterator iter = new BasicLineIterator(sentencesFile);
 		TokenizerFactory t = new DefaultTokenizerFactory();
 		t.setTokenPreProcessor(new CommonPreprocessor());
 

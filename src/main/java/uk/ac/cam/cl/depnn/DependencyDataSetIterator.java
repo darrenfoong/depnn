@@ -1,5 +1,6 @@
 package uk.ac.cam.cl.depnn;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.canova.api.records.reader.RecordReader;
 import org.canova.api.records.reader.impl.CSVRecordReader;
 import org.canova.api.split.FileSplit;
-import org.canova.api.util.ClassPathResource;
 import org.canova.api.writable.Writable;
 import org.deeplearning4j.berkeley.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -51,7 +51,7 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 		this.depnn = depnn;
 
 		this.recordReader = new CSVRecordReader(0, " ");
-		recordReader.initialize(new FileSplit(new ClassPathResource(dependenciesDir).getFile()));
+		recordReader.initialize(new FileSplit(new File(dependenciesDir)));
 
 		this.batchSize = batchSize;
 		this.W2V_LAYER_SIZE = W2V_LAYER_SIZE;
