@@ -58,16 +58,6 @@ public class Params {
 		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
 
-		return optionParser;
-	}
-
-	public static OptionParser getTestNetworkOptionParser() {
-		OptionParser optionParser = getBaseOptionParser();
-
-		optionParser.accepts("testDir").withRequiredArg().ofType(String.class).required();
-		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
-		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
-
 		optionParser.accepts("w2vMinWordFreq").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_MIN_WORD_FREQUENCY);
 		optionParser.accepts("w2vIterations").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_ITERATIONS);
 		optionParser.accepts("w2vLayerSize").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_LAYER_SIZE);
@@ -84,6 +74,16 @@ public class Params {
 		optionParser.accepts("nnL2Reg").withRequiredArg().ofType(Double.class).defaultsTo(NN_L2_REG);
 		optionParser.accepts("nnDropout").withRequiredArg().ofType(Double.class).defaultsTo(NN_DROPOUT);
 		optionParser.accepts("nnEmbedRandomRange").withRequiredArg().ofType(Double.class).defaultsTo(NN_EMBED_RANDOM_RANGE);
+
+		return optionParser;
+	}
+
+	public static OptionParser getTestNetworkOptionParser() {
+		OptionParser optionParser = getBaseOptionParser();
+
+		optionParser.accepts("testDir").withRequiredArg().ofType(String.class).required();
+		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
+		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
 
 		return optionParser;
 	}
