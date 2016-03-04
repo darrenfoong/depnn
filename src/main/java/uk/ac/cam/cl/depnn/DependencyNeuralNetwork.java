@@ -36,22 +36,22 @@ import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 import uk.ac.cam.cl.depnn.utils.ModelUtils;
 
 public class DependencyNeuralNetwork {
-	private final int W2V_MIN_WORD_FREQUENCY = 5;
-	private final int W2V_ITERATIONS = 1;
-	private final int W2V_LAYER_SIZE = 100;
-	private final int W2V_SEED = 42;
-	private final int W2V_WINDOW_SIZE = 5;
+	private int W2V_MIN_WORD_FREQUENCY;
+	private int W2V_ITERATIONS;
+	private int W2V_LAYER_SIZE;
+	private int W2V_SEED;
+	private int W2V_WINDOW_SIZE;
 
-	private final int NN_NUM_PROPERTIES = 7;
-	private final int NN_BATCH_SIZE = 1000;
-	private final int NN_ITERATIONS = 5;
-	private final int NN_HIDDEN_LAYER_SIZE = 200;
-	private final int NN_SEED = 123;
-	private final double NN_LEARNING_RATE = 1e-6;
-	private final double NN_L1_REG = 1e-1;
-	private final double NN_L2_REG = 2e-4;
-	private final double NN_DROPOUT = 0.5;
-	private final double NN_EMBED_RANDOM_RANGE = 0.01;
+	private int NN_NUM_PROPERTIES;
+	private int NN_BATCH_SIZE;
+	private int NN_ITERATIONS;
+	private int NN_HIDDEN_LAYER_SIZE;
+	private int NN_SEED;
+	private double NN_LEARNING_RATE;
+	private double NN_L1_REG;
+	private double NN_L2_REG;
+	private double NN_DROPOUT;
+	private double NN_EMBED_RANDOM_RANGE;
 
 	private Embeddings catEmbeddings;
 	private Embeddings slotEmbeddings;
@@ -72,11 +72,37 @@ public class DependencyNeuralNetwork {
 	}
 
 	// training
-	public DependencyNeuralNetwork() {
-	}
+	public DependencyNeuralNetwork(int w2vMinWordFreq,
+	                               int w2vIterations,
+	                               int w2vLayerSize,
+	                               int w2vSeed,
+	                               int w2vWindowSize,
+	                               int nnNumProperties,
+	                               int nnBatchSize,
+	                               int nnIterations,
+	                               int nnHiddenLayerSize,
+	                               int nnSeed,
+	                               double nnLearningRate,
+	                               double nnL1Reg,
+	                               double nnL2Reg,
+	                               double nnDropout,
+	                               double nnEmbedRandomRange) {
+		W2V_MIN_WORD_FREQUENCY = w2vMinWordFreq;
+		W2V_ITERATIONS = w2vIterations;
+		W2V_LAYER_SIZE = w2vLayerSize;
+		W2V_SEED = w2vSeed;
+		W2V_WINDOW_SIZE = w2vWindowSize;
 
-	public DependencyNeuralNetwork(String modelFile) {
-		word2vec = WordVectorSerializer.loadFullModel(modelFile);
+		NN_NUM_PROPERTIES = nnNumProperties;
+		NN_BATCH_SIZE = nnBatchSize;
+		NN_ITERATIONS = nnIterations;
+		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
+		NN_SEED = nnSeed;
+		NN_LEARNING_RATE = nnLearningRate;
+		NN_L1_REG = nnL1Reg;
+		NN_L2_REG = nnL2Reg;
+		NN_DROPOUT = nnDropout;
+		NN_EMBED_RANDOM_RANGE = nnEmbedRandomRange;
 	}
 
 	// running
