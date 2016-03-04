@@ -65,6 +65,7 @@ public class TrainNetwork {
 
 		logger.info(Params.printOptions(options));
 
+		logger.info("Initializing network");
 		DependencyNeuralNetwork depnn = new DependencyNeuralNetwork(
 											w2vMinWordFreq,
 											w2vIterations,
@@ -81,13 +82,22 @@ public class TrainNetwork {
 											nnL2Reg,
 											nnDropout,
 											nnEmbedRandomRange);
+		logger.info("Network initialized");
 
 		try {
 			depnn.trainWord2Vec(sentencesFile);
 			depnn.trainNetwork(dependenciesDir);
 
+			logger.info("Serializing word2vec to " + modelFile);
 			depnn.serializeWord2Vec(modelFile);
+
+			logger.info("Serializing network to " + configJsonFile + ", " + coefficientsFile);
 			depnn.serializeNetwork(configJsonFile, coefficientsFile);
+
+			logger.info("Serializing embeddings to " + catEmbeddingsFile + ", "
+													 + slotEmbeddingsFile + ", "
+													 + distEmbeddingsFile + ", "
+													 + posEmbeddingsFile);
 			depnn.serializeEmbeddings(catEmbeddingsFile, slotEmbeddingsFile, distEmbeddingsFile, posEmbeddingsFile);
 		} catch ( Exception e ) {
 			logger.info(e);

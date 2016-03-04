@@ -48,6 +48,7 @@ public class TestNetwork {
 		logger.info(Params.printOptions(options));
 
 		try {
+			logger.info("Initializing network");
 			DependencyNeuralNetwork depnn = new DependencyNeuralNetwork(modelFile,
 												configJsonFile,
 												coefficientsFile,
@@ -55,6 +56,8 @@ public class TestNetwork {
 												slotEmbeddingsFile,
 												distEmbeddingsFile,
 												posEmbeddingsFile);
+			logger.info("Network initialized");
+
 			depnn.testNetwork(testDir);
 		} catch ( Exception e ) {
 			logger.info(e);

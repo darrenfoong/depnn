@@ -118,6 +118,10 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 			incorrectDepsPerBatch = batchSize - correctDepsPerBatch;
 		}
 
+		logger.info("Number of correct deps: " + numCorrectDeps);
+		logger.info("Number of incorrect deps: " + numIncorrectDeps);
+		logger.info("All deps read");
+
 		recordReader.close();
 	}
 

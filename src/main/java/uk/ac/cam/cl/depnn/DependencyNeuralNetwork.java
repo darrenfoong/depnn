@@ -123,6 +123,8 @@ public class DependencyNeuralNetwork {
 	}
 
 	public void trainWord2Vec(String sentencesFile) throws FileNotFoundException {
+		logger.info("Training word2vec using " + sentencesFile);
+
 		String filePath = new ClassPathResource(sentencesFile).getFile().getAbsolutePath();
 
 		SentenceIterator iter = new BasicLineIterator(filePath);
@@ -140,6 +142,8 @@ public class DependencyNeuralNetwork {
 				.build();
 
 		word2vec.fit();
+
+		logger.info("word2vec training complete");
 	}
 
 	public void serializeWord2Vec(String modelFile) {
@@ -147,6 +151,8 @@ public class DependencyNeuralNetwork {
 	}
 
 	public void trainNetwork(String dependenciesDir) throws IOException, InterruptedException {
+		logger.info("Training network using " + dependenciesDir);
+
 		int numInput = W2V_LAYER_SIZE * NN_NUM_PROPERTIES;
 		int numOutput = 2;
 
@@ -194,13 +200,19 @@ public class DependencyNeuralNetwork {
 		network = new MultiLayerNetwork(conf);
 		network.init();
 
+		int batchCount = 1;
+
 		while ( iter.hasNext() ) {
+			logger.info("Training batch " + batchCount);
+
 			Pair<DataSet, List<ArrayList<Writable>>> next = iter.next();
 			DataSet trainBatch = next.getFirst();
 			List<ArrayList<Writable>> trainList = next.getSecond();
 
 			trainBatch.normalizeZeroMeanZeroUnitVariance();
 			network.fit(trainBatch);
+
+			logger.info("Network updated");
 
 			INDArray epsilon = network.epsilon();
 
@@ -214,20 +226,31 @@ public class DependencyNeuralNetwork {
 				posEmbeddings.addEmbedding(record.get(5).toString(), errors, 5 * W2V_LAYER_SIZE);
 				posEmbeddings.addEmbedding(record.get(6).toString(), errors , 6 * W2V_LAYER_SIZE);
 			}
+
+			logger.info("Embeddings updated");
+
+			batchCount++;
 		}
+
+		logger.info("Network training complete");
 	}
 
 	public void testNetwork(String testDir) throws IOException, InterruptedException {
+		logger.info("Testing network using " + testDir);
+
 		Evaluation eval = new Evaluation();
 
 		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, testDir, 0, W2V_LAYER_SIZE, NN_NUM_PROPERTIES);
 
 		DataSet test = iter.next().getFirst();
 
+		logger.info("Number of test examples: " + test.numExamples());
+
 		INDArray predictions = network.output(test.getFeatureMatrix());
 		eval.eval(test.getLabels(), predictions);
 
 		logger.info(eval.stats());
+		logger.info("Network testing complete");
 	}
 
 	public void serializeNetwork(String configJsonFile, String coefficientsFile) throws IOException {
