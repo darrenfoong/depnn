@@ -6,3 +6,6 @@ dependency-reduced-pom.xml
 .project
 .settings
 *.tar.gz
+Makefile
+train
+test
