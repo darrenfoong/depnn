@@ -6,9 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.canova.api.util.ClassPathResource;
 import org.canova.api.writable.Writable;
 import org.deeplearning4j.berkeley.Pair;
+import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -58,7 +61,7 @@ public class DependencyNeuralNetwork {
 	private Word2Vec word2vec;
 	private MultiLayerNetwork network;
 
-	// private final static Logger logger = LogManager.getLogger(DependencyNeuralNetwork.class);
+	private final static Logger logger = LogManager.getLogger(DependencyNeuralNetwork.class);
 
 	public Word2Vec getWord2Vec() {
 		return word2vec;
@@ -186,6 +189,19 @@ public class DependencyNeuralNetwork {
 				posEmbeddings.addEmbedding(record.get(6).toString(), errors , 6 * W2V_LAYER_SIZE);
 			}
 		}
+	}
+
+	public void testNetwork(String testDir) throws IOException, InterruptedException {
+		Evaluation eval = new Evaluation();
+
+		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, testDir, 0, W2V_LAYER_SIZE, NN_NUM_PROPERTIES);
+
+		DataSet test = iter.next().getFirst();
+
+		INDArray predictions = network.output(test.getFeatureMatrix());
+		eval.eval(test.getLabels(), predictions);
+
+		logger.info(eval.stats());
 	}
 
 	public void serializeNetwork(String configJsonFile, String coefficientsFile) throws IOException {

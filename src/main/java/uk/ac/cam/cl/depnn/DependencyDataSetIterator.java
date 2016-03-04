@@ -110,8 +110,13 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 		int totalDeps = numCorrectDeps + numIncorrectDeps;
 		double ratio = ((double) numCorrectDeps)/((double) totalDeps);
 
-		correctDepsPerBatch = (int) (ratio * batchSize);
-		incorrectDepsPerBatch = batchSize - correctDepsPerBatch;
+		if ( batchSize == 0 ) {
+			correctDepsPerBatch = numCorrectDeps;
+			incorrectDepsPerBatch = numIncorrectDeps;
+		} else {
+			correctDepsPerBatch = (int) (ratio * batchSize);
+			incorrectDepsPerBatch = batchSize - correctDepsPerBatch;
+		}
 
 		recordReader.close();
 	}
