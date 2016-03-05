@@ -52,12 +52,15 @@ public class Embeddings {
 			while ( in.readLine() != null ) {
 				numEmbeddings++;
 			}
+		} catch ( IOException e ) {
+			throw e;
+		}
 
+		try ( BufferedReader in = new BufferedReader(new FileReader(embeddingsFile)) ) {
 			embeddings = new double[numEmbeddings][sizeEmbeddings];
 
-			in.reset();
-
 			// second pass to read embeddings
+			String line;
 			while ( (line = in.readLine()) != null ) {
 				String[] lineSplit = line.split(" ");
 				map.put(lineSplit[0], count);
@@ -84,6 +87,7 @@ public class Embeddings {
 
 			for ( int i = 0; i < embeddings.length; i++ ) {
 				StringBuilder outBuilder = new StringBuilder(keys[i]);
+				outBuilder.append(" ");
 
 				for ( int j = 0; j < embeddings[i].length; j++ ) {
 					outBuilder.append(embeddings[i][j]);
