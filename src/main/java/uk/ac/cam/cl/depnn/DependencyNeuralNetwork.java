@@ -41,7 +41,7 @@ public class DependencyNeuralNetwork {
 	private int W2V_SEED;
 	private int W2V_WINDOW_SIZE;
 
-	private int NN_NUM_PROPERTIES;
+	private int NN_NUM_PROPERTIES = 7;
 	private int NN_BATCH_SIZE;
 	private int NN_ITERATIONS;
 	private int NN_HIDDEN_LAYER_SIZE;
@@ -78,7 +78,6 @@ public class DependencyNeuralNetwork {
 	                               int w2vLayerSize,
 	                               int w2vSeed,
 	                               int w2vWindowSize,
-	                               int nnNumProperties,
 	                               int nnBatchSize,
 	                               int nnIterations,
 	                               int nnHiddenLayerSize,
@@ -95,7 +94,6 @@ public class DependencyNeuralNetwork {
 		W2V_SEED = w2vSeed;
 		W2V_WINDOW_SIZE = w2vWindowSize;
 
-		NN_NUM_PROPERTIES = nnNumProperties;
 		NN_BATCH_SIZE = nnBatchSize;
 		NN_ITERATIONS = nnIterations;
 		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
@@ -121,7 +119,6 @@ public class DependencyNeuralNetwork {
 		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
 
 		W2V_LAYER_SIZE = word2vec.getLayerSize();
-		NN_NUM_PROPERTIES = 7;
 
 		catEmbeddings = new Embeddings(catEmbeddingsFile);
 		slotEmbeddings = new Embeddings(slotEmbeddingsFile);

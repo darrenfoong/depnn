@@ -48,7 +48,6 @@ public class TrainNetwork {
 		int w2vSeed = (Integer) options.valueOf("w2vSeed");
 		int w2vWindowSize = (Integer) options.valueOf("w2vWindowSize");
 
-		int nnNumProperties = (Integer) options.valueOf("nnNumProperties");
 		int nnBatchSize = (Integer) options.valueOf("nnBatchSize");
 		int nnIterations = (Integer) options.valueOf("nnIterations");
 		int nnHiddenLayerSize = (Integer) options.valueOf("nnHiddenLayerSize");
@@ -74,7 +73,6 @@ public class TrainNetwork {
 											w2vLayerSize,
 											w2vSeed,
 											w2vWindowSize,
-											nnNumProperties,
 											nnBatchSize,
 											nnIterations,
 											nnHiddenLayerSize,

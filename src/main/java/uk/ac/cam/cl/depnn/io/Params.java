@@ -14,7 +14,6 @@ public class Params {
 	private final static int W2V_SEED = 42;
 	private final static int W2V_WINDOW_SIZE = 5;
 
-	private final static int NN_NUM_PROPERTIES = 7;
 	private final static int NN_BATCH_SIZE = 1000;
 	private final static int NN_ITERATIONS = 5;
 	private final static int NN_HIDDEN_LAYER_SIZE = 200;
@@ -64,7 +63,6 @@ public class Params {
 		optionParser.accepts("w2vSeed").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_SEED);
 		optionParser.accepts("w2vWindowSize").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_WINDOW_SIZE);
 
-		optionParser.accepts("nnNumProperties").withRequiredArg().ofType(Integer.class).defaultsTo(NN_NUM_PROPERTIES);
 		optionParser.accepts("nnBatchSize").withRequiredArg().ofType(Integer.class).defaultsTo(NN_BATCH_SIZE);
 		optionParser.accepts("nnIterations").withRequiredArg().ofType(Integer.class).defaultsTo(NN_ITERATIONS);
 		optionParser.accepts("nnHiddenLayerSize").withRequiredArg().ofType(Integer.class).defaultsTo(NN_HIDDEN_LAYER_SIZE);
