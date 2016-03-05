@@ -27,7 +27,7 @@ public class ModelUtils {
 		dos.close();
 
 		// save model configuration
-		FileUtils.write(confPath, net.conf().toJson());
+		FileUtils.write(confPath, net.getLayerWiseConfigurations().toJson());
 	}
 
 	public static MultiLayerNetwork loadModelAndParameters(File confPath, String paramPath) throws IOException {
