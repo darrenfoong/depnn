@@ -104,7 +104,7 @@ public class TrainNetwork {
 													 + posEmbeddingsFile);
 			depnn.serializeEmbeddings(catEmbeddingsFile, slotEmbeddingsFile, distEmbeddingsFile, posEmbeddingsFile);
 		} catch ( Exception e ) {
-			logger.info(e);
+			logger.error("Exception", e);
 		}
 	}
 }

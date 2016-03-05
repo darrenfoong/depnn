@@ -60,7 +60,7 @@ public class TestNetwork {
 
 			depnn.testNetwork(testDir);
 		} catch ( Exception e ) {
-			logger.info(e);
+			logger.error("Exception", e);
 		}
 	}
 }
