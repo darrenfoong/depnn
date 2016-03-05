@@ -139,6 +139,7 @@ public class DependencyNeuralNetwork {
 				.layerSize(W2V_LAYER_SIZE)
 				.seed(W2V_SEED)
 				.windowSize(W2V_WINDOW_SIZE)
+				.useUnknown(true)
 				.iterate(iter)
 				.tokenizerFactory(t)
 				.build();
