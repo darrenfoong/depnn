@@ -52,6 +52,8 @@ public class DependencyNeuralNetwork {
 	private double NN_DROPOUT;
 	private double NN_EMBED_RANDOM_RANGE;
 
+	private int maxNumBatch = Integer.MAX_VALUE;
+
 	private Embeddings catEmbeddings;
 	private Embeddings slotEmbeddings;
 	private Embeddings distEmbeddings;
@@ -85,7 +87,8 @@ public class DependencyNeuralNetwork {
 	                               double nnL1Reg,
 	                               double nnL2Reg,
 	                               double nnDropout,
-	                               double nnEmbedRandomRange) {
+	                               double nnEmbedRandomRange,
+	                               int maxNumBatch) {
 		W2V_MIN_WORD_FREQUENCY = w2vMinWordFreq;
 		W2V_ITERATIONS = w2vIterations;
 		W2V_LAYER_SIZE = w2vLayerSize;
@@ -102,6 +105,8 @@ public class DependencyNeuralNetwork {
 		NN_L2_REG = nnL2Reg;
 		NN_DROPOUT = nnDropout;
 		NN_EMBED_RANDOM_RANGE = nnEmbedRandomRange;
+
+		this.maxNumBatch = maxNumBatch;
 	}
 
 	// running
@@ -199,7 +204,7 @@ public class DependencyNeuralNetwork {
 
 		int batchCount = 1;
 
-		while ( iter.hasNext() ) {
+		while ( iter.hasNext() && batchCount <= maxNumBatch ) {
 			logger.info("Training batch " + batchCount);
 
 			Pair<DataSet, List<ArrayList<Writable>>> next = iter.next();

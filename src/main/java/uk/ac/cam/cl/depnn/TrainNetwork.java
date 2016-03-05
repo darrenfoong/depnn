@@ -59,6 +59,8 @@ public class TrainNetwork {
 		double nnDropout = (Double) options.valueOf("nnDropout");
 		double nnEmbedRandomRange = (Double) options.valueOf("nnEmbedRandomRange");
 
+		int maxNumBatch = (Integer) options.valueOf("maxNumBatch");
+
 		System.setProperty("logLevel", options.has("verbose") ? "trace" : "info");
 		System.setProperty("logFile", logFile);
 		final Logger logger = LogManager.getLogger(TrainNetwork.class);
@@ -81,7 +83,8 @@ public class TrainNetwork {
 											nnL1Reg,
 											nnL2Reg,
 											nnDropout,
-											nnEmbedRandomRange);
+											nnEmbedRandomRange,
+											maxNumBatch);
 		logger.info("Network initialized");
 
 		try {

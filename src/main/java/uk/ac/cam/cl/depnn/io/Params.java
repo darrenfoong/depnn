@@ -75,6 +75,8 @@ public class Params {
 		optionParser.accepts("nnDropout").withRequiredArg().ofType(Double.class).defaultsTo(NN_DROPOUT);
 		optionParser.accepts("nnEmbedRandomRange").withRequiredArg().ofType(Double.class).defaultsTo(NN_EMBED_RANDOM_RANGE);
 
+		optionParser.accepts("maxNumBatch").withRequiredArg().ofType(Integer.class).defaultsTo(Integer.MAX_VALUE);
+
 		return optionParser;
 	}
 
