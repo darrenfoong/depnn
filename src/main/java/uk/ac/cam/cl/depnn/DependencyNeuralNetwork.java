@@ -120,6 +120,9 @@ public class DependencyNeuralNetwork {
 		word2vec = WordVectorSerializer.loadFullModel(modelFile);
 		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
 
+		W2V_LAYER_SIZE = word2vec.getLayerSize();
+		NN_NUM_PROPERTIES = 7;
+
 		catEmbeddings = new Embeddings(catEmbeddingsFile);
 		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
 		distEmbeddings = new Embeddings(distEmbeddingsFile);
@@ -249,7 +252,7 @@ public class DependencyNeuralNetwork {
 
 		logger.info("Number of test examples: " + test.numExamples());
 
-		INDArray predictions = network.output(test.getFeatureMatrix());
+		INDArray predictions = network.output(test.getFeatures());
 		eval.eval(test.getLabels(), predictions);
 
 		logger.info(eval.stats());
