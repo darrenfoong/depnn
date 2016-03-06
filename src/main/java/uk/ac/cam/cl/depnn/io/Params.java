@@ -11,14 +11,14 @@ public class Params {
 	private final static int W2V_SEED = 42;
 	private final static int W2V_ITERATIONS = 5;
 	private final static int W2V_BATCH_SIZE = 1000;
-	private final static int W2V_LAYER_SIZE = 100;
+	private final static int W2V_LAYER_SIZE = 300;
 	private final static int W2V_WINDOW_SIZE = 5;
 	private final static int W2V_MIN_WORD_FREQUENCY = 5;
 	private final static int W2V_NEGATIVE_SAMPLE = 10;
 	private final static double W2V_LEARNING_RATE = 0.025;
 
 	private final static int NN_BATCH_SIZE = 1000;
-	private final static int NN_ITERATIONS = 10;
+	private final static int NN_ITERATIONS = 100;
 	private final static int NN_HIDDEN_LAYER_SIZE = 200;
 	private final static int NN_SEED = 123;
 	private final static double NN_LEARNING_RATE = 1e-6;
