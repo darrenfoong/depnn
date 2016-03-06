@@ -33,6 +33,11 @@ public class TrainNetwork {
 		String dependenciesDir = (String) options.valueOf("dependenciesDir");
 		String modelDir = (String) options.valueOf("modelDir");
 		String logFile = (String) options.valueOf("log");
+		String prevModelFile = null;
+
+		if ( options.has("prevModel") ) {
+			prevModelFile = (String) options.valueOf("prevModel");
+		}
 
 		String modelFile = modelDir + "/word2vec.model";
 		String configJsonFile = modelDir + "/config.json";
@@ -69,30 +74,52 @@ public class TrainNetwork {
 
 		logger.info(Params.printOptions(options));
 
-		logger.info("Initializing network");
-		DependencyNeuralNetwork depnn = new DependencyNeuralNetwork(
-											w2vSeed,
-											w2vIterations,
-											w2vBatchSize,
-											w2vLayerSize,
-											w2vWindowSize,
-											w2vMinWordFreq,
-											w2vNegativeSample,
-											w2vLearningRate,
-											nnSeed,
-											nnIterations,
-											nnBatchSize,
-											nnHiddenLayerSize,
-											nnLearningRate,
-											nnL1Reg,
-											nnL2Reg,
-											nnDropout,
-											nnEmbedRandomRange,
-											maxNumBatch);
-		logger.info("Network initialized");
-
 		try {
-			depnn.trainWord2Vec(sentencesFile);
+			DependencyNeuralNetwork depnn;
+
+			logger.info("Initializing network");
+
+			if ( prevModelFile == null ) {
+				depnn = new DependencyNeuralNetwork(
+													w2vSeed,
+													w2vIterations,
+													w2vBatchSize,
+													w2vLayerSize,
+													w2vWindowSize,
+													w2vMinWordFreq,
+													w2vNegativeSample,
+													w2vLearningRate,
+													nnSeed,
+													nnIterations,
+													nnBatchSize,
+													nnHiddenLayerSize,
+													nnLearningRate,
+													nnL1Reg,
+													nnL2Reg,
+													nnDropout,
+													nnEmbedRandomRange,
+													maxNumBatch);
+			} else {
+				logger.info("Using previous word2vec model: " + prevModelFile);
+				depnn = new DependencyNeuralNetwork(
+													prevModelFile,
+													nnSeed,
+													nnIterations,
+													nnBatchSize,
+													nnHiddenLayerSize,
+													nnLearningRate,
+													nnL1Reg,
+													nnL2Reg,
+													nnDropout,
+													nnEmbedRandomRange,
+													maxNumBatch);
+			}
+
+			logger.info("Network initialized");
+
+			if ( prevModelFile == null ) {
+				depnn.trainWord2Vec(sentencesFile);
+			}
 
 			logger.info("Serializing word2vec to " + modelFile);
 			depnn.serializeWord2Vec(modelFile);

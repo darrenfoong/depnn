@@ -118,6 +118,34 @@ public class DependencyNeuralNetwork {
 		this.maxNumBatch = maxNumBatch;
 	}
 
+	public DependencyNeuralNetwork(String prevModelFile,
+	                               int nnSeed,
+	                               int nnIterations,
+	                               int nnBatchSize,
+	                               int nnHiddenLayerSize,
+	                               double nnLearningRate,
+	                               double nnL1Reg,
+	                               double nnL2Reg,
+	                               double nnDropout,
+	                               double nnEmbedRandomRange,
+	                               int maxNumBatch) throws IOException {
+		word2vec = WordVectorSerializer.loadFullModel(prevModelFile);
+
+		W2V_LAYER_SIZE = word2vec.getLayerSize();
+
+		NN_BATCH_SIZE = nnBatchSize;
+		NN_ITERATIONS = nnIterations;
+		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
+		NN_SEED = nnSeed;
+		NN_LEARNING_RATE = nnLearningRate;
+		NN_L1_REG = nnL1Reg;
+		NN_L2_REG = nnL2Reg;
+		NN_DROPOUT = nnDropout;
+		NN_EMBED_RANDOM_RANGE = nnEmbedRandomRange;
+
+		this.maxNumBatch = maxNumBatch;
+	}
+
 	// running
 	public DependencyNeuralNetwork(String modelFile,
 	                               String configJsonFile,

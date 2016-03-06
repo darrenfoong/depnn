@@ -59,6 +59,7 @@ public class Params {
 		optionParser.accepts("dependenciesDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
+		optionParser.accepts("prevModel").withRequiredArg().ofType(String.class);
 
 		optionParser.accepts("w2vSeed").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_SEED);
 		optionParser.accepts("w2vIterations").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_ITERATIONS);
