@@ -119,10 +119,9 @@ public class TrainNetwork {
 
 			if ( prevModelFile == null ) {
 				depnn.trainWord2Vec(sentencesFile);
+				logger.info("Serializing word2vec to " + modelFile);
+				depnn.serializeWord2Vec(modelFile);
 			}
-
-			logger.info("Serializing word2vec to " + modelFile);
-			depnn.serializeWord2Vec(modelFile);
 
 			depnn.trainNetwork(dependenciesDir);
 

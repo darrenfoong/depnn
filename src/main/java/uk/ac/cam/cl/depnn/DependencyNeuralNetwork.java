@@ -129,9 +129,7 @@ public class DependencyNeuralNetwork {
 	                               double nnDropout,
 	                               double nnEmbedRandomRange,
 	                               int maxNumBatch) throws IOException {
-		word2vec = WordVectorSerializer.loadFullModel(prevModelFile);
-
-		W2V_LAYER_SIZE = word2vec.getLayerSize();
+		word2vec = loadWord2Vec(prevModelFile);
 
 		NN_BATCH_SIZE = nnBatchSize;
 		NN_ITERATIONS = nnIterations;
@@ -154,15 +152,25 @@ public class DependencyNeuralNetwork {
 	                               String slotEmbeddingsFile,
 	                               String distEmbeddingsFile,
 	                               String posEmbeddingsFile) throws IOException {
-		word2vec = WordVectorSerializer.loadFullModel(modelFile);
+		word2vec = loadWord2Vec(modelFile);
 		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
-
-		W2V_LAYER_SIZE = word2vec.getLayerSize();
 
 		catEmbeddings = new Embeddings(catEmbeddingsFile);
 		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
 		distEmbeddings = new Embeddings(distEmbeddingsFile);
 		posEmbeddings = new Embeddings(posEmbeddingsFile);
+	}
+
+	protected Word2Vec loadWord2Vec(String modelFile) throws IOException {
+		if ( modelFile.endsWith(".bin") ) {
+			Word2Vec w2v = (Word2Vec) WordVectorSerializer.loadGoogleModel(new File(modelFile), true);
+			W2V_LAYER_SIZE = w2v.getLookupTable().layerSize();
+			return w2v;
+		} else {
+			Word2Vec w2v = WordVectorSerializer.loadFullModel(modelFile);
+			W2V_LAYER_SIZE = w2v.getLayerSize();
+			return w2v;
+		}
 	}
 
 	public void trainWord2Vec(String sentencesFile) throws FileNotFoundException {

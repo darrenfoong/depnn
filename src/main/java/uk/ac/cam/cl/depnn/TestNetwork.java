@@ -32,8 +32,14 @@ public class TestNetwork {
 		String testDir = (String) options.valueOf("testDir");
 		String modelDir = (String) options.valueOf("modelDir");
 		String logFile = (String) options.valueOf("log");
+		String modelFile = null;
 
-		String modelFile = modelDir + "/word2vec.model";
+		if ( options.has("prevModel") ) {
+			modelFile = (String) options.valueOf("prevModel");
+		} else {
+			modelFile = modelDir + "/word2vec.model";
+		}
+
 		String configJsonFile = modelDir + "/config.json";
 		String coefficientsFile = modelDir + "/coeffs";
 		String catEmbeddingsFile = modelDir + "/cat.emb";
