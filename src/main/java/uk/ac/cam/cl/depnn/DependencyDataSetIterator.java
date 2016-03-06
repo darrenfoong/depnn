@@ -120,6 +120,8 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 
 		logger.info("Number of correct deps: " + numCorrectDeps);
 		logger.info("Number of incorrect deps: " + numIncorrectDeps);
+		logger.info("Number of correct deps per batch: " + correctDepsPerBatch);
+		logger.info("Number of incorrect deps per batch: " + incorrectDepsPerBatch);
 		logger.info("All deps read");
 
 		recordReader.close();
@@ -134,6 +136,12 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 
 		for ( int i = 0; i < incorrectDepsPerBatch && !incorrectDeps.isEmpty(); i++ ) {
 			depsInBatch.add(incorrectDeps.remove());
+		}
+
+		if ( depsInBatch.isEmpty() ) {
+			nextDataSet = null;
+			nextList = null;
+			return;
 		}
 
 		INDArray deps = new NDArray(depsInBatch.size(), W2V_LAYER_SIZE * NN_NUM_PROPERTIES);
