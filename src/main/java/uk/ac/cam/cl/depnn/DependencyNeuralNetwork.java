@@ -35,17 +35,22 @@ import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 import uk.ac.cam.cl.depnn.utils.ModelUtils;
 
 public class DependencyNeuralNetwork {
-	private int W2V_MIN_WORD_FREQUENCY;
-	private int W2V_ITERATIONS;
-	private int W2V_LAYER_SIZE;
 	private int W2V_SEED;
+	private int W2V_ITERATIONS;
+	private int W2V_BATCH_SIZE;
+	private int W2V_LAYER_SIZE;
 	private int W2V_WINDOW_SIZE;
+	private int W2V_MIN_WORD_FREQUENCY;
+	private int W2V_NEGATIVE_SAMPLE;
+
+	private double W2V_LEARNING_RATE;
 
 	private int NN_NUM_PROPERTIES = 7;
-	private int NN_BATCH_SIZE;
-	private int NN_ITERATIONS;
-	private int NN_HIDDEN_LAYER_SIZE;
 	private int NN_SEED;
+	private int NN_ITERATIONS;
+	private int NN_BATCH_SIZE;
+	private int NN_HIDDEN_LAYER_SIZE;
+
 	private double NN_LEARNING_RATE;
 	private double NN_L1_REG;
 	private double NN_L2_REG;
@@ -73,26 +78,32 @@ public class DependencyNeuralNetwork {
 	}
 
 	// training
-	public DependencyNeuralNetwork(int w2vMinWordFreq,
+	public DependencyNeuralNetwork(int w2vSeed,
 	                               int w2vIterations,
+	                               int w2vBatchSize,
 	                               int w2vLayerSize,
-	                               int w2vSeed,
 	                               int w2vWindowSize,
-	                               int nnBatchSize,
-	                               int nnIterations,
-	                               int nnHiddenLayerSize,
+	                               int w2vMinWordFreq,
+	                               int w2vNegativeSample,
+	                               double w2vLearningRate,
 	                               int nnSeed,
+	                               int nnIterations,
+	                               int nnBatchSize,
+	                               int nnHiddenLayerSize,
 	                               double nnLearningRate,
 	                               double nnL1Reg,
 	                               double nnL2Reg,
 	                               double nnDropout,
 	                               double nnEmbedRandomRange,
 	                               int maxNumBatch) {
-		W2V_MIN_WORD_FREQUENCY = w2vMinWordFreq;
-		W2V_ITERATIONS = w2vIterations;
-		W2V_LAYER_SIZE = w2vLayerSize;
 		W2V_SEED = w2vSeed;
+		W2V_ITERATIONS = w2vIterations;
+		W2V_BATCH_SIZE = w2vBatchSize;
+		W2V_LAYER_SIZE = w2vLayerSize;
 		W2V_WINDOW_SIZE = w2vWindowSize;
+		W2V_MIN_WORD_FREQUENCY = w2vMinWordFreq;
+		W2V_NEGATIVE_SAMPLE = w2vNegativeSample;
+		W2V_LEARNING_RATE = w2vLearningRate;
 
 		NN_BATCH_SIZE = nnBatchSize;
 		NN_ITERATIONS = nnIterations;
@@ -134,11 +145,14 @@ public class DependencyNeuralNetwork {
 		t.setTokenPreProcessor(new CommonPreprocessor());
 
 		word2vec = new Word2Vec.Builder()
-				.minWordFrequency(W2V_MIN_WORD_FREQUENCY)
-				.iterations(W2V_ITERATIONS)
-				.layerSize(W2V_LAYER_SIZE)
 				.seed(W2V_SEED)
+				.iterations(W2V_ITERATIONS)
+				.learningRate(W2V_LEARNING_RATE)
+				.batchSize(W2V_BATCH_SIZE)
+				.layerSize(W2V_LAYER_SIZE)
 				.windowSize(W2V_WINDOW_SIZE)
+				.minWordFrequency(W2V_MIN_WORD_FREQUENCY)
+				.negativeSample(W2V_NEGATIVE_SAMPLE)
 				.useUnknown(true)
 				.iterate(iter)
 				.tokenizerFactory(t)

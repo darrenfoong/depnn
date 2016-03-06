@@ -8,14 +8,17 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 public class Params {
-	private final static int W2V_MIN_WORD_FREQUENCY = 5;
-	private final static int W2V_ITERATIONS = 1;
-	private final static int W2V_LAYER_SIZE = 100;
 	private final static int W2V_SEED = 42;
+	private final static int W2V_ITERATIONS = 5;
+	private final static int W2V_BATCH_SIZE = 1000;
+	private final static int W2V_LAYER_SIZE = 100;
 	private final static int W2V_WINDOW_SIZE = 5;
+	private final static int W2V_MIN_WORD_FREQUENCY = 5;
+	private final static int W2V_NEGATIVE_SAMPLE = 10;
+	private final static double W2V_LEARNING_RATE = 0.025;
 
 	private final static int NN_BATCH_SIZE = 1000;
-	private final static int NN_ITERATIONS = 5;
+	private final static int NN_ITERATIONS = 10;
 	private final static int NN_HIDDEN_LAYER_SIZE = 200;
 	private final static int NN_SEED = 123;
 	private final static double NN_LEARNING_RATE = 1e-6;
@@ -57,16 +60,19 @@ public class Params {
 		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
 
-		optionParser.accepts("w2vMinWordFreq").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_MIN_WORD_FREQUENCY);
-		optionParser.accepts("w2vIterations").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_ITERATIONS);
-		optionParser.accepts("w2vLayerSize").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_LAYER_SIZE);
 		optionParser.accepts("w2vSeed").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_SEED);
+		optionParser.accepts("w2vIterations").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_ITERATIONS);
+		optionParser.accepts("w2vBatchSize").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_BATCH_SIZE);
+		optionParser.accepts("w2vLayerSize").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_LAYER_SIZE);
 		optionParser.accepts("w2vWindowSize").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_WINDOW_SIZE);
+		optionParser.accepts("w2vMinWordFreq").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_MIN_WORD_FREQUENCY);
+		optionParser.accepts("w2vNegativeSample").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_NEGATIVE_SAMPLE);
+		optionParser.accepts("w2vLearningRate").withRequiredArg().ofType(Double.class).defaultsTo(W2V_LEARNING_RATE);
 
-		optionParser.accepts("nnBatchSize").withRequiredArg().ofType(Integer.class).defaultsTo(NN_BATCH_SIZE);
-		optionParser.accepts("nnIterations").withRequiredArg().ofType(Integer.class).defaultsTo(NN_ITERATIONS);
-		optionParser.accepts("nnHiddenLayerSize").withRequiredArg().ofType(Integer.class).defaultsTo(NN_HIDDEN_LAYER_SIZE);
 		optionParser.accepts("nnSeed").withRequiredArg().ofType(Integer.class).defaultsTo(NN_SEED);
+		optionParser.accepts("nnIterations").withRequiredArg().ofType(Integer.class).defaultsTo(NN_ITERATIONS);
+		optionParser.accepts("nnBatchSize").withRequiredArg().ofType(Integer.class).defaultsTo(NN_BATCH_SIZE);
+		optionParser.accepts("nnHiddenLayerSize").withRequiredArg().ofType(Integer.class).defaultsTo(NN_HIDDEN_LAYER_SIZE);
 		optionParser.accepts("nnLearningRate").withRequiredArg().ofType(Double.class).defaultsTo(NN_LEARNING_RATE);
 		optionParser.accepts("nnL1Reg").withRequiredArg().ofType(Double.class).defaultsTo(NN_L1_REG);
 		optionParser.accepts("nnL2Reg").withRequiredArg().ofType(Double.class).defaultsTo(NN_L2_REG);

@@ -42,16 +42,19 @@ public class TrainNetwork {
 		String distEmbeddingsFile = modelDir + "/dist.emb";
 		String posEmbeddingsFile = modelDir + "/pos.emb";
 
-		int w2vMinWordFreq = (Integer) options.valueOf("w2vMinWordFreq");
-		int w2vIterations = (Integer) options.valueOf("w2vIterations");
-		int w2vLayerSize = (Integer) options.valueOf("w2vLayerSize");
 		int w2vSeed = (Integer) options.valueOf("w2vSeed");
+		int w2vIterations = (Integer) options.valueOf("w2vIterations");
+		int w2vBatchSize = (Integer) options.valueOf("w2vBatchSize");
+		int w2vLayerSize = (Integer) options.valueOf("w2vLayerSize");
 		int w2vWindowSize = (Integer) options.valueOf("w2vWindowSize");
+		int w2vMinWordFreq = (Integer) options.valueOf("w2vMinWordFreq");
+		int w2vNegativeSample = (Integer) options.valueOf("w2vNegativeSample");
+		double w2vLearningRate = (Double) options.valueOf("w2vLearningRate");
 
-		int nnBatchSize = (Integer) options.valueOf("nnBatchSize");
-		int nnIterations = (Integer) options.valueOf("nnIterations");
-		int nnHiddenLayerSize = (Integer) options.valueOf("nnHiddenLayerSize");
 		int nnSeed = (Integer) options.valueOf("nnSeed");
+		int nnIterations = (Integer) options.valueOf("nnIterations");
+		int nnBatchSize = (Integer) options.valueOf("nnBatchSize");
+		int nnHiddenLayerSize = (Integer) options.valueOf("nnHiddenLayerSize");
 		double nnLearningRate = (Double) options.valueOf("nnLearningRate");
 		double nnL1Reg = (Double) options.valueOf("nnL1Reg");
 		double nnL2Reg = (Double) options.valueOf("nnL2Reg");
@@ -68,15 +71,18 @@ public class TrainNetwork {
 
 		logger.info("Initializing network");
 		DependencyNeuralNetwork depnn = new DependencyNeuralNetwork(
-											w2vMinWordFreq,
-											w2vIterations,
-											w2vLayerSize,
 											w2vSeed,
+											w2vIterations,
+											w2vBatchSize,
+											w2vLayerSize,
 											w2vWindowSize,
-											nnBatchSize,
-											nnIterations,
-											nnHiddenLayerSize,
+											w2vMinWordFreq,
+											w2vNegativeSample,
+											w2vLearningRate,
 											nnSeed,
+											nnIterations,
+											nnBatchSize,
+											nnHiddenLayerSize,
 											nnLearningRate,
 											nnL1Reg,
 											nnL2Reg,
