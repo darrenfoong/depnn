@@ -45,6 +45,9 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 
 	private boolean dataSetRead = false;
 
+	private Iterator<ArrayList<Writable>> correctIter;
+	private Iterator<ArrayList<Writable>> incorrectIter;
+
 	public static final Logger logger = LogManager.getLogger(DependencyDataSetIterator.class);
 
 	public DependencyDataSetIterator(DependencyNeuralNetwork depnn, String dependenciesDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES) throws IOException, InterruptedException {
@@ -124,18 +127,25 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 		logger.info("Number of incorrect deps per batch: " + incorrectDepsPerBatch);
 		logger.info("All deps read");
 
+		reset();
+
 		recordReader.close();
+	}
+
+	public void reset() {
+		correctIter = correctDeps.iterator();
+		incorrectIter = incorrectDeps.iterator();
 	}
 
 	private void readDataSet() {
 		ArrayList<ArrayList<Writable>> depsInBatch = new ArrayList<ArrayList<Writable>>();
 
-		for ( int i = 0; i < correctDepsPerBatch && !correctDeps.isEmpty(); i++ ) {
-			depsInBatch.add(correctDeps.remove());
+		for ( int i = 0; i < correctDepsPerBatch && correctIter.hasNext(); i++ ) {
+			depsInBatch.add(correctIter.next());
 		}
 
-		for ( int i = 0; i < incorrectDepsPerBatch && !incorrectDeps.isEmpty(); i++ ) {
-			depsInBatch.add(incorrectDeps.remove());
+		for ( int i = 0; i < incorrectDepsPerBatch && incorrectIter.hasNext(); i++ ) {
+			depsInBatch.add(incorrectIter.next());
 		}
 
 		if ( depsInBatch.isEmpty() ) {

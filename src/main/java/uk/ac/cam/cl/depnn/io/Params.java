@@ -17,10 +17,11 @@ public class Params {
 	private final static int W2V_NEGATIVE_SAMPLE = 10;
 	private final static double W2V_LEARNING_RATE = 0.025;
 
-	private final static int NN_BATCH_SIZE = 1000;
-	private final static int NN_ITERATIONS = 100;
-	private final static int NN_HIDDEN_LAYER_SIZE = 200;
+	private final static int NN_EPOCHS = 1;
 	private final static int NN_SEED = 123;
+	private final static int NN_ITERATIONS = 100;
+	private final static int NN_BATCH_SIZE = 1000;
+	private final static int NN_HIDDEN_LAYER_SIZE = 200;
 	private final static double NN_LEARNING_RATE = 1e-6;
 	private final static double NN_L1_REG = 1e-1;
 	private final static double NN_L2_REG = 2e-4;
@@ -70,6 +71,7 @@ public class Params {
 		optionParser.accepts("w2vNegativeSample").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_NEGATIVE_SAMPLE);
 		optionParser.accepts("w2vLearningRate").withRequiredArg().ofType(Double.class).defaultsTo(W2V_LEARNING_RATE);
 
+		optionParser.accepts("nnEpochs").withRequiredArg().ofType(Integer.class).defaultsTo(NN_EPOCHS);
 		optionParser.accepts("nnSeed").withRequiredArg().ofType(Integer.class).defaultsTo(NN_SEED);
 		optionParser.accepts("nnIterations").withRequiredArg().ofType(Integer.class).defaultsTo(NN_ITERATIONS);
 		optionParser.accepts("nnBatchSize").withRequiredArg().ofType(Integer.class).defaultsTo(NN_BATCH_SIZE);

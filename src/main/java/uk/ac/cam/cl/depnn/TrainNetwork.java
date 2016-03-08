@@ -56,6 +56,7 @@ public class TrainNetwork {
 		int w2vNegativeSample = (Integer) options.valueOf("w2vNegativeSample");
 		double w2vLearningRate = (Double) options.valueOf("w2vLearningRate");
 
+		int nnEpochs = (Integer) options.valueOf("nnEpochs");
 		int nnSeed = (Integer) options.valueOf("nnSeed");
 		int nnIterations = (Integer) options.valueOf("nnIterations");
 		int nnBatchSize = (Integer) options.valueOf("nnBatchSize");
@@ -89,6 +90,7 @@ public class TrainNetwork {
 													w2vMinWordFreq,
 													w2vNegativeSample,
 													w2vLearningRate,
+													nnEpochs,
 													nnSeed,
 													nnIterations,
 													nnBatchSize,
@@ -103,6 +105,7 @@ public class TrainNetwork {
 				logger.info("Using previous word2vec model: " + prevModelFile);
 				depnn = new DependencyNeuralNetwork(
 													prevModelFile,
+													nnEpochs,
 													nnSeed,
 													nnIterations,
 													nnBatchSize,

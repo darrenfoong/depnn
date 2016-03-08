@@ -46,6 +46,7 @@ public class DependencyNeuralNetwork {
 	private double W2V_LEARNING_RATE;
 
 	private int NN_NUM_PROPERTIES = 7;
+	private int NN_EPOCHS;
 	private int NN_SEED;
 	private int NN_ITERATIONS;
 	private int NN_BATCH_SIZE;
@@ -86,6 +87,7 @@ public class DependencyNeuralNetwork {
 	                               int w2vMinWordFreq,
 	                               int w2vNegativeSample,
 	                               double w2vLearningRate,
+	                               int nnEpochs,
 	                               int nnSeed,
 	                               int nnIterations,
 	                               int nnBatchSize,
@@ -105,10 +107,11 @@ public class DependencyNeuralNetwork {
 		W2V_NEGATIVE_SAMPLE = w2vNegativeSample;
 		W2V_LEARNING_RATE = w2vLearningRate;
 
-		NN_BATCH_SIZE = nnBatchSize;
-		NN_ITERATIONS = nnIterations;
-		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
+		NN_EPOCHS = nnEpochs;
 		NN_SEED = nnSeed;
+		NN_ITERATIONS = nnIterations;
+		NN_BATCH_SIZE = nnBatchSize;
+		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
 		NN_LEARNING_RATE = nnLearningRate;
 		NN_L1_REG = nnL1Reg;
 		NN_L2_REG = nnL2Reg;
@@ -119,6 +122,7 @@ public class DependencyNeuralNetwork {
 	}
 
 	public DependencyNeuralNetwork(String prevModelFile,
+	                               int nnEpochs,
 	                               int nnSeed,
 	                               int nnIterations,
 	                               int nnBatchSize,
@@ -131,10 +135,11 @@ public class DependencyNeuralNetwork {
 	                               int maxNumBatch) throws IOException {
 		word2vec = loadWord2Vec(prevModelFile);
 
-		NN_BATCH_SIZE = nnBatchSize;
-		NN_ITERATIONS = nnIterations;
-		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
+		NN_EPOCHS = nnEpochs;
 		NN_SEED = nnSeed;
+		NN_ITERATIONS = nnIterations;
+		NN_BATCH_SIZE = nnBatchSize;
+		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
 		NN_LEARNING_RATE = nnLearningRate;
 		NN_L1_REG = nnL1Reg;
 		NN_L2_REG = nnL2Reg;
@@ -286,36 +291,40 @@ public class DependencyNeuralNetwork {
 		network = new MultiLayerNetwork(conf);
 		network.init();
 
-		int batchCount = 1;
+		for ( int epochCount = 1; epochCount <= NN_EPOCHS; epochCount++ ) {
+			logger.info("Training epoch " + epochCount);
 
-		while ( iter.hasNext() && batchCount <= maxNumBatch ) {
-			logger.info("Training batch " + batchCount);
+			for ( int batchCount = 1; iter.hasNext() && batchCount <= maxNumBatch; batchCount++ ) {
+				logger.info("Training batch " + epochCount + "/" + batchCount);
 
-			Pair<DataSet, List<ArrayList<Writable>>> next = iter.next();
-			DataSet trainBatch = next.getFirst();
-			List<ArrayList<Writable>> trainList = next.getSecond();
+				Pair<DataSet, List<ArrayList<Writable>>> next = iter.next();
+				DataSet trainBatch = next.getFirst();
+				List<ArrayList<Writable>> trainList = next.getSecond();
 
-			trainBatch.normalizeZeroMeanZeroUnitVariance();
-			network.fit(trainBatch);
+				trainBatch.normalizeZeroMeanZeroUnitVariance();
+				network.fit(trainBatch);
 
-			logger.info("Network updated");
+				logger.info("Network updated");
 
-			INDArray epsilon = network.epsilon();
+				INDArray epsilon = network.epsilon();
 
-			for ( int i = 0; i < epsilon.rows(); i++ ) {
-				INDArray errors = epsilon.getRow(i);
-				ArrayList<Writable> record = trainList.get(i);
+				for ( int i = 0; i < epsilon.rows(); i++ ) {
+					INDArray errors = epsilon.getRow(i);
+					ArrayList<Writable> record = trainList.get(i);
 
-				catEmbeddings.addEmbedding(record.get(1).toString(), errors, 1 * W2V_LAYER_SIZE);
-				slotEmbeddings.addEmbedding(record.get(2).toString(), errors, 2 * W2V_LAYER_SIZE);
-				distEmbeddings.addEmbedding(record.get(4).toString(), errors, 4 * W2V_LAYER_SIZE);
-				posEmbeddings.addEmbedding(record.get(5).toString(), errors, 5 * W2V_LAYER_SIZE);
-				posEmbeddings.addEmbedding(record.get(6).toString(), errors , 6 * W2V_LAYER_SIZE);
+					catEmbeddings.addEmbedding(record.get(1).toString(), errors, 1 * W2V_LAYER_SIZE);
+					slotEmbeddings.addEmbedding(record.get(2).toString(), errors, 2 * W2V_LAYER_SIZE);
+					distEmbeddings.addEmbedding(record.get(4).toString(), errors, 4 * W2V_LAYER_SIZE);
+					posEmbeddings.addEmbedding(record.get(5).toString(), errors, 5 * W2V_LAYER_SIZE);
+					posEmbeddings.addEmbedding(record.get(6).toString(), errors , 6 * W2V_LAYER_SIZE);
+				}
+
+				logger.info("Embeddings updated");
 			}
 
-			logger.info("Embeddings updated");
+			// serialize epoch
 
-			batchCount++;
+			iter.reset();
 		}
 
 		logger.info("Network training complete");
