@@ -39,14 +39,6 @@ public class TrainNetwork {
 			prevModelFile = (String) options.valueOf("prevModel");
 		}
 
-		String modelFile = modelDir + "/word2vec.model";
-		String configJsonFile = modelDir + "/config.json";
-		String coefficientsFile = modelDir + "/coeffs";
-		String catEmbeddingsFile = modelDir + "/cat.emb";
-		String slotEmbeddingsFile = modelDir + "/slot.emb";
-		String distEmbeddingsFile = modelDir + "/dist.emb";
-		String posEmbeddingsFile = modelDir + "/pos.emb";
-
 		int w2vSeed = (Integer) options.valueOf("w2vSeed");
 		int w2vIterations = (Integer) options.valueOf("w2vIterations");
 		int w2vBatchSize = (Integer) options.valueOf("w2vBatchSize");
@@ -122,20 +114,12 @@ public class TrainNetwork {
 
 			if ( prevModelFile == null ) {
 				depnn.trainWord2Vec(sentencesFile);
-				logger.info("Serializing word2vec to " + modelFile);
-				depnn.serializeWord2Vec(modelFile);
+				depnn.serializeWord2Vec(modelDir + "/word2vec.model");
 			}
 
-			depnn.trainNetwork(dependenciesDir);
+			depnn.trainNetwork(dependenciesDir, modelDir);
 
-			logger.info("Serializing network to " + configJsonFile + ", " + coefficientsFile);
-			depnn.serializeNetwork(configJsonFile, coefficientsFile);
-
-			logger.info("Serializing embeddings to " + catEmbeddingsFile + ", "
-													 + slotEmbeddingsFile + ", "
-													 + distEmbeddingsFile + ", "
-													 + posEmbeddingsFile);
-			depnn.serializeEmbeddings(catEmbeddingsFile, slotEmbeddingsFile, distEmbeddingsFile, posEmbeddingsFile);
+			depnn.serialize(modelDir);
 		} catch ( Exception e ) {
 			logger.error("Exception", e);
 		}

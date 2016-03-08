@@ -238,10 +238,11 @@ public class DependencyNeuralNetwork {
 	}
 
 	public void serializeWord2Vec(String modelFile) {
+		logger.info("Serializing word2vec to " + modelFile);
 		WordVectorSerializer.writeFullModel(word2vec, modelFile);
 	}
 
-	public void trainNetwork(String dependenciesDir) throws IOException, InterruptedException {
+	public void trainNetwork(String dependenciesDir, String modelDir) throws IOException, InterruptedException {
 		logger.info("Training network using " + dependenciesDir);
 
 		int numInput = W2V_LAYER_SIZE * NN_NUM_PROPERTIES;
@@ -322,7 +323,7 @@ public class DependencyNeuralNetwork {
 				logger.info("Embeddings updated");
 			}
 
-			// serialize epoch
+			serialize(modelDir + "/epoch" + epochCount + "/");
 
 			iter.reset();
 		}
@@ -349,6 +350,7 @@ public class DependencyNeuralNetwork {
 	}
 
 	public void serializeNetwork(String configJsonFile, String coefficientsFile) throws IOException {
+		logger.info("Serializing network to " + configJsonFile + ", " + coefficientsFile);
 		ModelUtils.saveModelAndParameters(network, new File(configJsonFile), coefficientsFile);
 	}
 
@@ -413,9 +415,25 @@ public class DependencyNeuralNetwork {
 	                                String slotEmbeddingsFile,
 	                                String distEmbeddingsFile,
 	                                String posEmbeddingsFile) throws IOException {
+		logger.info("Serializing embeddings to " + catEmbeddingsFile + ", "
+												 + slotEmbeddingsFile + ", "
+												 + distEmbeddingsFile + ", "
+												 + posEmbeddingsFile);
 		catEmbeddings.serializeEmbeddings(catEmbeddingsFile);
 		slotEmbeddings.serializeEmbeddings(slotEmbeddingsFile);
 		distEmbeddings.serializeEmbeddings(distEmbeddingsFile);
 		posEmbeddings.serializeEmbeddings(posEmbeddingsFile);
+	}
+
+	public void serialize(String modelDir) throws IOException {
+		String configJsonFile = modelDir + "/config.json";
+		String coefficientsFile = modelDir + "/coeffs";
+		String catEmbeddingsFile = modelDir + "/cat.emb";
+		String slotEmbeddingsFile = modelDir + "/slot.emb";
+		String distEmbeddingsFile = modelDir + "/dist.emb";
+		String posEmbeddingsFile = modelDir + "/pos.emb";
+
+		serializeNetwork(configJsonFile, coefficientsFile);
+		serializeEmbeddings(catEmbeddingsFile, slotEmbeddingsFile, distEmbeddingsFile, posEmbeddingsFile);
 	}
 }
