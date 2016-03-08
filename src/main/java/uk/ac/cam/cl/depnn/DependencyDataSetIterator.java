@@ -3,6 +3,7 @@ package uk.ac.cam.cl.depnn;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -106,8 +107,6 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 			}
 		}
 
-		// shuffle here
-
 		int numCorrectDeps = correctDeps.size();
 		int numIncorrectDeps = incorrectDeps.size();
 		int totalDeps = numCorrectDeps + numIncorrectDeps;
@@ -133,6 +132,9 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 	}
 
 	public void reset() {
+		Collections.shuffle(correctDeps);
+		Collections.shuffle(incorrectDeps);
+
 		correctIter = correctDeps.iterator();
 		incorrectIter = incorrectDeps.iterator();
 	}
