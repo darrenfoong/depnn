@@ -359,6 +359,22 @@ public class DependencyNeuralNetwork {
 									dependentPos))[0];
 	}
 
+	public double predictSoft(String head,
+                       String category,
+                       String slot,
+                       String dependent,
+                       String distance,
+                       String headPos,
+                       String dependentPos) {
+		return network.output(makeVector(head,
+									category,
+									slot,
+									dependent,
+									distance,
+									headPos,
+									dependentPos)).getDouble(1);
+	}
+
 	protected INDArray makeVector(String head,
 	                            String category,
 	                            String slot,
