@@ -91,7 +91,6 @@ public class Params {
 		optionParser.accepts("testDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
-		optionParser.accepts("prevModel").withRequiredArg().ofType(String.class);
 
 		return optionParser;
 	}

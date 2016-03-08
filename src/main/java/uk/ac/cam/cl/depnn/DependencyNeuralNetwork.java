@@ -161,6 +161,33 @@ public class DependencyNeuralNetwork {
 		posEmbeddings = new Embeddings(posEmbeddingsFile);
 	}
 
+	public DependencyNeuralNetwork(String modelDir) throws IOException {
+		String modelFile;
+
+		if ( new File(modelDir + "/word2vec.bin").isFile() ) {
+			modelFile = modelDir + "/word2vec.bin";
+		} else if ( new File(modelDir + "/word2vec.model").isFile() ) {
+			modelFile = modelDir + "/word2vec.model";
+		} else {
+			throw new FileNotFoundException("Missing word2vec model");
+		}
+
+		String configJsonFile = modelDir + "/config.json";
+		String coefficientsFile = modelDir + "/coeffs";
+		String catEmbeddingsFile = modelDir + "/cat.emb";
+		String slotEmbeddingsFile = modelDir + "/slot.emb";
+		String distEmbeddingsFile = modelDir + "/dist.emb";
+		String posEmbeddingsFile = modelDir + "/pos.emb";
+
+		word2vec = loadWord2Vec(modelFile);
+		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
+
+		catEmbeddings = new Embeddings(catEmbeddingsFile);
+		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
+		distEmbeddings = new Embeddings(distEmbeddingsFile);
+		posEmbeddings = new Embeddings(posEmbeddingsFile);
+	}
+
 	protected Word2Vec loadWord2Vec(String modelFile) throws IOException {
 		if ( modelFile.endsWith(".bin") ) {
 			Word2Vec w2v = (Word2Vec) WordVectorSerializer.loadGoogleModel(new File(modelFile), true);

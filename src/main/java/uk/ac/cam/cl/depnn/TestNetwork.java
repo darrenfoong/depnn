@@ -32,20 +32,6 @@ public class TestNetwork {
 		String testDir = (String) options.valueOf("testDir");
 		String modelDir = (String) options.valueOf("modelDir");
 		String logFile = (String) options.valueOf("log");
-		String modelFile = null;
-
-		if ( options.has("prevModel") ) {
-			modelFile = (String) options.valueOf("prevModel");
-		} else {
-			modelFile = modelDir + "/word2vec.model";
-		}
-
-		String configJsonFile = modelDir + "/config.json";
-		String coefficientsFile = modelDir + "/coeffs";
-		String catEmbeddingsFile = modelDir + "/cat.emb";
-		String slotEmbeddingsFile = modelDir + "/slot.emb";
-		String distEmbeddingsFile = modelDir + "/dist.emb";
-		String posEmbeddingsFile = modelDir + "/pos.emb";
 
 		System.setProperty("logLevel", options.has("verbose") ? "trace" : "info");
 		System.setProperty("logFile", logFile);
@@ -55,13 +41,7 @@ public class TestNetwork {
 
 		try {
 			logger.info("Initializing network");
-			DependencyNeuralNetwork depnn = new DependencyNeuralNetwork(modelFile,
-												configJsonFile,
-												coefficientsFile,
-												catEmbeddingsFile,
-												slotEmbeddingsFile,
-												distEmbeddingsFile,
-												posEmbeddingsFile);
+			DependencyNeuralNetwork depnn = new DependencyNeuralNetwork(modelDir);
 			logger.info("Network initialized");
 
 			depnn.testNetwork(testDir);
