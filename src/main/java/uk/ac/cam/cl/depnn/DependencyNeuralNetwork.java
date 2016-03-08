@@ -166,6 +166,8 @@ public class DependencyNeuralNetwork {
 
 		if ( new File(modelDir + "/word2vec.bin").isFile() ) {
 			modelFile = modelDir + "/word2vec.bin";
+		} else if ( new File(modelDir + "/word2vec.txt").isFile() ) {
+			modelFile = modelDir + "/word2vec.txt";
 		} else if ( new File(modelDir + "/word2vec.model").isFile() ) {
 			modelFile = modelDir + "/word2vec.model";
 		} else {
@@ -191,6 +193,10 @@ public class DependencyNeuralNetwork {
 	protected Word2Vec loadWord2Vec(String modelFile) throws IOException {
 		if ( modelFile.endsWith(".bin") ) {
 			Word2Vec w2v = (Word2Vec) WordVectorSerializer.loadGoogleModel(new File(modelFile), true);
+			W2V_LAYER_SIZE = w2v.getLookupTable().layerSize();
+			return w2v;
+		} else if ( modelFile.endsWith("txt") ) {
+			Word2Vec w2v = (Word2Vec) WordVectorSerializer.loadTxtVectors(new File(modelFile));
 			W2V_LAYER_SIZE = w2v.getLookupTable().layerSize();
 			return w2v;
 		} else {
