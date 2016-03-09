@@ -17,10 +17,10 @@ public class Params {
 	private final static int W2V_NEGATIVE_SAMPLE = 10;
 	private final static double W2V_LEARNING_RATE = 0.025;
 
-	private final static int NN_EPOCHS = 1;
+	private final static int NN_EPOCHS = 30;
 	private final static int NN_SEED = 123;
-	private final static int NN_ITERATIONS = 100;
-	private final static int NN_BATCH_SIZE = 1000;
+	private final static int NN_ITERATIONS = 1;
+	private final static int NN_BATCH_SIZE = 128;
 	private final static int NN_HIDDEN_LAYER_SIZE = 200;
 	private final static double NN_LEARNING_RATE = 1e-2;
 	private final static double NN_L2_REG = 1e-8;
