@@ -54,7 +54,6 @@ public class TrainNetwork {
 		int nnBatchSize = (Integer) options.valueOf("nnBatchSize");
 		int nnHiddenLayerSize = (Integer) options.valueOf("nnHiddenLayerSize");
 		double nnLearningRate = (Double) options.valueOf("nnLearningRate");
-		double nnL1Reg = (Double) options.valueOf("nnL1Reg");
 		double nnL2Reg = (Double) options.valueOf("nnL2Reg");
 		double nnDropout = (Double) options.valueOf("nnDropout");
 		double nnEmbedRandomRange = (Double) options.valueOf("nnEmbedRandomRange");
@@ -88,7 +87,6 @@ public class TrainNetwork {
 													nnBatchSize,
 													nnHiddenLayerSize,
 													nnLearningRate,
-													nnL1Reg,
 													nnL2Reg,
 													nnDropout,
 													nnEmbedRandomRange,
@@ -103,7 +101,6 @@ public class TrainNetwork {
 													nnBatchSize,
 													nnHiddenLayerSize,
 													nnLearningRate,
-													nnL1Reg,
 													nnL2Reg,
 													nnDropout,
 													nnEmbedRandomRange,

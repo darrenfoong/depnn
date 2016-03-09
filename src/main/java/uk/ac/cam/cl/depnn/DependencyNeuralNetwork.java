@@ -53,7 +53,6 @@ public class DependencyNeuralNetwork {
 	private int NN_HIDDEN_LAYER_SIZE;
 
 	private double NN_LEARNING_RATE;
-	private double NN_L1_REG;
 	private double NN_L2_REG;
 	private double NN_DROPOUT;
 	private double NN_EMBED_RANDOM_RANGE;
@@ -93,7 +92,6 @@ public class DependencyNeuralNetwork {
 	                               int nnBatchSize,
 	                               int nnHiddenLayerSize,
 	                               double nnLearningRate,
-	                               double nnL1Reg,
 	                               double nnL2Reg,
 	                               double nnDropout,
 	                               double nnEmbedRandomRange,
@@ -113,7 +111,6 @@ public class DependencyNeuralNetwork {
 		NN_BATCH_SIZE = nnBatchSize;
 		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
 		NN_LEARNING_RATE = nnLearningRate;
-		NN_L1_REG = nnL1Reg;
 		NN_L2_REG = nnL2Reg;
 		NN_DROPOUT = nnDropout;
 		NN_EMBED_RANDOM_RANGE = nnEmbedRandomRange;
@@ -128,7 +125,6 @@ public class DependencyNeuralNetwork {
 	                               int nnBatchSize,
 	                               int nnHiddenLayerSize,
 	                               double nnLearningRate,
-	                               double nnL1Reg,
 	                               double nnL2Reg,
 	                               double nnDropout,
 	                               double nnEmbedRandomRange,
@@ -141,7 +137,6 @@ public class DependencyNeuralNetwork {
 		NN_BATCH_SIZE = nnBatchSize;
 		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
 		NN_LEARNING_RATE = nnLearningRate;
-		NN_L1_REG = nnL1Reg;
 		NN_L2_REG = nnL2Reg;
 		NN_DROPOUT = nnDropout;
 		NN_EMBED_RANDOM_RANGE = nnEmbedRandomRange;
@@ -265,7 +260,6 @@ public class DependencyNeuralNetwork {
 				.learningRate(NN_LEARNING_RATE)
 				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
 				.regularization(true)
-				.l1(NN_L1_REG)
 				.l2(NN_L2_REG)
 				.useDropConnect(true)
 				.list()

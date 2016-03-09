@@ -22,9 +22,8 @@ public class Params {
 	private final static int NN_ITERATIONS = 100;
 	private final static int NN_BATCH_SIZE = 1000;
 	private final static int NN_HIDDEN_LAYER_SIZE = 200;
-	private final static double NN_LEARNING_RATE = 1e-6;
-	private final static double NN_L1_REG = 1e-1;
-	private final static double NN_L2_REG = 2e-4;
+	private final static double NN_LEARNING_RATE = 1e-2;
+	private final static double NN_L2_REG = 1e-8;
 	private final static double NN_DROPOUT = 0.5;
 	private final static double NN_EMBED_RANDOM_RANGE = 0.01;
 
@@ -77,7 +76,6 @@ public class Params {
 		optionParser.accepts("nnBatchSize").withRequiredArg().ofType(Integer.class).defaultsTo(NN_BATCH_SIZE);
 		optionParser.accepts("nnHiddenLayerSize").withRequiredArg().ofType(Integer.class).defaultsTo(NN_HIDDEN_LAYER_SIZE);
 		optionParser.accepts("nnLearningRate").withRequiredArg().ofType(Double.class).defaultsTo(NN_LEARNING_RATE);
-		optionParser.accepts("nnL1Reg").withRequiredArg().ofType(Double.class).defaultsTo(NN_L1_REG);
 		optionParser.accepts("nnL2Reg").withRequiredArg().ofType(Double.class).defaultsTo(NN_L2_REG);
 		optionParser.accepts("nnDropout").withRequiredArg().ofType(Double.class).defaultsTo(NN_DROPOUT);
 		optionParser.accepts("nnEmbedRandomRange").withRequiredArg().ofType(Double.class).defaultsTo(NN_EMBED_RANDOM_RANGE);
