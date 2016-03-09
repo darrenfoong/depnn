@@ -21,6 +21,7 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
@@ -285,6 +286,8 @@ public class DependencyNeuralNetwork {
 
 		network = new MultiLayerNetwork(conf);
 		network.init();
+
+		network.setListeners(new ScoreIterationListener(NN_ITERATIONS));
 
 		for ( int epochCount = 1; epochCount <= NN_EPOCHS; epochCount++ ) {
 			logger.info("Training epoch " + epochCount);
