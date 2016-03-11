@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.depnn;
+package uk.ac.cam.cl.depnn.io;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +19,8 @@ import org.deeplearning4j.berkeley.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
+
+import uk.ac.cam.cl.depnn.DependencyNeuralNetwork;
 
 public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<ArrayList<String>>>> {
 	private final DependencyNeuralNetwork depnn;

@@ -33,6 +33,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import uk.ac.cam.cl.depnn.embeddings.Embeddings;
+import uk.ac.cam.cl.depnn.io.DependencyDataSetIterator;
 import uk.ac.cam.cl.depnn.utils.ModelUtils;
 
 public class DependencyNeuralNetwork {
@@ -60,18 +61,20 @@ public class DependencyNeuralNetwork {
 
 	private int maxNumBatch = Integer.MAX_VALUE;
 
+	private INDArray unkVector;
+
 	private Embeddings catEmbeddings;
 	private Embeddings slotEmbeddings;
 	private Embeddings distEmbeddings;
 	private Embeddings posEmbeddings;
 
-	private Word2Vec word2vec;
+	private WordVectors wordVectors;
 	private MultiLayerNetwork network;
 
 	private final static Logger logger = LogManager.getLogger(DependencyNeuralNetwork.class);
 
-	public Word2Vec getWord2Vec() {
-		return word2vec;
+	public WordVectors getWordVectors() {
+		return wordVectors;
 	}
 
 	public MultiLayerNetwork getNetwork() {
@@ -130,7 +133,7 @@ public class DependencyNeuralNetwork {
 	                               double nnDropout,
 	                               double nnEmbedRandomRange,
 	                               int maxNumBatch) throws IOException {
-		word2vec = loadWord2Vec(prevModelFile);
+		wordVectors = loadWordVectors(prevModelFile);
 
 		NN_EPOCHS = nnEpochs;
 		NN_SEED = nnSeed;
@@ -153,7 +156,7 @@ public class DependencyNeuralNetwork {
 	                               String slotEmbeddingsFile,
 	                               String distEmbeddingsFile,
 	                               String posEmbeddingsFile) throws IOException {
-		word2vec = loadWord2Vec(modelFile);
+		wordVectors = loadWordVectors(modelFile);
 		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
 
 		catEmbeddings = new Embeddings(catEmbeddingsFile);
@@ -182,7 +185,7 @@ public class DependencyNeuralNetwork {
 		String distEmbeddingsFile = modelDir + "/dist.emb";
 		String posEmbeddingsFile = modelDir + "/pos.emb";
 
-		word2vec = loadWord2Vec(modelFile);
+		wordVectors = loadWordVectors(modelFile);
 		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
 
 		catEmbeddings = new Embeddings(catEmbeddingsFile);
@@ -191,48 +194,40 @@ public class DependencyNeuralNetwork {
 		posEmbeddings = new Embeddings(posEmbeddingsFile);
 	}
 
-	private void checkUnk(Word2Vec w2v) {
-		if ( w2v.hasWord(w2v.UNK) ) {
-			logger.info("Word2Vec has UNK");
+	private void checkUnk(WordVectors wordVectors) {
+		if ( wordVectors.hasWord(wordVectors.getUNK()) ) {
+			logger.info("wordVectors has UNK");
 		} else {
-			logger.info("Word2Vec does not have UNK");
+			logger.info("wordVectors does not have UNK");
 
 			String[] otherUnks = { "UNKNOWN", "*UNKNOWN*" };
-			INDArray unkVector = null;
 
 			for ( String otherUnk : otherUnks ) {
-				if ( w2v.hasWord(otherUnk) ) {
-					logger.info("Word2Vec has previous UNK: " + otherUnk);
-					unkVector = w2v.getWordVectorMatrix(otherUnk);
+				if ( wordVectors.hasWord(otherUnk) ) {
+					logger.info("wordVectors has previous UNK: " + otherUnk);
+					logger.info("Remapping UNK");
+					wordVectors.setUNK(otherUnk);
+					return;
 				}
 			}
 
-			if ( unkVector == null ) {
-				unkVector = Nd4j.zeros(W2V_LAYER_SIZE);
-			}
-
-			logger.info("Adding UNK");
-
-			w2v.getVocab().addWordToIndex(w2v.getVocab().numWords(), w2v.UNK);
-			w2v.getLookupTable().putVector(w2v.UNK, unkVector);
+			logger.info("wordVectors still does not have UNK");
+			unkVector = Nd4j.zeros(W2V_LAYER_SIZE);
 		}
 	}
 
-	protected Word2Vec loadWord2Vec(String modelFile) throws IOException {
-		Word2Vec w2v;
+	protected WordVectors loadWordVectors(String modelFile) throws IOException {
+		WordVectors w2v = null;
 
 		if ( modelFile.endsWith(".bin") ) {
-			w2v = (Word2Vec) WordVectorSerializer.loadGoogleModel(new File(modelFile), true);
-			W2V_LAYER_SIZE = w2v.getLookupTable().layerSize();
+			w2v = WordVectorSerializer.loadGoogleModel(new File(modelFile), true);
 		} else if ( modelFile.endsWith("txt") ) {
-			WordVectors wvImpl = WordVectorSerializer.loadTxtVectors(new File(modelFile));
-			w2v = new Word2Vec.Builder().useExistingWordVectors(wvImpl).build();
-			W2V_LAYER_SIZE = w2v.getLookupTable().layerSize();
+			w2v = WordVectorSerializer.loadTxtVectors(new File(modelFile));
 		} else {
 			w2v = WordVectorSerializer.loadFullModel(modelFile);
-			W2V_LAYER_SIZE = w2v.getLayerSize();
 		}
 
+		W2V_LAYER_SIZE = w2v.lookupTable().layerSize();
 		checkUnk(w2v);
 
 		return w2v;
@@ -245,7 +240,7 @@ public class DependencyNeuralNetwork {
 		TokenizerFactory t = new DefaultTokenizerFactory();
 		t.setTokenPreProcessor(new CommonPreprocessor());
 
-		word2vec = new Word2Vec.Builder()
+		wordVectors = new Word2Vec.Builder()
 				.seed(W2V_SEED)
 				.iterations(W2V_ITERATIONS)
 				.learningRate(W2V_LEARNING_RATE)
@@ -259,14 +254,18 @@ public class DependencyNeuralNetwork {
 				.tokenizerFactory(t)
 				.build();
 
-		word2vec.fit();
+		((Word2Vec) wordVectors).fit();
 
 		logger.info("word2vec training complete");
 	}
 
 	public void serializeWord2Vec(String modelFile) {
-		logger.info("Serializing word2vec to " + modelFile);
-		WordVectorSerializer.writeFullModel(word2vec, modelFile);
+		if ( wordVectors instanceof Word2Vec ) {
+			logger.info("Serializing word2vec to " + modelFile);
+			WordVectorSerializer.writeFullModel((Word2Vec) wordVectors, modelFile);
+		} else {
+			logger.error("wordVectors not Word2Vec; cannot serialize");
+		}
 	}
 
 	public void trainNetwork(String dependenciesDir, String modelDir) throws IOException, InterruptedException {
@@ -414,15 +413,29 @@ public class DependencyNeuralNetwork {
 									dependentPos)).getDouble(1);
 	}
 
-	protected INDArray makeVector(String head,
+	private INDArray getWordVector(String word) {
+		INDArray vector = wordVectors.getWordVectorMatrix(word);
+
+		if ( vector == null ) {
+			vector = wordVectors.getWordVectorMatrix(wordVectors.getUNK());
+
+			if ( vector == null ) {
+				vector = unkVector;
+			}
+		}
+
+		return vector;
+	}
+
+	public INDArray makeVector(String head,
 	                            String category,
 	                            String slot,
 	                            String dependent,
 	                            String distance,
 	                            String headPos,
 	                            String dependentPos) {
-		INDArray headVector = word2vec.getWordVectorMatrixNormalized(head);
-		INDArray dependentVector = word2vec.getWordVectorMatrixNormalized(dependent);
+		INDArray headVector = getWordVector(head);
+		INDArray dependentVector = getWordVector(dependent);
 
 		INDArray categoryVector = catEmbeddings.getINDArray(category);
 		INDArray slotVector = slotEmbeddings.getINDArray(slot);
