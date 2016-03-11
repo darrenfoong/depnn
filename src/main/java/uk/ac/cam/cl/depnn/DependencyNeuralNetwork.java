@@ -12,6 +12,8 @@ import org.canova.api.writable.Writable;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.embeddings.reader.impl.BasicModelUtils;
+import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -197,7 +199,12 @@ public class DependencyNeuralNetwork {
 			W2V_LAYER_SIZE = w2v.getLookupTable().layerSize();
 			return w2v;
 		} else if ( modelFile.endsWith("txt") ) {
-			Word2Vec w2v = (Word2Vec) WordVectorSerializer.loadTxtVectors(new File(modelFile));
+			WordVectors wvImpl = WordVectorSerializer.loadTxtVectors(new File(modelFile));
+			// ugly hack because cannot cast wvImpl to Word2Vec
+			Word2Vec w2v = new Word2Vec();
+			w2v.setLookupTable(wvImpl.lookupTable());
+			w2v.setVocab(wvImpl.vocab());
+			w2v.setModelUtils(new BasicModelUtils<>());
 			W2V_LAYER_SIZE = w2v.getLookupTable().layerSize();
 			return w2v;
 		} else {
@@ -229,6 +236,7 @@ public class DependencyNeuralNetwork {
 				.build();
 
 		word2vec.fit();
+
 
 		logger.info("word2vec training complete");
 	}
