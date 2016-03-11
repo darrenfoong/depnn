@@ -398,8 +398,8 @@ public class DependencyNeuralNetwork {
 	                            String distance,
 	                            String headPos,
 	                            String dependentPos) {
-		INDArray headVector = word2vec.getWordVectorMatrix(head);
-		INDArray dependentVector = word2vec.getWordVectorMatrix(dependent);
+		INDArray headVector = word2vec.getWordVectorMatrixNormalized(head);
+		INDArray dependentVector = word2vec.getWordVectorMatrixNormalized(dependent);
 
 		INDArray categoryVector = catEmbeddings.getINDArray(category);
 		INDArray slotVector = slotEmbeddings.getINDArray(slot);
