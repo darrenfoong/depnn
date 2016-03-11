@@ -193,25 +193,51 @@ public class DependencyNeuralNetwork {
 		posEmbeddings = new Embeddings(posEmbeddingsFile);
 	}
 
+	private void checkUnk(Word2Vec w2v) {
+		if ( w2v.hasWord(w2v.UNK) ) {
+			logger.info("Word2Vec has UNK");
+		} else {
+			logger.info("Word2Vec does not have UNK");
+
+			String[] otherUnks = { "UNKNOWN", "*UNKNOWN*" };
+			INDArray unkVector = null;
+
+			for ( String otherUnk : otherUnks ) {
+				if ( w2v.hasWord(otherUnk) ) {
+					logger.info("Word2Vec has previous UNK: " + otherUnk);
+					unkVector = w2v.getWordVectorMatrix(otherUnk);
+				}
+			}
+
+			if ( unkVector == null ) {
+				unkVector = Nd4j.zeros(W2V_LAYER_SIZE);
+			}
+
+			logger.info("Adding UNK");
+
+			w2v.getVocab().addWordToIndex(w2v.getVocab().numWords(), w2v.UNK);
+			w2v.getLookupTable().putVector(w2v.UNK, unkVector);
+		}
+	}
+
 	protected Word2Vec loadWord2Vec(String modelFile) throws IOException {
+		Word2Vec w2v;
+
 		if ( modelFile.endsWith(".bin") ) {
-			Word2Vec w2v = (Word2Vec) WordVectorSerializer.loadGoogleModel(new File(modelFile), true);
+			w2v = (Word2Vec) WordVectorSerializer.loadGoogleModel(new File(modelFile), true);
 			W2V_LAYER_SIZE = w2v.getLookupTable().layerSize();
-			return w2v;
 		} else if ( modelFile.endsWith("txt") ) {
 			WordVectors wvImpl = WordVectorSerializer.loadTxtVectors(new File(modelFile));
-			// ugly hack because cannot cast wvImpl to Word2Vec
-			Word2Vec w2v = new Word2Vec();
-			w2v.setLookupTable(wvImpl.lookupTable());
-			w2v.setVocab(wvImpl.vocab());
-			w2v.setModelUtils(new BasicModelUtils<>());
+			w2v = new Word2Vec.Builder().useExistingWordVectors(wvImpl).build();
 			W2V_LAYER_SIZE = w2v.getLookupTable().layerSize();
-			return w2v;
 		} else {
-			Word2Vec w2v = WordVectorSerializer.loadFullModel(modelFile);
+			w2v = WordVectorSerializer.loadFullModel(modelFile);
 			W2V_LAYER_SIZE = w2v.getLayerSize();
-			return w2v;
 		}
+
+		checkUnk(w2v);
+
+		return w2v;
 	}
 
 	public void trainWord2Vec(String sentencesFile) throws FileNotFoundException {
