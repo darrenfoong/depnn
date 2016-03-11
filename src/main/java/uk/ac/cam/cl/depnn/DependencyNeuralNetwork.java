@@ -8,11 +8,9 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.canova.api.writable.Writable;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
-import org.deeplearning4j.models.embeddings.reader.impl.BasicModelUtils;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -328,9 +326,9 @@ public class DependencyNeuralNetwork {
 			for ( int batchCount = 1; iter.hasNext() && batchCount <= maxNumBatch; batchCount++ ) {
 				logger.info("Training batch " + epochCount + "/" + batchCount);
 
-				Pair<DataSet, List<ArrayList<Writable>>> next = iter.next();
+				Pair<DataSet, List<ArrayList<String>>> next = iter.next();
 				DataSet trainBatch = next.getFirst();
-				List<ArrayList<Writable>> trainList = next.getSecond();
+				List<ArrayList<String>> trainList = next.getSecond();
 
 				trainBatch.normalizeZeroMeanZeroUnitVariance();
 				network.fit(trainBatch);
@@ -341,13 +339,13 @@ public class DependencyNeuralNetwork {
 
 				for ( int i = 0; i < epsilon.rows(); i++ ) {
 					INDArray errors = epsilon.getRow(i);
-					ArrayList<Writable> record = trainList.get(i);
+					ArrayList<String> record = trainList.get(i);
 
-					catEmbeddings.addEmbedding(record.get(1).toString(), errors, 1 * W2V_LAYER_SIZE);
-					slotEmbeddings.addEmbedding(record.get(2).toString(), errors, 2 * W2V_LAYER_SIZE);
-					distEmbeddings.addEmbedding(record.get(4).toString(), errors, 4 * W2V_LAYER_SIZE);
-					posEmbeddings.addEmbedding(record.get(5).toString(), errors, 5 * W2V_LAYER_SIZE);
-					posEmbeddings.addEmbedding(record.get(6).toString(), errors , 6 * W2V_LAYER_SIZE);
+					catEmbeddings.addEmbedding(record.get(1), errors, 1 * W2V_LAYER_SIZE);
+					slotEmbeddings.addEmbedding(record.get(2), errors, 2 * W2V_LAYER_SIZE);
+					distEmbeddings.addEmbedding(record.get(4), errors, 4 * W2V_LAYER_SIZE);
+					posEmbeddings.addEmbedding(record.get(5), errors, 5 * W2V_LAYER_SIZE);
+					posEmbeddings.addEmbedding(record.get(6), errors , 6 * W2V_LAYER_SIZE);
 				}
 
 				logger.info("Embeddings updated");

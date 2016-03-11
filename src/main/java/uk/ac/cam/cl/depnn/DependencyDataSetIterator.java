@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -21,7 +20,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
-public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<ArrayList<Writable>>>> {
+public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<ArrayList<String>>>> {
 	private final DependencyNeuralNetwork depnn;
 
 	private final RecordReader recordReader;
@@ -32,9 +31,8 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 	private final int W2V_LAYER_SIZE;
 	private final int NN_NUM_PROPERTIES;
 
-	// LinkedLists used here because require only inserts and removes at ends
-	private LinkedList<ArrayList<Writable>> correctDeps = new LinkedList<ArrayList<Writable>>();
-	private LinkedList<ArrayList<Writable>> incorrectDeps = new LinkedList<ArrayList<Writable>>();
+	private ArrayList<ArrayList<String>> correctDeps = new ArrayList<ArrayList<String>>();
+	private ArrayList<ArrayList<String>> incorrectDeps = new ArrayList<ArrayList<String>>();
 
 	private HashSet<String> catLexicon = new HashSet<String>();
 	private HashSet<String> slotLexicon = new HashSet<String>();
@@ -42,12 +40,12 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 	private HashSet<String> posLexicon = new HashSet<String>();
 
 	private DataSet nextDataSet;
-	private List<ArrayList<Writable>> nextList;
+	private List<ArrayList<String>> nextList;
 
 	private boolean dataSetRead = false;
 
-	private Iterator<ArrayList<Writable>> correctIter;
-	private Iterator<ArrayList<Writable>> incorrectIter;
+	private Iterator<ArrayList<String>> correctIter;
+	private Iterator<ArrayList<String>> incorrectIter;
 
 	public static final Logger logger = LogManager.getLogger(DependencyDataSetIterator.class);
 
@@ -84,11 +82,14 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 		while ( recordReader.hasNext() ) {
 			ArrayList<Writable> record = (ArrayList<Writable>) recordReader.next();
 
+			String head = record.get(0).toString();
 			String category = record.get(1).toString();
 			String slot = record.get(2).toString();
+			String dependent = record.get(3).toString();
 			String distance = record.get(4).toString();
 			String headPos = record.get(5).toString();
 			String dependentPos = record.get(6).toString();
+			String valueString = record.get(7).toString();
 
 			catLexicon.add(category);
 			slotLexicon.add(slot);
@@ -96,12 +97,22 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 			posLexicon.add(headPos);
 			posLexicon.add(dependentPos);
 
-			int value = Integer.parseInt(record.get(7).toString());
+			int value = Integer.parseInt(valueString);
+
+			ArrayList<String> recordList = new ArrayList<String>(8);
+			recordList.add(head);
+			recordList.add(category);
+			recordList.add(slot);
+			recordList.add(dependent);
+			recordList.add(distance);
+			recordList.add(headPos);
+			recordList.add(dependentPos);
+			recordList.add(valueString);
 
 			if ( value == 0 ) {
-				incorrectDeps.add(record);
+				incorrectDeps.add(recordList);
 			} else if ( value == 1 ) {
-				correctDeps.add(record);
+				correctDeps.add(recordList);
 			} else {
 				throw new IllegalArgumentException("Incorrect value");
 			}
@@ -140,7 +151,7 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 	}
 
 	private void readDataSet() {
-		ArrayList<ArrayList<Writable>> depsInBatch = new ArrayList<ArrayList<Writable>>();
+		ArrayList<ArrayList<String>> depsInBatch = new ArrayList<ArrayList<String>>();
 
 		for ( int i = 0; i < correctDepsPerBatch && correctIter.hasNext(); i++ ) {
 			depsInBatch.add(correctIter.next());
@@ -160,18 +171,18 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 		INDArray labels = new NDArray(depsInBatch.size(), 2);
 
 		for ( int i = 0; i < depsInBatch.size(); i++ ) {
-			ArrayList<Writable> record = depsInBatch.get(i);
+			ArrayList<String> record = depsInBatch.get(i);
 
 			// head category slot dependent distance head_pos dependent_pos value count
-			String head = record.get(0).toString();
-			String category = record.get(1).toString();
-			String slot = record.get(2).toString();
-			String dependent = record.get(3).toString();
-			String distance = record.get(4).toString();
-			String headPos = record.get(5).toString();
-			String dependentPos = record.get(6).toString();
+			String head = record.get(0);
+			String category = record.get(1);
+			String slot = record.get(2);
+			String dependent = record.get(3);
+			String distance = record.get(4);
+			String headPos = record.get(5);
+			String dependentPos = record.get(6);
 
-			int value = Integer.parseInt(record.get(7).toString());
+			int value = Integer.parseInt(record.get(7));
 
 			// make label for labels matrix
 			NDArray label = new NDArray(1, 2);
@@ -205,7 +216,7 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 	}
 
 	@Override
-	public Pair<DataSet, List<ArrayList<Writable>>> next() {
+	public Pair<DataSet, List<ArrayList<String>>> next() {
 		if ( !dataSetRead ) {
 			readDataSet();
 			dataSetRead = true;
@@ -215,7 +226,7 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 			throw new NoSuchElementException();
 		} else {
 			dataSetRead = false;
-			return new Pair<DataSet, List<ArrayList<Writable>>>(nextDataSet, nextList);
+			return new Pair<DataSet, List<ArrayList<String>>>(nextDataSet, nextList);
 		}
 	}
 
