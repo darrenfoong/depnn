@@ -129,13 +129,13 @@ public class Embeddings {
 	}
 
 	public void setEmbedding(String key, INDArray embedding) {
-		double[] array = new double[embedding.length()];
+		if ( map.containsKey(key) ) {
+			double[] currentEmbedding = embeddings[map.get(key)];
 
-		for ( int i = 0; i < embedding.length(); i++ ) {
-			array[i] = embedding.getDouble(i);
+			for ( int i = 0; i < embedding.length(); i++ ) {
+				currentEmbedding[i] = embedding.getDouble(i);
+			}
 		}
-
-		setEmbedding(key, array);
 	}
 
 	public void addEmbedding(String key, INDArray embedding, int offset) {
