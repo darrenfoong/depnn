@@ -263,7 +263,6 @@ public class DependencyNeuralNetwork {
 
 		word2vec.fit();
 
-
 		logger.info("word2vec training complete");
 	}
 
