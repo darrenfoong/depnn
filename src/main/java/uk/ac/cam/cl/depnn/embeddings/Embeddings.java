@@ -107,25 +107,24 @@ public class Embeddings {
 			for ( int j = 0; j < embeddings[i].length; j++ ) {
 				embeddings[i][j] = random.nextDouble() * 2 * randomRange - randomRange;
 			}
+			normalizeEmbedding(embeddings[i]);
 		}
 	}
 
-	public double[] getArray(String key) {
+	private double[] getArray(String key) {
+		// method set to private to prevent external mutation of embeddings
+		// assumes that callers will not modify the array
+		// return actual array instead of clone for performance
+
 		if ( map.containsKey(key) ) {
-			return embeddings[map.get(key)].clone();
+			return embeddings[map.get(key)];
 		} else {
-			return embeddings[UNK].clone();
+			return embeddings[UNK];
 		}
 	}
 
 	public INDArray getINDArray(String key) {
 		return Nd4j.create(getArray(key));
-	}
-
-	public void setEmbedding(String key, double[] embedding) {
-		if ( map.containsKey(key) ) {
-			embeddings[map.get(key)] = embedding.clone();
-		}
 	}
 
 	public void setEmbedding(String key, INDArray embedding) {
@@ -135,6 +134,8 @@ public class Embeddings {
 			for ( int i = 0; i < embedding.length(); i++ ) {
 				currentEmbedding[i] = embedding.getDouble(i);
 			}
+
+			normalizeEmbedding(currentEmbedding);
 		}
 	}
 
@@ -146,10 +147,29 @@ public class Embeddings {
 				// -= or += ?
 				currentEmbedding[i] += embedding.getDouble(i + offset);
 			}
+
+			normalizeEmbedding(currentEmbedding);
 		}
 	}
 
 	public void addEmbedding(String key, INDArray embedding) {
 		addEmbedding(key, embedding, 0);
+	}
+
+	private void normalizeEmbedding(double[] embedding) {
+		// modifies embedding in-place
+		double sumOfSquares = 0.0;
+
+		for ( int i = 0; i < embedding.length; i++ ) {
+			sumOfSquares += embedding[i] * embedding[i];
+		}
+
+		double norm = Math.sqrt(sumOfSquares);
+
+		if ( norm > 0 ) {
+			for ( int i = 0; i < embedding.length; i++ ) {
+				embedding[i] /= norm;
+			}
+		}
 	}
 }
