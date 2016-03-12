@@ -26,6 +26,7 @@ public class Params {
 	private final static double NN_L2_REG = 1e-8;
 	private final static double NN_DROPOUT = 0.5;
 	private final static double NN_EMBED_RANDOM_RANGE = 0.01;
+	private final static boolean NN_HARD_LABELS = true;
 
 	public static OptionParser getBaseOptionParser() {
 		OptionParser optionParser = new OptionParser();
@@ -79,6 +80,7 @@ public class Params {
 		optionParser.accepts("nnL2Reg").withRequiredArg().ofType(Double.class).defaultsTo(NN_L2_REG);
 		optionParser.accepts("nnDropout").withRequiredArg().ofType(Double.class).defaultsTo(NN_DROPOUT);
 		optionParser.accepts("nnEmbedRandomRange").withRequiredArg().ofType(Double.class).defaultsTo(NN_EMBED_RANDOM_RANGE);
+		optionParser.accepts("nnHardLabels").withRequiredArg().ofType(Boolean.class).defaultsTo(NN_HARD_LABELS);
 
 		optionParser.accepts("maxNumBatch").withRequiredArg().ofType(Integer.class).defaultsTo(Integer.MAX_VALUE);
 

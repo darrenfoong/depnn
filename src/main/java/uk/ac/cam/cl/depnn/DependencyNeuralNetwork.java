@@ -58,6 +58,7 @@ public class DependencyNeuralNetwork {
 	private double NN_L2_REG;
 	private double NN_DROPOUT;
 	private double NN_EMBED_RANDOM_RANGE;
+	private boolean NN_HARD_LABELS;
 
 	private int maxNumBatch = Integer.MAX_VALUE;
 
@@ -99,6 +100,7 @@ public class DependencyNeuralNetwork {
 	                               double nnL2Reg,
 	                               double nnDropout,
 	                               double nnEmbedRandomRange,
+	                               boolean nnHardLabels,
 	                               int maxNumBatch) {
 		W2V_SEED = w2vSeed;
 		W2V_ITERATIONS = w2vIterations;
@@ -118,6 +120,7 @@ public class DependencyNeuralNetwork {
 		NN_L2_REG = nnL2Reg;
 		NN_DROPOUT = nnDropout;
 		NN_EMBED_RANDOM_RANGE = nnEmbedRandomRange;
+		NN_HARD_LABELS = nnHardLabels;
 
 		this.maxNumBatch = maxNumBatch;
 	}
@@ -132,6 +135,7 @@ public class DependencyNeuralNetwork {
 	                               double nnL2Reg,
 	                               double nnDropout,
 	                               double nnEmbedRandomRange,
+	                               boolean nnHardLabels,
 	                               int maxNumBatch) throws IOException {
 		wordVectors = loadWordVectors(prevModelFile);
 
@@ -144,6 +148,7 @@ public class DependencyNeuralNetwork {
 		NN_L2_REG = nnL2Reg;
 		NN_DROPOUT = nnDropout;
 		NN_EMBED_RANDOM_RANGE = nnEmbedRandomRange;
+		NN_HARD_LABELS = nnHardLabels;
 
 		this.maxNumBatch = maxNumBatch;
 	}
@@ -278,7 +283,7 @@ public class DependencyNeuralNetwork {
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, dependenciesDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, NN_NUM_PROPERTIES);
+		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, dependenciesDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, NN_HARD_LABELS);
 
 		catEmbeddings = new Embeddings(iter.getCatLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
 		slotEmbeddings = new Embeddings(iter.getSlotLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
@@ -364,7 +369,7 @@ public class DependencyNeuralNetwork {
 
 		Evaluation eval = new Evaluation();
 
-		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, testDir, 0, W2V_LAYER_SIZE, NN_NUM_PROPERTIES);
+		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, testDir, 0, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, true);
 
 		DataSet test = iter.next().getFirst();
 

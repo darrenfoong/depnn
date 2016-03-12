@@ -32,6 +32,9 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 
 	private final int W2V_LAYER_SIZE;
 	private final int NN_NUM_PROPERTIES;
+	private final boolean NN_HARD_LABELS;
+
+	private int sigmoidScaleFactor = 20;
 
 	private ArrayList<ArrayList<String>> correctDeps = new ArrayList<ArrayList<String>>();
 	private ArrayList<ArrayList<String>> incorrectDeps = new ArrayList<ArrayList<String>>();
@@ -51,7 +54,7 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 
 	public static final Logger logger = LogManager.getLogger(DependencyDataSetIterator.class);
 
-	public DependencyDataSetIterator(DependencyNeuralNetwork depnn, String dependenciesDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES) throws IOException, InterruptedException {
+	public DependencyDataSetIterator(DependencyNeuralNetwork depnn, String dependenciesDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, boolean NN_HARD_LABELS) throws IOException, InterruptedException {
 		this.depnn = depnn;
 
 		this.recordReader = new CSVRecordReader(0, " ");
@@ -60,6 +63,7 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 		this.batchSize = batchSize;
 		this.W2V_LAYER_SIZE = W2V_LAYER_SIZE;
 		this.NN_NUM_PROPERTIES = NN_NUM_PROPERTIES;
+		this.NN_HARD_LABELS = NN_HARD_LABELS;
 
 		readAll();
 	}
@@ -91,15 +95,23 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 			String distance = record.get(4).toString();
 			String headPos = record.get(5).toString();
 			String dependentPos = record.get(6).toString();
-			String valueString = record.get(7).toString();
+
+			String valueString;
+			double value;
+
+			if ( NN_HARD_LABELS ) {
+				valueString = record.get(7).toString();
+				value = Double.parseDouble(valueString);
+			} else {
+				valueString = record.get(8).toString();
+				value = Math.tanh(Double.parseDouble(valueString) / sigmoidScaleFactor);
+			}
 
 			catLexicon.add(category);
 			slotLexicon.add(slot);
 			distLexicon.add(distance);
 			posLexicon.add(headPos);
 			posLexicon.add(dependentPos);
-
-			int value = Integer.parseInt(valueString);
 
 			ArrayList<String> recordList = new ArrayList<String>(8);
 			recordList.add(head);
@@ -111,12 +123,10 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 			recordList.add(dependentPos);
 			recordList.add(valueString);
 
-			if ( value == 0 ) {
-				incorrectDeps.add(recordList);
-			} else if ( value == 1 ) {
+			if ( value >= 0.5 ) {
 				correctDeps.add(recordList);
 			} else {
-				throw new IllegalArgumentException("Incorrect value");
+				incorrectDeps.add(recordList);
 			}
 		}
 
@@ -184,11 +194,12 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 			String headPos = record.get(5);
 			String dependentPos = record.get(6);
 
-			int value = Integer.parseInt(record.get(7));
+			double value = Double.parseDouble(record.get(7));
 
 			// make label for labels matrix
 			NDArray label = new NDArray(1, 2);
-			label.putScalar(value, 1);
+			label.putScalar(0, 1 - value);
+			label.putScalar(1, value);
 
 			// make dep for deps matrix
 			INDArray dep = depnn.makeVector(head, category, slot, dependent, distance, headPos, dependentPos);

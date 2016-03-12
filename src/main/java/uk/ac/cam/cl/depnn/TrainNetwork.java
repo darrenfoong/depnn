@@ -57,6 +57,7 @@ public class TrainNetwork {
 		double nnL2Reg = (Double) options.valueOf("nnL2Reg");
 		double nnDropout = (Double) options.valueOf("nnDropout");
 		double nnEmbedRandomRange = (Double) options.valueOf("nnEmbedRandomRange");
+		boolean nnHardLabels = (Boolean) options.valueOf("nnHardLabels");
 
 		int maxNumBatch = (Integer) options.valueOf("maxNumBatch");
 
@@ -90,6 +91,7 @@ public class TrainNetwork {
 													nnL2Reg,
 													nnDropout,
 													nnEmbedRandomRange,
+													nnHardLabels,
 													maxNumBatch);
 			} else {
 				logger.info("Using previous word2vec model: " + prevModelFile);
@@ -104,6 +106,7 @@ public class TrainNetwork {
 													nnL2Reg,
 													nnDropout,
 													nnEmbedRandomRange,
+													nnHardLabels,
 													maxNumBatch);
 			}
 
