@@ -350,6 +350,7 @@ public class DependencyNeuralNetwork {
 				logger.info("Embeddings updated");
 			}
 
+			(new File(modelDir + "/epoch" + epochCount + "/")).mkdir();
 			serialize(modelDir + "/epoch" + epochCount + "/");
 
 			iter.reset();
