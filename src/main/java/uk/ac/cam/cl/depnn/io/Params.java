@@ -17,6 +17,7 @@ public class Params {
 	private final static int W2V_NEGATIVE_SAMPLE = 10;
 	private final static double W2V_LEARNING_RATE = 0.025;
 
+	private final static String NN_TYPE = "dep";
 	private final static int NN_EPOCHS = 30;
 	private final static int NN_SEED = 123;
 	private final static int NN_ITERATIONS = 1;
@@ -71,6 +72,7 @@ public class Params {
 		optionParser.accepts("w2vNegativeSample").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_NEGATIVE_SAMPLE);
 		optionParser.accepts("w2vLearningRate").withRequiredArg().ofType(Double.class).defaultsTo(W2V_LEARNING_RATE);
 
+		optionParser.accepts("nnType").withRequiredArg().ofType(String.class).defaultsTo(NN_TYPE);
 		optionParser.accepts("nnEpochs").withRequiredArg().ofType(Integer.class).defaultsTo(NN_EPOCHS);
 		optionParser.accepts("nnSeed").withRequiredArg().ofType(Integer.class).defaultsTo(NN_SEED);
 		optionParser.accepts("nnIterations").withRequiredArg().ofType(Integer.class).defaultsTo(NN_ITERATIONS);
@@ -93,6 +95,8 @@ public class Params {
 		optionParser.accepts("testDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
+
+		optionParser.accepts("nnType").withRequiredArg().ofType(String.class).defaultsTo(NN_TYPE);
 
 		return optionParser;
 	}

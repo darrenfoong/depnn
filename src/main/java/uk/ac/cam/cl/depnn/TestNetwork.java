@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import uk.ac.cam.cl.depnn.io.Dependency;
 import uk.ac.cam.cl.depnn.io.Params;
 
 public class TestNetwork {
@@ -33,6 +34,8 @@ public class TestNetwork {
 		String modelDir = (String) options.valueOf("modelDir");
 		String logFile = (String) options.valueOf("log");
 
+		String nnType = (String) options.valueOf("nnType");
+
 		System.setProperty("logLevel", options.has("verbose") ? "trace" : "info");
 		System.setProperty("logFile", logFile);
 		final Logger logger = LogManager.getLogger(TrainNetwork.class);
@@ -41,7 +44,7 @@ public class TestNetwork {
 
 		try {
 			logger.info("Initializing network");
-			DependencyNeuralNetwork depnn = new DependencyNeuralNetwork(modelDir);
+			NeuralNetwork<Dependency> depnn = new NeuralNetwork<Dependency>(modelDir, new Dependency());
 			logger.info("Network initialized");
 
 			depnn.testNetwork(testDir);

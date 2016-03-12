@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import uk.ac.cam.cl.depnn.io.Dependency;
 import uk.ac.cam.cl.depnn.io.Params;
 
 public class TrainNetwork {
@@ -48,6 +49,7 @@ public class TrainNetwork {
 		int w2vNegativeSample = (Integer) options.valueOf("w2vNegativeSample");
 		double w2vLearningRate = (Double) options.valueOf("w2vLearningRate");
 
+		String nnType = (String) options.valueOf("nnType");
 		int nnEpochs = (Integer) options.valueOf("nnEpochs");
 		int nnSeed = (Integer) options.valueOf("nnSeed");
 		int nnIterations = (Integer) options.valueOf("nnIterations");
@@ -68,12 +70,12 @@ public class TrainNetwork {
 		logger.info(Params.printOptions(options));
 
 		try {
-			DependencyNeuralNetwork depnn;
+			NeuralNetwork<Dependency> depnn;
 
 			logger.info("Initializing network");
 
 			if ( prevModelFile == null ) {
-				depnn = new DependencyNeuralNetwork(
+				depnn = new NeuralNetwork<Dependency>(
 													w2vSeed,
 													w2vIterations,
 													w2vBatchSize,
@@ -92,10 +94,11 @@ public class TrainNetwork {
 													nnDropout,
 													nnEmbedRandomRange,
 													nnHardLabels,
-													maxNumBatch);
+													maxNumBatch,
+													new Dependency());
 			} else {
 				logger.info("Using previous word2vec model: " + prevModelFile);
-				depnn = new DependencyNeuralNetwork(
+				depnn = new NeuralNetwork<Dependency>(
 													prevModelFile,
 													nnEpochs,
 													nnSeed,
@@ -107,7 +110,8 @@ public class TrainNetwork {
 													nnDropout,
 													nnEmbedRandomRange,
 													nnHardLabels,
-													maxNumBatch);
+													maxNumBatch,
+													new Dependency());
 			}
 
 			logger.info("Network initialized");

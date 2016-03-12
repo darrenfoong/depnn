@@ -3,7 +3,6 @@ package uk.ac.cam.cl.depnn;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -33,10 +32,11 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import uk.ac.cam.cl.depnn.embeddings.Embeddings;
-import uk.ac.cam.cl.depnn.io.DependencyDataSetIterator;
+import uk.ac.cam.cl.depnn.io.DataSetIterator;
+import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.utils.ModelUtils;
 
-public class DependencyNeuralNetwork {
+public class NeuralNetwork<T extends NNType> {
 	private int W2V_SEED;
 	private int W2V_ITERATIONS;
 	private int W2V_BATCH_SIZE;
@@ -64,15 +64,17 @@ public class DependencyNeuralNetwork {
 
 	private INDArray unkVector;
 
-	private Embeddings catEmbeddings;
-	private Embeddings slotEmbeddings;
-	private Embeddings distEmbeddings;
-	private Embeddings posEmbeddings;
+	public Embeddings catEmbeddings;
+	public Embeddings slotEmbeddings;
+	public Embeddings distEmbeddings;
+	public Embeddings posEmbeddings;
 
 	private WordVectors wordVectors;
 	private MultiLayerNetwork network;
 
-	private final static Logger logger = LogManager.getLogger(DependencyNeuralNetwork.class);
+	private T helper;
+
+	private final static Logger logger = LogManager.getLogger(NeuralNetwork.class);
 
 	public WordVectors getWordVectors() {
 		return wordVectors;
@@ -83,7 +85,7 @@ public class DependencyNeuralNetwork {
 	}
 
 	// training
-	public DependencyNeuralNetwork(int w2vSeed,
+	public NeuralNetwork(int w2vSeed,
 	                               int w2vIterations,
 	                               int w2vBatchSize,
 	                               int w2vLayerSize,
@@ -101,7 +103,8 @@ public class DependencyNeuralNetwork {
 	                               double nnDropout,
 	                               double nnEmbedRandomRange,
 	                               boolean nnHardLabels,
-	                               int maxNumBatch) {
+	                               int maxNumBatch,
+	                               T helper) {
 		W2V_SEED = w2vSeed;
 		W2V_ITERATIONS = w2vIterations;
 		W2V_BATCH_SIZE = w2vBatchSize;
@@ -123,9 +126,10 @@ public class DependencyNeuralNetwork {
 		NN_HARD_LABELS = nnHardLabels;
 
 		this.maxNumBatch = maxNumBatch;
+		this.helper = helper;
 	}
 
-	public DependencyNeuralNetwork(String prevModelFile,
+	public NeuralNetwork(String prevModelFile,
 	                               int nnEpochs,
 	                               int nnSeed,
 	                               int nnIterations,
@@ -136,7 +140,8 @@ public class DependencyNeuralNetwork {
 	                               double nnDropout,
 	                               double nnEmbedRandomRange,
 	                               boolean nnHardLabels,
-	                               int maxNumBatch) throws IOException {
+	                               int maxNumBatch,
+	                               T helper) throws IOException {
 		wordVectors = loadWordVectors(prevModelFile);
 
 		NN_EPOCHS = nnEpochs;
@@ -151,16 +156,18 @@ public class DependencyNeuralNetwork {
 		NN_HARD_LABELS = nnHardLabels;
 
 		this.maxNumBatch = maxNumBatch;
+		this.helper = helper;
 	}
 
 	// running
-	public DependencyNeuralNetwork(String modelFile,
+	public NeuralNetwork(String modelFile,
 	                               String configJsonFile,
 	                               String coefficientsFile,
 	                               String catEmbeddingsFile,
 	                               String slotEmbeddingsFile,
 	                               String distEmbeddingsFile,
-	                               String posEmbeddingsFile) throws IOException {
+	                               String posEmbeddingsFile,
+	                               T helper) throws IOException {
 		wordVectors = loadWordVectors(modelFile);
 		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
 
@@ -168,9 +175,11 @@ public class DependencyNeuralNetwork {
 		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
 		distEmbeddings = new Embeddings(distEmbeddingsFile);
 		posEmbeddings = new Embeddings(posEmbeddingsFile);
+
+		this.helper = helper;
 	}
 
-	public DependencyNeuralNetwork(String modelDir) throws IOException {
+	public NeuralNetwork(String modelDir, T helper) throws IOException {
 		String modelFile;
 
 		if ( new File(modelDir + "/word2vec.bin").isFile() ) {
@@ -197,6 +206,8 @@ public class DependencyNeuralNetwork {
 		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
 		distEmbeddings = new Embeddings(distEmbeddingsFile);
 		posEmbeddings = new Embeddings(posEmbeddingsFile);
+
+		this.helper = helper;
 	}
 
 	private void checkUnk(WordVectors wordVectors) {
@@ -283,7 +294,7 @@ public class DependencyNeuralNetwork {
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, dependenciesDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, NN_HARD_LABELS);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, dependenciesDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, NN_HARD_LABELS, helper);
 
 		catEmbeddings = new Embeddings(iter.getCatLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
 		slotEmbeddings = new Embeddings(iter.getSlotLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
@@ -330,9 +341,9 @@ public class DependencyNeuralNetwork {
 			for ( int batchCount = 1; iter.hasNext() && batchCount <= maxNumBatch; batchCount++ ) {
 				logger.info("Training batch " + epochCount + "/" + batchCount);
 
-				Pair<DataSet, List<ArrayList<String>>> next = iter.next();
+				Pair<DataSet, List<T>> next = iter.next();
 				DataSet trainBatch = next.getFirst();
-				List<ArrayList<String>> trainList = next.getSecond();
+				List<T> trainList = next.getSecond();
 
 				trainBatch.normalizeZeroMeanZeroUnitVariance();
 				network.fit(trainBatch);
@@ -343,13 +354,9 @@ public class DependencyNeuralNetwork {
 
 				for ( int i = 0; i < epsilon.rows(); i++ ) {
 					INDArray errors = epsilon.getRow(i);
-					ArrayList<String> record = trainList.get(i);
+					T record = trainList.get(i);
 
-					catEmbeddings.addEmbedding(record.get(1), errors, 1 * W2V_LAYER_SIZE);
-					slotEmbeddings.addEmbedding(record.get(2), errors, 2 * W2V_LAYER_SIZE);
-					distEmbeddings.addEmbedding(record.get(4), errors, 4 * W2V_LAYER_SIZE);
-					posEmbeddings.addEmbedding(record.get(5), errors, 5 * W2V_LAYER_SIZE);
-					posEmbeddings.addEmbedding(record.get(6), errors , 6 * W2V_LAYER_SIZE);
+					record.updateEmbeddings(errors, W2V_LAYER_SIZE, catEmbeddings, slotEmbeddings, distEmbeddings, posEmbeddings);
 				}
 
 				logger.info("Embeddings updated");
@@ -369,7 +376,7 @@ public class DependencyNeuralNetwork {
 
 		Evaluation eval = new Evaluation();
 
-		DependencyDataSetIterator iter = new DependencyDataSetIterator(this, testDir, 0, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, true);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, true, helper);
 
 		DataSet test = iter.next().getFirst();
 
@@ -387,39 +394,15 @@ public class DependencyNeuralNetwork {
 		ModelUtils.saveModelAndParameters(network, new File(configJsonFile), coefficientsFile);
 	}
 
-	public int predict(String head,
-                       String category,
-                       String slot,
-                       String dependent,
-                       String distance,
-                       String headPos,
-                       String dependentPos) {
-		return network.predict(makeVector(head,
-									category,
-									slot,
-									dependent,
-									distance,
-									headPos,
-									dependentPos))[0];
+	public int predict(T example) {
+		return network.predict(example.makeVector(this))[0];
 	}
 
-	public double predictSoft(String head,
-                       String category,
-                       String slot,
-                       String dependent,
-                       String distance,
-                       String headPos,
-                       String dependentPos) {
-		return network.output(makeVector(head,
-									category,
-									slot,
-									dependent,
-									distance,
-									headPos,
-									dependentPos)).getDouble(1);
+	public double predictSoft(T example) {
+		return network.output(example.makeVector(this)).getDouble(1);
 	}
 
-	private INDArray getWordVector(String word) {
+	public INDArray getWordVector(String word) {
 		INDArray vector = wordVectors.getWordVectorMatrix(word);
 
 		if ( vector == null ) {
@@ -431,31 +414,6 @@ public class DependencyNeuralNetwork {
 		}
 
 		return vector;
-	}
-
-	public INDArray makeVector(String head,
-	                            String category,
-	                            String slot,
-	                            String dependent,
-	                            String distance,
-	                            String headPos,
-	                            String dependentPos) {
-		INDArray headVector = getWordVector(head);
-		INDArray dependentVector = getWordVector(dependent);
-
-		INDArray categoryVector = catEmbeddings.getINDArray(category);
-		INDArray slotVector = slotEmbeddings.getINDArray(slot);
-		INDArray distanceVector = distEmbeddings.getINDArray(distance);
-		INDArray headPosVector = posEmbeddings.getINDArray(headPos);
-		INDArray dependentPosVector= posEmbeddings.getINDArray(dependentPos);
-
-		return Nd4j.concat(1, headVector,
-							categoryVector,
-							slotVector,
-							dependentVector,
-							distanceVector,
-							headPosVector,
-							dependentPosVector);
 	}
 
 	public void serializeEmbeddings(String catEmbeddingsFile,
