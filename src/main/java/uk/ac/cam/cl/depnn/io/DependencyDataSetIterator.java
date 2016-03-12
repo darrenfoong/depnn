@@ -160,6 +160,10 @@ public class DependencyDataSetIterator implements Iterator<Pair<DataSet, List<Ar
 
 		correctIter = correctDeps.iterator();
 		incorrectIter = incorrectDeps.iterator();
+
+		nextDataSet = null;
+		nextList = null;
+		dataSetRead = false;
 	}
 
 	private void readDataSet() {
