@@ -18,6 +18,11 @@ public class Embeddings {
 	private final static int UNK = 0;
 	private final static String UNK_STRING = "_UNK_";
 
+	/*
+	 * assumption: no values are null (for performance i.e. avoid calls to
+	 * containKey())
+	 */
+
 	private HashMap<String, Integer> map = new HashMap<String, Integer>();
 	private double[][] embeddings;
 
@@ -116,8 +121,9 @@ public class Embeddings {
 		// assumes that callers will not modify the array
 		// return actual array instead of clone for performance
 
-		if ( map.containsKey(key) ) {
-			return embeddings[map.get(key)];
+		Integer value = map.get(key);
+		if ( value != null ) {
+			return embeddings[value];
 		} else {
 			return embeddings[UNK];
 		}
@@ -128,8 +134,9 @@ public class Embeddings {
 	}
 
 	public void setEmbedding(String key, INDArray embedding) {
-		if ( map.containsKey(key) ) {
-			double[] currentEmbedding = embeddings[map.get(key)];
+		Integer value = map.get(key);
+		if ( value != null ) {
+			double[] currentEmbedding = embeddings[value];
 
 			for ( int i = 0; i < embedding.length(); i++ ) {
 				currentEmbedding[i] = embedding.getDouble(i);
@@ -140,8 +147,9 @@ public class Embeddings {
 	}
 
 	public void addEmbedding(String key, INDArray embedding, int offset) {
-		if ( map.containsKey(key) ) {
-			double[] currentEmbedding = embeddings[map.get(key)];
+		Integer value = map.get(key);
+		if ( value != null ) {
+			double[] currentEmbedding = embeddings[value];
 
 			for ( int i = 0; i < currentEmbedding.length; i++ ) {
 				// -= or += ?
