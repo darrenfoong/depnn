@@ -9,6 +9,8 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import uk.ac.cam.cl.depnn.io.Dependency;
+import uk.ac.cam.cl.depnn.io.Feature;
+import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.Params;
 
 public class TrainNetwork {
@@ -70,48 +72,89 @@ public class TrainNetwork {
 		logger.info(Params.printOptions(options));
 
 		try {
-			NeuralNetwork<Dependency> depnn;
+			NeuralNetwork<? extends NNType> depnn;
 
 			logger.info("Initializing network");
 
 			if ( prevModelFile == null ) {
-				depnn = new NeuralNetwork<Dependency>(
-													w2vSeed,
-													w2vIterations,
-													w2vBatchSize,
-													w2vLayerSize,
-													w2vWindowSize,
-													w2vMinWordFreq,
-													w2vNegativeSample,
-													w2vLearningRate,
-													nnEpochs,
-													nnSeed,
-													nnIterations,
-													nnBatchSize,
-													nnHiddenLayerSize,
-													nnLearningRate,
-													nnL2Reg,
-													nnDropout,
-													nnEmbedRandomRange,
-													nnHardLabels,
-													maxNumBatch,
-													new Dependency());
+				if ( nnType.equals("dep") ) {
+					depnn = new NeuralNetwork<Dependency>(
+							w2vSeed,
+							w2vIterations,
+							w2vBatchSize,
+							w2vLayerSize,
+							w2vWindowSize,
+							w2vMinWordFreq,
+							w2vNegativeSample,
+							w2vLearningRate,
+							nnEpochs,
+							nnSeed,
+							nnIterations,
+							nnBatchSize,
+							nnHiddenLayerSize,
+							nnLearningRate,
+							nnL2Reg,
+							nnDropout,
+							nnEmbedRandomRange,
+							nnHardLabels,
+							maxNumBatch,
+							new Dependency());
+				} else {
+					depnn = new NeuralNetwork<Feature>(
+							w2vSeed,
+							w2vIterations,
+							w2vBatchSize,
+							w2vLayerSize,
+							w2vWindowSize,
+							w2vMinWordFreq,
+							w2vNegativeSample,
+							w2vLearningRate,
+							nnEpochs,
+							nnSeed,
+							nnIterations,
+							nnBatchSize,
+							nnHiddenLayerSize,
+							nnLearningRate,
+							nnL2Reg,
+							nnDropout,
+							nnEmbedRandomRange,
+							nnHardLabels,
+							maxNumBatch,
+							new Feature());
+				}
 			} else {
 				logger.info("Using previous word2vec model: " + prevModelFile);
-				depnn = new NeuralNetwork<Dependency>(
-													prevModelFile,
-													nnEpochs,
-													nnSeed,
-													nnIterations,
-													nnBatchSize,
-													nnHiddenLayerSize,
-													nnLearningRate,
-													nnL2Reg,
-													nnDropout,
-													nnEmbedRandomRange,
-													nnHardLabels,
-													maxNumBatch,
-													new Dependency());
+				if ( nnType.equals("dep") ) {
+					depnn = new NeuralNetwork<Dependency>(
+														prevModelFile,
+														nnEpochs,
+														nnSeed,
+														nnIterations,
+														nnBatchSize,
+														nnHiddenLayerSize,
+														nnLearningRate,
+														nnL2Reg,
+														nnDropout,
+														nnEmbedRandomRange,
+														nnHardLabels,
+														maxNumBatch,
+														new Dependency());
+				} else {
+					depnn = new NeuralNetwork<Feature>(
+							prevModelFile,
+							nnEpochs,
+							nnSeed,
+							nnIterations,
+							nnBatchSize,
+							nnHiddenLayerSize,
+							nnLearningRate,
+							nnL2Reg,
+							nnDropout,
+							nnEmbedRandomRange,
+							nnHardLabels,
+							maxNumBatch,
+							new Feature());
+				}
 			}
 
 			logger.info("Network initialized");
