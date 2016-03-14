@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.eval.Evaluation;
+import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.word2vec.Word2Vec;
@@ -403,15 +404,18 @@ public class NeuralNetwork<T extends NNType> {
 	}
 
 	public INDArray getWordVector(String word) {
-		INDArray vector = wordVectors.getWordVectorMatrix(word);
+		INDArray vector = wordVectors.getWordVectorMatrixNormalized(word);
 
 		if ( vector == null ) {
-			vector = wordVectors.getWordVectorMatrix(wordVectors.getUNK());
+			vector = wordVectors.getWordVectorMatrixNormalized(wordVectors.getUNK());
 
 			if ( vector == null ) {
 				vector = unkVector;
 			}
 		}
+
+		// ideally, loadWordVectors() should normalise all the word vectors
+		// but stick with this for now
 
 		return vector;
 	}
