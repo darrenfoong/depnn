@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.word2vec.Word2Vec;
@@ -355,9 +354,10 @@ public class NeuralNetwork<T extends NNType> {
 
 				for ( int i = 0; i < epsilon.rows(); i++ ) {
 					INDArray errors = epsilon.getRow(i);
+
 					T record = trainList.get(i);
 
-					record.updateEmbeddings(errors, W2V_LAYER_SIZE, catEmbeddings, slotEmbeddings, distEmbeddings, posEmbeddings);
+					record.updateEmbeddings(errors.muli(NN_LEARNING_RATE), W2V_LAYER_SIZE, catEmbeddings, slotEmbeddings, distEmbeddings, posEmbeddings);
 				}
 
 				logger.info("Embeddings updated");
