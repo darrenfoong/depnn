@@ -152,7 +152,6 @@ public class Embeddings {
 			double[] currentEmbedding = embeddings[value];
 
 			for ( int i = 0; i < currentEmbedding.length; i++ ) {
-				// -= or += ?
 				currentEmbedding[i] -= embedding.getDouble(i + offset);
 			}
 

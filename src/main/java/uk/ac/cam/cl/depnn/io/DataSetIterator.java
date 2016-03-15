@@ -54,7 +54,7 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 
 	public static final Logger logger = LogManager.getLogger(DataSetIterator.class);
 
-	public DataSetIterator(NeuralNetwork depnn, String dependenciesDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
+	public DataSetIterator(NeuralNetwork<T> depnn, String dependenciesDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
 		this.depnn = depnn;
 
 		this.recordReader = new CSVRecordReader(0, " ");

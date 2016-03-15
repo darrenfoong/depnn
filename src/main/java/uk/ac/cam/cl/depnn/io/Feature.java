@@ -90,7 +90,7 @@ public class Feature extends NNType {
 	}
 
 	@Override
-	public INDArray makeVector(NeuralNetwork depnn) {
+	public INDArray makeVector(NeuralNetwork<? extends NNType> depnn) {
 		// head category slot dependent distance head_pos dependent_pos value count
 		String topCat = this.get(0);
 		String leftCat = this.get(1);

@@ -53,7 +53,7 @@ public class Dependency extends NNType {
 	}
 
 	@Override
-	public INDArray makeVector(NeuralNetwork depnn) {
+	public INDArray makeVector(NeuralNetwork<? extends NNType> depnn) {
 		// head category slot dependent distance head_pos dependent_pos value count
 		String head = this.get(0);
 		String category = this.get(1);

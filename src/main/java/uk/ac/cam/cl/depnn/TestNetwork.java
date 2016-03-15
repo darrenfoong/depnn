@@ -9,6 +9,8 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import uk.ac.cam.cl.depnn.io.Dependency;
+import uk.ac.cam.cl.depnn.io.Feature;
+import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.Params;
 
 public class TestNetwork {
@@ -43,8 +45,16 @@ public class TestNetwork {
 		logger.info(Params.printOptions(options));
 
 		try {
+			NeuralNetwork<? extends NNType> depnn;
+
 			logger.info("Initializing network");
-			NeuralNetwork<Dependency> depnn = new NeuralNetwork<Dependency>(modelDir, new Dependency());
+
+			if ( nnType.equals("dep") ) {
+				depnn = new NeuralNetwork<Dependency>(modelDir, new Dependency());
+			} else {
+				depnn = new NeuralNetwork<Feature>(modelDir, new Feature());
+			}
+
 			logger.info("Network initialized");
 
 			depnn.testNetwork(testDir);
