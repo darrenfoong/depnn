@@ -346,7 +346,7 @@ public class NeuralNetwork<T extends NNType> {
 				DataSet trainBatch = next.getFirst();
 				List<T> trainList = next.getSecond();
 
-				trainBatch.normalizeZeroMeanZeroUnitVariance();
+				// trainBatch.normalizeZeroMeanZeroUnitVariance();
 				network.fit(trainBatch);
 
 				logger.info("Network updated");

@@ -153,7 +153,7 @@ public class Embeddings {
 
 			for ( int i = 0; i < currentEmbedding.length; i++ ) {
 				// -= or += ?
-				currentEmbedding[i] += embedding.getDouble(i + offset);
+				currentEmbedding[i] -= embedding.getDouble(i + offset);
 			}
 
 			normalizeEmbedding(currentEmbedding);
