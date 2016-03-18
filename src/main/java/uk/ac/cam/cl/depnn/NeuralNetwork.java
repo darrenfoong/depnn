@@ -1,8 +1,11 @@
 package uk.ac.cam.cl.depnn;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -372,14 +375,16 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Network training complete");
 	}
 
-	public void testNetwork(String testDir) throws IOException, InterruptedException {
+	public void testNetwork(String testDir, String logFile) throws IOException, InterruptedException {
 		logger.info("Testing network using " + testDir);
 
 		Evaluation eval = new Evaluation();
 
 		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, true, helper);
+		Pair<DataSet, List<T>> next = iter.next();
 
-		DataSet test = iter.next().getFirst();
+		DataSet test = next.getFirst();
+		List<T> list = next.getSecond();
 
 		logger.info("Number of test examples: " + test.numExamples());
 
@@ -387,6 +392,27 @@ public class NeuralNetwork<T extends NNType> {
 		eval.eval(test.getLabels(), predictions);
 
 		logger.info(eval.stats());
+
+		try ( PrintWriter outCorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".labelled1")));
+				PrintWriter outIncorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".labelled0"))) ) {
+			logger.info("Writing to files");
+
+			for ( int i = 0; i < list.size(); i++ ) {
+				String example = list.get(i).toString();
+				double prediction = predictions.getDouble(i, 1);
+
+				if ( prediction >= 0.5 ) {
+					outCorrect.println(example);
+				} else {
+					outIncorrect.println(example);
+				}
+			}
+		} catch ( FileNotFoundException e ) {
+			logger.error(e);
+		} catch ( IOException e ) {
+			logger.error(e);
+		}
+
 		logger.info("Network testing complete");
 	}
 

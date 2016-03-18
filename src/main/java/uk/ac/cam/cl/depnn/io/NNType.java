@@ -43,4 +43,18 @@ public abstract class NNType extends ArrayList<String> {
 	                                      Embeddings slotEmbeddings,
 	                                      Embeddings distEmbeddings,
 	                                      Embeddings posEmbeddings);
+
+	@Override
+	public String toString() {
+		StringBuilder outputBuilder = new StringBuilder("");
+
+		for ( String s: this ) {
+			outputBuilder.append(s);
+			outputBuilder.append(" ");
+		}
+
+		outputBuilder.append(value);
+
+		return outputBuilder.toString();
+	}
  }

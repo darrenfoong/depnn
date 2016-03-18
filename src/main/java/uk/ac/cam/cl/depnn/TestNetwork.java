@@ -57,7 +57,7 @@ public class TestNetwork {
 
 			logger.info("Network initialized");
 
-			depnn.testNetwork(testDir);
+			depnn.testNetwork(testDir, logFile);
 		} catch ( Exception e ) {
 			logger.error("Exception", e);
 		}
