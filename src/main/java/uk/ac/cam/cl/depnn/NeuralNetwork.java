@@ -388,7 +388,7 @@ public class NeuralNetwork<T extends NNType> {
 
 		logger.info("Number of test examples: " + test.numExamples());
 
-		INDArray predictions = network.output(test.getFeatures());
+		INDArray predictions = network.output(test.getFeatures(), false);
 		eval.eval(test.getLabels(), predictions);
 
 		logger.info(eval.stats());
