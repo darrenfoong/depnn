@@ -393,8 +393,8 @@ public class NeuralNetwork<T extends NNType> {
 
 		logger.info(eval.stats());
 
-		try ( PrintWriter outCorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".labelled1")));
-				PrintWriter outIncorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".labelled0"))) ) {
+		try ( PrintWriter outCorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified1")));
+				PrintWriter outIncorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified0"))) ) {
 			logger.info("Writing to files");
 
 			for ( int i = 0; i < list.size(); i++ ) {
