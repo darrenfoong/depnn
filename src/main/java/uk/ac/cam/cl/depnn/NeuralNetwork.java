@@ -268,7 +268,7 @@ public class NeuralNetwork<T extends NNType> {
 				.windowSize(W2V_WINDOW_SIZE)
 				.minWordFrequency(W2V_MIN_WORD_FREQUENCY)
 				.negativeSample(W2V_NEGATIVE_SAMPLE)
-				.useUnknown(true)
+				//.useUnknown(true)
 				.iterate(iter)
 				.tokenizerFactory(t)
 				.build();
@@ -312,7 +312,7 @@ public class NeuralNetwork<T extends NNType> {
 				.regularization(true)
 				.l2(NN_L2_REG)
 				.useDropConnect(true)
-				.list()
+				.list(2)
 				.layer(0, new DenseLayer.Builder()
 								.nIn(numInput)
 								.nOut(NN_HIDDEN_LAYER_SIZE)
