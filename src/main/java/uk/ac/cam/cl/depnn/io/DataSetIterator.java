@@ -17,7 +17,7 @@ import org.canova.api.split.FileSplit;
 import org.canova.api.writable.Writable;
 import org.deeplearning4j.berkeley.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.cpu.nativecpu.NDArray;
+import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
 import uk.ac.cam.cl.depnn.NeuralNetwork;
