@@ -8,7 +8,7 @@
     <name>Dependency Neural Network</name>
     <description>Dependency Neural Network</description>
     <properties>
-        <nd4j.version>0.4-rc3.9-SNAPSHOT</nd4j.version>
+        <nd4j.version>0.4-rc3.8</nd4j.version>
         <dl4j.version>0.4-rc3.9-SNAPSHOT</dl4j.version>
         <log4j2.version>2.5</log4j2.version>
         <jopt-simple.version>4.9</jopt-simple.version>
@@ -85,7 +85,7 @@
         </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native</artifactId>
+            <artifactId>nd4j-x86</artifactId>
             <version>${nd4j.version}</version>
             <exclusions>
                 <exclusion>
