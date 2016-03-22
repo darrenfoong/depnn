@@ -430,6 +430,8 @@ public class NeuralNetwork<T extends NNType> {
 	}
 
 	public INDArray getWordVector(String word) {
+		word = word.toLowerCase();
+
 		INDArray vector = wordVectors.getWordVectorMatrixNormalized(word);
 
 		if ( vector == null ) {
