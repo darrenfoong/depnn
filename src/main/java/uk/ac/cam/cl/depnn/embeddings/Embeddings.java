@@ -148,15 +148,19 @@ public class Embeddings {
 
 	public void addEmbedding(String key, INDArray embedding, int offset) {
 		Integer value = map.get(key);
+		double[] currentEmbedding;
+
 		if ( value != null ) {
-			double[] currentEmbedding = embeddings[value];
-
-			for ( int i = 0; i < currentEmbedding.length; i++ ) {
-				currentEmbedding[i] -= embedding.getDouble(i + offset);
-			}
-
-			normalizeEmbedding(currentEmbedding);
+			currentEmbedding = embeddings[value];
+		} else {
+			currentEmbedding = embeddings[UNK];
 		}
+
+		for ( int i = 0; i < currentEmbedding.length; i++ ) {
+			currentEmbedding[i] -= embedding.getDouble(i + offset);
+		}
+
+		normalizeEmbedding(currentEmbedding);
 	}
 
 	public void addEmbedding(String key, INDArray embedding) {
