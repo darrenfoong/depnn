@@ -13,12 +13,16 @@ import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 public class Dependency extends NNType {
 	private int sigmoidScaleFactor = 20;
 
+	private String stripCategory(String category) {
+		return category.replaceAll("\\[.*?\\]", "");
+	}
+
 	@Override
 	public NNType makeRecord(ArrayList<Writable> record, boolean hardLabels, HashSet<String> catLexicon, HashSet<String> slotLexicon, HashSet<String> distLexicon, HashSet<String> posLexicon) {
 		Dependency result = new Dependency();
 
 		String head = record.get(0).toString();
-		String category = record.get(1).toString();
+		String category = stripCategory(record.get(1).toString());
 		String slot = record.get(2).toString();
 		String dependent = record.get(3).toString();
 		String distance = record.get(4).toString();
@@ -56,7 +60,7 @@ public class Dependency extends NNType {
 	public INDArray makeVector(NeuralNetwork<? extends NNType> depnn) {
 		// head category slot dependent distance head_pos dependent_pos value count
 		String head = this.get(0);
-		String category = this.get(1);
+		String category = stripCategory(this.get(1));
 		String slot = this.get(2);
 		String dependent = this.get(3);
 		String distance = this.get(4);
