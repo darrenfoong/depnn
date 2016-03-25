@@ -335,7 +335,7 @@ public class NeuralNetwork<T extends NNType> {
 		network = new MultiLayerNetwork(conf);
 		network.init();
 
-		network.setListeners(new ScoreIterationListener(NN_ITERATIONS));
+		network.setListeners(new ScoreIterationListener(1));
 
 		for ( int epochCount = 1; epochCount <= NN_EPOCHS; epochCount++ ) {
 			logger.info("Training epoch " + epochCount);
