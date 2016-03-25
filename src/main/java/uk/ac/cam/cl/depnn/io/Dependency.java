@@ -15,7 +15,7 @@ public class Dependency extends NNType {
 
 	@Override
 	public int getNumProperties() {
-		return 7;
+		return 11;
 	}
 
 	private String stripCategory(String category) {
@@ -33,14 +33,18 @@ public class Dependency extends NNType {
 		String distance = record.get(4).toString();
 		String headPos = record.get(5).toString();
 		String dependentPos = record.get(6).toString();
+		String headLeftPos = record.get(7).toString();
+		String headRightPos = record.get(8).toString();
+		String dependentLeftPos = record.get(9).toString();
+		String dependentRightPos = record.get(10).toString();
 
 		String valueString;
 
 		if ( hardLabels ) {
-			valueString = record.get(7).toString();
+			valueString = record.get(11).toString();
 			result.value = Double.parseDouble(valueString);
 		} else {
-			valueString = record.get(8).toString();
+			valueString = record.get(12).toString();
 			result.value = Math.tanh(Double.parseDouble(valueString) / sigmoidScaleFactor);
 		}
 
@@ -49,6 +53,10 @@ public class Dependency extends NNType {
 		distLexicon.add(distance);
 		posLexicon.add(headPos);
 		posLexicon.add(dependentPos);
+		posLexicon.add(headLeftPos);
+		posLexicon.add(headRightPos);
+		posLexicon.add(dependentLeftPos);
+		posLexicon.add(dependentRightPos);
 
 		result.add(head);
 		result.add(category);
@@ -57,6 +65,10 @@ public class Dependency extends NNType {
 		result.add(distance);
 		result.add(headPos);
 		result.add(dependentPos);
+		result.add(headLeftPos);
+		result.add(headRightPos);
+		result.add(dependentLeftPos);
+		result.add(dependentRightPos);
 
 		return result;
 	}
@@ -71,6 +83,10 @@ public class Dependency extends NNType {
 		String distance = this.get(4);
 		String headPos = this.get(5);
 		String dependentPos = this.get(6);
+		String headLeftPos = this.get(7);
+		String headRightPos = this.get(8);
+		String dependentLeftPos = this.get(9);
+		String dependentRightPos = this.get(10);
 
 		INDArray headVector = depnn.getWordVector(head);
 		INDArray dependentVector = depnn.getWordVector(dependent);
@@ -80,6 +96,10 @@ public class Dependency extends NNType {
 		INDArray distanceVector = depnn.distEmbeddings.getINDArray(distance);
 		INDArray headPosVector = depnn.posEmbeddings.getINDArray(headPos);
 		INDArray dependentPosVector= depnn.posEmbeddings.getINDArray(dependentPos);
+		INDArray headLeftPosVector = depnn.posEmbeddings.getINDArray(headLeftPos);
+		INDArray headRightPosVector = depnn.posEmbeddings.getINDArray(headRightPos);
+		INDArray dependentLeftPosVector= depnn.posEmbeddings.getINDArray(dependentLeftPos);
+		INDArray dependentRightPosVector= depnn.posEmbeddings.getINDArray(dependentRightPos);
 
 		return Nd4j.concat(1, headVector,
 							categoryVector,
@@ -87,7 +107,11 @@ public class Dependency extends NNType {
 							dependentVector,
 							distanceVector,
 							headPosVector,
-							dependentPosVector);
+							dependentPosVector,
+							headLeftPosVector,
+							headRightPosVector,
+							dependentLeftPosVector,
+							dependentRightPosVector);
 	}
 
 	@Override
@@ -97,5 +121,9 @@ public class Dependency extends NNType {
 		distEmbeddings.addEmbedding(this.get(4), errors, 4 * w2vLayerSize);
 		posEmbeddings.addEmbedding(this.get(5), errors, 5 * w2vLayerSize);
 		posEmbeddings.addEmbedding(this.get(6), errors , 6 * w2vLayerSize);
+		posEmbeddings.addEmbedding(this.get(7), errors, 7 * w2vLayerSize);
+		posEmbeddings.addEmbedding(this.get(8), errors , 8 * w2vLayerSize);
+		posEmbeddings.addEmbedding(this.get(9), errors, 9 * w2vLayerSize);
+		posEmbeddings.addEmbedding(this.get(10), errors , 10 * w2vLayerSize);
 	}
 }
