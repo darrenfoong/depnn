@@ -14,6 +14,11 @@ public class Feature extends NNType {
 	private int sigmoidScaleFactor = 20;
 
 	@Override
+	public int getNumProperties() {
+		return 21;
+	}
+
+	@Override
 	public NNType makeRecord(ArrayList<Writable> record, boolean hardLabels, HashSet<String> catLexicon, HashSet<String> slotLexicon, HashSet<String> distLexicon, HashSet<String> posLexicon) {
 		Feature result = new Feature();
 

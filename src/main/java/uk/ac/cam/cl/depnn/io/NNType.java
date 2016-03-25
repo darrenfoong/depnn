@@ -12,6 +12,8 @@ import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 public abstract class NNType extends ArrayList<String> {
 	protected double value;
 
+	public abstract int getNumProperties();
+
 	public NNType() {
 		super();
 	}

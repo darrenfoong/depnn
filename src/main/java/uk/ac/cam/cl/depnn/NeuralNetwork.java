@@ -50,7 +50,6 @@ public class NeuralNetwork<T extends NNType> {
 
 	private double W2V_LEARNING_RATE;
 
-	private int NN_NUM_PROPERTIES = 7;
 	private int NN_EPOCHS;
 	private int NN_SEED;
 	private int NN_ITERATIONS;
@@ -290,14 +289,14 @@ public class NeuralNetwork<T extends NNType> {
 	public void trainNetwork(String dependenciesDir, String modelDir) throws IOException, InterruptedException {
 		logger.info("Training network using " + dependenciesDir);
 
-		int numInput = W2V_LAYER_SIZE * NN_NUM_PROPERTIES;
+		int numInput = W2V_LAYER_SIZE * helper.getNumProperties();
 		int numOutput = 2;
 
 		Nd4j.MAX_SLICES_TO_PRINT = -1;
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, dependenciesDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, NN_HARD_LABELS, helper);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, dependenciesDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HARD_LABELS, helper);
 
 		catEmbeddings = new Embeddings(iter.getCatLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
 		slotEmbeddings = new Embeddings(iter.getSlotLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
@@ -380,7 +379,7 @@ public class NeuralNetwork<T extends NNType> {
 
 		Evaluation eval = new Evaluation();
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, true, helper);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), true, helper);
 		Pair<DataSet, List<T>> next = iter.next();
 
 		DataSet test = next.getFirst();

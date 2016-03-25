@@ -13,6 +13,11 @@ import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 public class Dependency extends NNType {
 	private int sigmoidScaleFactor = 20;
 
+	@Override
+	public int getNumProperties() {
+		return 7;
+	}
+
 	private String stripCategory(String category) {
 		return category.replaceAll("\\[.*?\\]", "");
 	}
