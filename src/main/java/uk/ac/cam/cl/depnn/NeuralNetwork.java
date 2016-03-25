@@ -310,7 +310,7 @@ public class NeuralNetwork<T extends NNType> {
 				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
 				.regularization(true)
 				.l2(NN_L2_REG)
-				.useDropConnect(true)
+				//.useDropConnect(true)
 				.list(2)
 				.layer(0, new DenseLayer.Builder()
 								.nIn(numInput)
