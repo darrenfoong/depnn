@@ -112,7 +112,7 @@ public class Embeddings {
 			for ( int j = 0; j < embeddings[i].length; j++ ) {
 				embeddings[i][j] = random.nextDouble() * 2 * randomRange - randomRange;
 			}
-			normalizeEmbedding(embeddings[i]);
+			//normalizeEmbedding(embeddings[i]);
 		}
 	}
 
@@ -142,7 +142,7 @@ public class Embeddings {
 				currentEmbedding[i] = embedding.getDouble(i);
 			}
 
-			normalizeEmbedding(currentEmbedding);
+			//normalizeEmbedding(currentEmbedding);
 		}
 	}
 
@@ -160,7 +160,7 @@ public class Embeddings {
 			currentEmbedding[i] -= embedding.getDouble(i + offset);
 		}
 
-		normalizeEmbedding(currentEmbedding);
+		//normalizeEmbedding(currentEmbedding);
 	}
 
 	public void addEmbedding(String key, INDArray embedding) {
