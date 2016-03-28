@@ -326,6 +326,7 @@ public class NeuralNetwork<T extends NNType> {
 								.nOut(numOutput)
 								.activation("softmax")
 								.weightInit(WeightInit.XAVIER)
+								.dropOut(NN_DROPOUT)
 								.build()
 				)
 				.pretrain(false)
