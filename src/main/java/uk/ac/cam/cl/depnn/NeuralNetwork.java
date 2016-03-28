@@ -316,7 +316,7 @@ public class NeuralNetwork<T extends NNType> {
 								.nIn(numInput)
 								.nOut(NN_HIDDEN_LAYER_SIZE)
 								.activation("relu")
-								.weightInit(WeightInit.XAVIER)
+								.weightInit(WeightInit.RELU)
 								.updater(Updater.ADAGRAD)
 								.dropOut(NN_DROPOUT)
 								.build()
