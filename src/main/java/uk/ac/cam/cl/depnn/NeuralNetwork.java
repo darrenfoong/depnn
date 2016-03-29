@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +31,7 @@ import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreproc
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -391,9 +393,8 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Number of test examples: " + test.numExamples());
 
 		INDArray predictions = network.output(test.getFeatures(), false);
-		eval.eval(test.getLabels(), predictions);
 
-		logger.info(eval.stats());
+		evaluateThreshold(test.getLabels(), predictions);
 
 		try ( PrintWriter outCorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified1")));
 				PrintWriter outIncorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified0"))) ) {
@@ -416,6 +417,41 @@ public class NeuralNetwork<T extends NNType> {
 		}
 
 		logger.info("Network testing complete");
+	}
+
+	private void evaluateThreshold(INDArray labels, INDArray predictions) {
+		for ( int j = 5; j < 10; j++ ) {
+			Evaluation eval = new Evaluation();
+
+			double posThreshold = j * 0.1;
+			double negThreshold = (10 - j) * 0.1;
+
+			ArrayList<INDArray> sublabelsList = new ArrayList<INDArray>();
+			ArrayList<INDArray> subpredictionsList = new ArrayList<INDArray>();
+
+			for ( int i = 0; i < labels.size(0); i++ ) {
+				double prediction = predictions.getDouble(i, 1);
+
+				if ( ( prediction >= posThreshold ) || ( prediction <= negThreshold ) ){
+					sublabelsList.add(labels.getRow(i));
+					subpredictionsList.add(predictions.getRow(i));
+				}
+			}
+
+			INDArray sublabels = new NDArray(sublabelsList.size() ,2);
+			INDArray subpredictions = new NDArray(subpredictionsList.size() ,2);
+
+			for ( int i = 0; i < sublabelsList.size(); i++ ) {
+				sublabels.putRow(i, sublabelsList.get(i));
+				subpredictions.putRow(i, subpredictionsList.get(i));
+			}
+
+			eval.eval(sublabels, subpredictions);
+
+			logger.info("Evaluation threshold: " + posThreshold + ", " + negThreshold);
+			logger.info(eval.stats());
+			logger.info("");
+		}
 	}
 
 	public void serializeNetwork(String configJsonFile, String coefficientsFile) throws IOException {
