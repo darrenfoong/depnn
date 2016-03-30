@@ -92,6 +92,10 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 
 			T recordList = (T) helper.makeRecord(record, NN_HARD_LABELS, catLexicon, slotLexicon, distLexicon, posLexicon);
 
+			if ( recordList == null ) {
+				continue;
+			}
+
 			if ( recordList.getValue() >= 0.5 ) {
 				correctDeps.add(recordList);
 			} else {
