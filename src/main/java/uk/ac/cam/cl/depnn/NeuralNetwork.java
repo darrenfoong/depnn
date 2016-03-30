@@ -394,7 +394,7 @@ public class NeuralNetwork<T extends NNType> {
 
 		INDArray predictions = network.output(test.getFeatures(), false);
 
-		evaluateThreshold(test.getLabels(), predictions);
+		evaluateThresholds(test.getLabels(), predictions);
 
 		try ( PrintWriter outCorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified1")));
 				PrintWriter outIncorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified0"))) ) {
@@ -419,39 +419,45 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Network testing complete");
 	}
 
-	private void evaluateThreshold(INDArray labels, INDArray predictions) {
+	private void evaluateThresholds(INDArray labels, INDArray predictions) {
 		for ( int j = 5; j < 10; j++ ) {
-			Evaluation eval = new Evaluation();
-
 			double posThreshold = j * 0.1;
 			double negThreshold = (10 - j) * 0.1;
 
-			ArrayList<INDArray> sublabelsList = new ArrayList<INDArray>();
-			ArrayList<INDArray> subpredictionsList = new ArrayList<INDArray>();
-
-			for ( int i = 0; i < labels.size(0); i++ ) {
-				double prediction = predictions.getDouble(i, 1);
-
-				if ( ( prediction >= posThreshold ) || ( prediction <= negThreshold ) ){
-					sublabelsList.add(labels.getRow(i));
-					subpredictionsList.add(predictions.getRow(i));
-				}
-			}
-
-			INDArray sublabels = new NDArray(sublabelsList.size() ,2);
-			INDArray subpredictions = new NDArray(subpredictionsList.size() ,2);
-
-			for ( int i = 0; i < sublabelsList.size(); i++ ) {
-				sublabels.putRow(i, sublabelsList.get(i));
-				subpredictions.putRow(i, subpredictionsList.get(i));
-			}
-
-			eval.eval(sublabels, subpredictions);
-
-			logger.info("Evaluation threshold: " + posThreshold + ", " + negThreshold);
-			logger.info(eval.stats());
-			logger.info("");
+			evaluateThreshold(labels, predictions, posThreshold, negThreshold);
 		}
+
+		evaluateThreshold(labels, predictions, 0.8, 0.1);
+	}
+
+	private void evaluateThreshold(INDArray labels, INDArray predictions, double posThreshold, double negThreshold) {
+		Evaluation eval = new Evaluation();
+
+		ArrayList<INDArray> sublabelsList = new ArrayList<INDArray>();
+		ArrayList<INDArray> subpredictionsList = new ArrayList<INDArray>();
+
+		for ( int i = 0; i < labels.size(0); i++ ) {
+			double prediction = predictions.getDouble(i, 1);
+
+			if ( ( prediction >= posThreshold ) || ( prediction <= negThreshold ) ){
+				sublabelsList.add(labels.getRow(i));
+				subpredictionsList.add(predictions.getRow(i));
+			}
+		}
+
+		INDArray sublabels = new NDArray(sublabelsList.size() ,2);
+		INDArray subpredictions = new NDArray(subpredictionsList.size() ,2);
+
+		for ( int i = 0; i < sublabelsList.size(); i++ ) {
+			sublabels.putRow(i, sublabelsList.get(i));
+			subpredictions.putRow(i, subpredictionsList.get(i));
+		}
+
+		eval.eval(sublabels, subpredictions);
+
+		logger.info("Evaluation threshold: " + posThreshold + ", " + negThreshold);
+		logger.info(eval.stats());
+		logger.info("");
 	}
 
 	public void serializeNetwork(String configJsonFile, String coefficientsFile) throws IOException {
