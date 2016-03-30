@@ -92,11 +92,10 @@ public class Embeddings {
 
 			for ( int i = 0; i < embeddings.length; i++ ) {
 				StringBuilder outBuilder = new StringBuilder(keys[i]);
-				outBuilder.append(" ");
 
 				for ( int j = 0; j < embeddings[i].length; j++ ) {
-					outBuilder.append(embeddings[i][j]);
 					outBuilder.append(" ");
+					outBuilder.append(embeddings[i][j]);
 				}
 
 				out.println(outBuilder.toString());
