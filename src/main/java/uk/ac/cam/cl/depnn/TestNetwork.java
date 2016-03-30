@@ -12,6 +12,7 @@ import uk.ac.cam.cl.depnn.io.Dependency;
 import uk.ac.cam.cl.depnn.io.Feature;
 import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.Params;
+import uk.ac.cam.cl.depnn.io.TransDependency;
 
 public class TestNetwork {
 	public static void main(String[] args) {
@@ -45,14 +46,22 @@ public class TestNetwork {
 		logger.info(Params.printOptions(options));
 
 		try {
-			NeuralNetwork<? extends NNType> depnn;
+			NeuralNetwork<? extends NNType> depnn = null;
 
 			logger.info("Initializing network");
 
-			if ( nnType.equals("dep") ) {
-				depnn = new NeuralNetwork<Dependency>(modelDir, new Dependency());
-			} else {
-				depnn = new NeuralNetwork<Feature>(modelDir, new Feature());
+			switch ( nnType ) {
+				case "dep":
+					depnn = new NeuralNetwork<Dependency>(modelDir, new Dependency());
+					break;
+				case "transdep":
+					depnn = new NeuralNetwork<TransDependency>(modelDir, new TransDependency());
+					break;
+				case "feature":
+					depnn = new NeuralNetwork<Feature>(modelDir, new Feature());
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid nnType");
 			}
 
 			logger.info("Network initialized");
