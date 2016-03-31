@@ -145,7 +145,7 @@ public class Embeddings {
 		}
 	}
 
-	public void addEmbedding(String key, INDArray embedding, int offset) {
+	public void updateEmbedding(String key, INDArray embedding, int offset) {
 		Integer value = map.get(key);
 		double[] currentEmbedding;
 
@@ -162,8 +162,8 @@ public class Embeddings {
 		//normalizeEmbedding(currentEmbedding);
 	}
 
-	public void addEmbedding(String key, INDArray embedding) {
-		addEmbedding(key, embedding, 0);
+	public void updateEmbedding(String key, INDArray embedding) {
+		updateEmbedding(key, embedding, 0);
 	}
 
 	private void normalizeEmbedding(double[] embedding) {

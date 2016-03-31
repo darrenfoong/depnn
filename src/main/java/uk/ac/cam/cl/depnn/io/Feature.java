@@ -167,19 +167,19 @@ public class Feature extends NNType {
 
 	@Override
 	public void updateEmbeddings(INDArray errors, int w2vLayerSize, Embeddings catEmbeddings, Embeddings slotEmbeddings, Embeddings distEmbeddings, Embeddings posEmbeddings) {
-		catEmbeddings.addEmbedding(this.get(0), errors, 0 * w2vLayerSize);
-		catEmbeddings.addEmbedding(this.get(1), errors, 1 * w2vLayerSize);
-		catEmbeddings.addEmbedding(this.get(2), errors, 2 * w2vLayerSize);
-		catEmbeddings.addEmbedding(this.get(3), errors, 3 * w2vLayerSize);
-		catEmbeddings.addEmbedding(this.get(4), errors, 4 * w2vLayerSize);
-		catEmbeddings.addEmbedding(this.get(5), errors, 5 * w2vLayerSize);
-		catEmbeddings.addEmbedding(this.get(6), errors, 6 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(14), errors , 14 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(15), errors , 15 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(16), errors , 16 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(17), errors , 17 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(18), errors , 18 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(19), errors , 19 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(20), errors , 20 * w2vLayerSize);
+		catEmbeddings.updateEmbedding(this.get(0), errors, 0 * w2vLayerSize);
+		catEmbeddings.updateEmbedding(this.get(1), errors, 1 * w2vLayerSize);
+		catEmbeddings.updateEmbedding(this.get(2), errors, 2 * w2vLayerSize);
+		catEmbeddings.updateEmbedding(this.get(3), errors, 3 * w2vLayerSize);
+		catEmbeddings.updateEmbedding(this.get(4), errors, 4 * w2vLayerSize);
+		catEmbeddings.updateEmbedding(this.get(5), errors, 5 * w2vLayerSize);
+		catEmbeddings.updateEmbedding(this.get(6), errors, 6 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(14), errors , 14 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(15), errors , 15 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(16), errors , 16 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(17), errors , 17 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(18), errors , 18 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(19), errors , 19 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(20), errors , 20 * w2vLayerSize);
 	}
 }

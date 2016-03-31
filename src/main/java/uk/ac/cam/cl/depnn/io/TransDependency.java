@@ -86,8 +86,8 @@ public class TransDependency extends NNType {
 
 	@Override
 	public void updateEmbeddings(INDArray errors, int w2vLayerSize, Embeddings catEmbeddings, Embeddings slotEmbeddings, Embeddings distEmbeddings, Embeddings posEmbeddings) {
-		distEmbeddings.addEmbedding(this.get(2), errors, 2 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(3), errors, 3 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(4), errors , 4 * w2vLayerSize);
+		distEmbeddings.updateEmbedding(this.get(2), errors, 2 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(3), errors, 3 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(4), errors , 4 * w2vLayerSize);
 	}
 }

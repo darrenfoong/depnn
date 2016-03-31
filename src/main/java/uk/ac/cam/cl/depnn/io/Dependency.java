@@ -116,14 +116,14 @@ public class Dependency extends NNType {
 
 	@Override
 	public void updateEmbeddings(INDArray errors, int w2vLayerSize, Embeddings catEmbeddings, Embeddings slotEmbeddings, Embeddings distEmbeddings, Embeddings posEmbeddings) {
-		catEmbeddings.addEmbedding(this.get(1), errors, 1 * w2vLayerSize);
-		slotEmbeddings.addEmbedding(this.get(2), errors, 2 * w2vLayerSize);
-		distEmbeddings.addEmbedding(this.get(4), errors, 4 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(5), errors, 5 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(6), errors , 6 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(7), errors, 7 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(8), errors , 8 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(9), errors, 9 * w2vLayerSize);
-		posEmbeddings.addEmbedding(this.get(10), errors , 10 * w2vLayerSize);
+		catEmbeddings.updateEmbedding(this.get(1), errors, 1 * w2vLayerSize);
+		slotEmbeddings.updateEmbedding(this.get(2), errors, 2 * w2vLayerSize);
+		distEmbeddings.updateEmbedding(this.get(4), errors, 4 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(5), errors, 5 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(6), errors , 6 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(7), errors, 7 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(8), errors , 8 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(9), errors, 9 * w2vLayerSize);
+		posEmbeddings.updateEmbedding(this.get(10), errors , 10 * w2vLayerSize);
 	}
 }
