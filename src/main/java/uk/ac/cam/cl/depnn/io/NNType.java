@@ -37,7 +37,7 @@ public abstract class NNType extends ArrayList<String> {
 	                                  HashSet<String> distLexicon,
 	                                  HashSet<String> posLexicon);
 
-	public abstract INDArray makeVector(NeuralNetwork<? extends NNType>  depnn);
+	public abstract INDArray makeVector(NeuralNetwork<? extends NNType> network);
 
 	public abstract void updateEmbeddings(INDArray errors,
 	                                      int w2vLayerSize,

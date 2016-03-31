@@ -74,14 +74,14 @@ public class TrainNetwork {
 		logger.info(Params.printOptions(options));
 
 		try {
-			NeuralNetwork<? extends NNType> depnn = null;
+			NeuralNetwork<? extends NNType> network = null;
 
 			logger.info("Initializing network");
 
 			if ( prevModelFile == null ) {
 				switch ( nnType ) {
 					case "dep":
-						depnn = new NeuralNetwork<Dependency>(
+						network = new NeuralNetwork<Dependency>(
 								w2vSeed,
 								w2vIterations,
 								w2vBatchSize,
@@ -104,7 +104,7 @@ public class TrainNetwork {
 								new Dependency());
 						break;
 					case "transdep":
-						depnn = new NeuralNetwork<TransDependency>(
+						network = new NeuralNetwork<TransDependency>(
 								w2vSeed,
 								w2vIterations,
 								w2vBatchSize,
@@ -127,7 +127,7 @@ public class TrainNetwork {
 								new TransDependency());
 						break;
 					case "feature":
-						depnn = new NeuralNetwork<Feature>(
+						network = new NeuralNetwork<Feature>(
 								w2vSeed,
 								w2vIterations,
 								w2vBatchSize,
@@ -156,7 +156,7 @@ public class TrainNetwork {
 				logger.info("Using previous word2vec model: " + prevModelFile);
 				switch ( nnType ) {
 					case "dep":
-						depnn = new NeuralNetwork<Dependency>(
+						network = new NeuralNetwork<Dependency>(
 								prevModelFile,
 								nnEpochs,
 								nnSeed,
@@ -172,7 +172,7 @@ public class TrainNetwork {
 								new Dependency());
 						break;
 					case "transdep":
-						depnn = new NeuralNetwork<TransDependency>(
+						network = new NeuralNetwork<TransDependency>(
 								prevModelFile,
 								nnEpochs,
 								nnSeed,
@@ -188,7 +188,7 @@ public class TrainNetwork {
 								new TransDependency());
 						break;
 					case "feature":
-						depnn = new NeuralNetwork<Feature>(
+						network = new NeuralNetwork<Feature>(
 								prevModelFile,
 								nnEpochs,
 								nnSeed,
@@ -211,13 +211,13 @@ public class TrainNetwork {
 			logger.info("Network initialized");
 
 			if ( prevModelFile == null ) {
-				depnn.trainWord2Vec(sentencesFile);
-				depnn.serializeWord2Vec(modelDir + "/word2vec.model");
+				network.trainWord2Vec(sentencesFile);
+				network.serializeWord2Vec(modelDir + "/word2vec.model");
 			}
 
-			depnn.trainNetwork(trainDir, modelDir);
+			network.trainNetwork(trainDir, modelDir);
 
-			depnn.serialize(modelDir);
+			network.serialize(modelDir);
 		} catch ( Exception e ) {
 			logger.error("Exception", e);
 		}

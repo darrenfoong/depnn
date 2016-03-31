@@ -95,7 +95,7 @@ public class Feature extends NNType {
 	}
 
 	@Override
-	public INDArray makeVector(NeuralNetwork<? extends NNType> depnn) {
+	public INDArray makeVector(NeuralNetwork<? extends NNType> network) {
 		// head category slot dependent distance head_pos dependent_pos value count
 		String topCat = this.get(0);
 		String leftCat = this.get(1);
@@ -119,27 +119,27 @@ public class Feature extends NNType {
 		String rightLeftCatPos = this.get(19);
 		String rightRightCatPos = this.get(20);
 
-		INDArray topCatVector = depnn.catEmbeddings.getINDArray(topCat);
-		INDArray leftCatVector = depnn.catEmbeddings.getINDArray(leftCat);
-		INDArray rightCatVector = depnn.catEmbeddings.getINDArray(rightCat);
-		INDArray leftLeftCatVector = depnn.catEmbeddings.getINDArray(leftLeftCat);
-		INDArray leftRightCatVector = depnn.catEmbeddings.getINDArray(leftRightCat);
-		INDArray rightLeftCatVector = depnn.catEmbeddings.getINDArray(rightLeftCat);
-		INDArray rightRightCatVector = depnn.catEmbeddings.getINDArray(rightRightCat);
-		INDArray topCatWordVector = depnn.getWordVector(topCatWord);
-		INDArray leftCatWordVector = depnn.getWordVector(leftCatWord);
-		INDArray rightCatWordVector = depnn.getWordVector(rightCatWord);
-		INDArray leftLeftCatWordVector = depnn.getWordVector(leftLeftCatWord);
-		INDArray leftRightCatWordVector = depnn.getWordVector(leftRightCatWord);
-		INDArray rightLeftCatWordVector = depnn.getWordVector(rightLeftCatWord);
-		INDArray rightRightCatWordVector = depnn.getWordVector(rightRightCatWord);
-		INDArray topCatPosVector = depnn.posEmbeddings.getINDArray(topCatPos);
-		INDArray leftCatPosVector = depnn.posEmbeddings.getINDArray(leftCatPos);
-		INDArray rightCatPosVector = depnn.posEmbeddings.getINDArray(rightCatPos);
-		INDArray leftLeftCatPosVector = depnn.posEmbeddings.getINDArray(leftLeftCatPos);
-		INDArray leftRightCatPosVector = depnn.posEmbeddings.getINDArray(leftRightCatPos);
-		INDArray rightLeftCatPosVector = depnn.posEmbeddings.getINDArray(rightLeftCatPos);
-		INDArray rightRightCatPosVector = depnn.posEmbeddings.getINDArray(rightRightCatPos);
+		INDArray topCatVector = network.catEmbeddings.getINDArray(topCat);
+		INDArray leftCatVector = network.catEmbeddings.getINDArray(leftCat);
+		INDArray rightCatVector = network.catEmbeddings.getINDArray(rightCat);
+		INDArray leftLeftCatVector = network.catEmbeddings.getINDArray(leftLeftCat);
+		INDArray leftRightCatVector = network.catEmbeddings.getINDArray(leftRightCat);
+		INDArray rightLeftCatVector = network.catEmbeddings.getINDArray(rightLeftCat);
+		INDArray rightRightCatVector = network.catEmbeddings.getINDArray(rightRightCat);
+		INDArray topCatWordVector = network.getWordVector(topCatWord);
+		INDArray leftCatWordVector = network.getWordVector(leftCatWord);
+		INDArray rightCatWordVector = network.getWordVector(rightCatWord);
+		INDArray leftLeftCatWordVector = network.getWordVector(leftLeftCatWord);
+		INDArray leftRightCatWordVector = network.getWordVector(leftRightCatWord);
+		INDArray rightLeftCatWordVector = network.getWordVector(rightLeftCatWord);
+		INDArray rightRightCatWordVector = network.getWordVector(rightRightCatWord);
+		INDArray topCatPosVector = network.posEmbeddings.getINDArray(topCatPos);
+		INDArray leftCatPosVector = network.posEmbeddings.getINDArray(leftCatPos);
+		INDArray rightCatPosVector = network.posEmbeddings.getINDArray(rightCatPos);
+		INDArray leftLeftCatPosVector = network.posEmbeddings.getINDArray(leftLeftCatPos);
+		INDArray leftRightCatPosVector = network.posEmbeddings.getINDArray(leftRightCatPos);
+		INDArray rightLeftCatPosVector = network.posEmbeddings.getINDArray(rightLeftCatPos);
+		INDArray rightRightCatPosVector = network.posEmbeddings.getINDArray(rightRightCatPos);
 
 		return Nd4j.concat(1,
 							topCatVector,

@@ -63,19 +63,19 @@ public class TransDependency extends NNType {
 	}
 
 	@Override
-	public INDArray makeVector(NeuralNetwork<? extends NNType> depnn) {
+	public INDArray makeVector(NeuralNetwork<? extends NNType> network) {
 		String head = this.get(0);
 		String dependent = this.get(1);
 		String distance = this.get(2);
 		String headPos = this.get(3);
 		String dependentPos = this.get(4);
 
-		INDArray headVector = depnn.getWordVector(head);
-		INDArray dependentVector = depnn.getWordVector(dependent);
+		INDArray headVector = network.getWordVector(head);
+		INDArray dependentVector = network.getWordVector(dependent);
 
-		INDArray distanceVector = depnn.distEmbeddings.getINDArray(distance);
-		INDArray headPosVector = depnn.posEmbeddings.getINDArray(headPos);
-		INDArray dependentPosVector= depnn.posEmbeddings.getINDArray(dependentPos);
+		INDArray distanceVector = network.distEmbeddings.getINDArray(distance);
+		INDArray headPosVector = network.posEmbeddings.getINDArray(headPos);
+		INDArray dependentPosVector= network.posEmbeddings.getINDArray(dependentPos);
 
 		return Nd4j.concat(1, headVector,
 							dependentVector,

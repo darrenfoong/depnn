@@ -74,7 +74,7 @@ public class Dependency extends NNType {
 	}
 
 	@Override
-	public INDArray makeVector(NeuralNetwork<? extends NNType> depnn) {
+	public INDArray makeVector(NeuralNetwork<? extends NNType> network) {
 		// head category slot dependent distance head_pos dependent_pos value count
 		String head = this.get(0);
 		String category = stripCategory(this.get(1));
@@ -88,18 +88,18 @@ public class Dependency extends NNType {
 		String dependentLeftPos = this.get(9);
 		String dependentRightPos = this.get(10);
 
-		INDArray headVector = depnn.getWordVector(head);
-		INDArray dependentVector = depnn.getWordVector(dependent);
+		INDArray headVector = network.getWordVector(head);
+		INDArray dependentVector = network.getWordVector(dependent);
 
-		INDArray categoryVector = depnn.catEmbeddings.getINDArray(category);
-		INDArray slotVector = depnn.slotEmbeddings.getINDArray(slot);
-		INDArray distanceVector = depnn.distEmbeddings.getINDArray(distance);
-		INDArray headPosVector = depnn.posEmbeddings.getINDArray(headPos);
-		INDArray dependentPosVector= depnn.posEmbeddings.getINDArray(dependentPos);
-		INDArray headLeftPosVector = depnn.posEmbeddings.getINDArray(headLeftPos);
-		INDArray headRightPosVector = depnn.posEmbeddings.getINDArray(headRightPos);
-		INDArray dependentLeftPosVector= depnn.posEmbeddings.getINDArray(dependentLeftPos);
-		INDArray dependentRightPosVector= depnn.posEmbeddings.getINDArray(dependentRightPos);
+		INDArray categoryVector = network.catEmbeddings.getINDArray(category);
+		INDArray slotVector = network.slotEmbeddings.getINDArray(slot);
+		INDArray distanceVector = network.distEmbeddings.getINDArray(distance);
+		INDArray headPosVector = network.posEmbeddings.getINDArray(headPos);
+		INDArray dependentPosVector= network.posEmbeddings.getINDArray(dependentPos);
+		INDArray headLeftPosVector = network.posEmbeddings.getINDArray(headLeftPos);
+		INDArray headRightPosVector = network.posEmbeddings.getINDArray(headRightPos);
+		INDArray dependentLeftPosVector= network.posEmbeddings.getINDArray(dependentLeftPos);
+		INDArray dependentRightPosVector= network.posEmbeddings.getINDArray(dependentRightPos);
 
 		return Nd4j.concat(1, headVector,
 							categoryVector,

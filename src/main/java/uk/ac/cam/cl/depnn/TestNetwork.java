@@ -47,19 +47,19 @@ public class TestNetwork {
 		logger.info(Params.printOptions(options));
 
 		try {
-			NeuralNetwork<? extends NNType> depnn = null;
+			NeuralNetwork<? extends NNType> network = null;
 
 			logger.info("Initializing network");
 
 			switch ( nnType ) {
 				case "dep":
-					depnn = new NeuralNetwork<Dependency>(modelDir, new Dependency());
+					network = new NeuralNetwork<Dependency>(modelDir, new Dependency());
 					break;
 				case "transdep":
-					depnn = new NeuralNetwork<TransDependency>(modelDir, new TransDependency());
+					network = new NeuralNetwork<TransDependency>(modelDir, new TransDependency());
 					break;
 				case "feature":
-					depnn = new NeuralNetwork<Feature>(modelDir, new Feature());
+					network = new NeuralNetwork<Feature>(modelDir, new Feature());
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid nnType");
@@ -67,7 +67,7 @@ public class TestNetwork {
 
 			logger.info("Network initialized");
 
-			depnn.testNetwork(testDir, logFile);
+			network.testNetwork(testDir, logFile);
 		} catch ( Exception e ) {
 			logger.error("Exception", e);
 		}
