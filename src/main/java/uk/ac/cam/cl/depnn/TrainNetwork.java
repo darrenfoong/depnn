@@ -34,7 +34,7 @@ public class TrainNetwork {
 		}
 
 		String sentencesFile = (String) options.valueOf("sentencesFile");
-		String dependenciesDir = (String) options.valueOf("dependenciesDir");
+		String trainDir = (String) options.valueOf("trainDir");
 		String modelDir = (String) options.valueOf("modelDir");
 		String logFile = (String) options.valueOf("log");
 		String prevModelFile = null;
@@ -214,7 +214,7 @@ public class TrainNetwork {
 				depnn.serializeWord2Vec(modelDir + "/word2vec.model");
 			}
 
-			depnn.trainNetwork(dependenciesDir, modelDir);
+			depnn.trainNetwork(trainDir, modelDir);
 
 			depnn.serialize(modelDir);
 		} catch ( Exception e ) {

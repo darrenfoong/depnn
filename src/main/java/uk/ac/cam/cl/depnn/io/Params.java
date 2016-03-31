@@ -58,7 +58,7 @@ public class Params {
 		OptionParser optionParser = getBaseOptionParser();
 
 		optionParser.accepts("sentencesFile").withRequiredArg().ofType(String.class).required();
-		optionParser.accepts("dependenciesDir").withRequiredArg().ofType(String.class).required();
+		optionParser.accepts("trainDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("prevModel").withRequiredArg().ofType(String.class);

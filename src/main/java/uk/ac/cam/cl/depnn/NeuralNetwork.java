@@ -288,8 +288,8 @@ public class NeuralNetwork<T extends NNType> {
 		}
 	}
 
-	public void trainNetwork(String dependenciesDir, String modelDir) throws IOException, InterruptedException {
-		logger.info("Training network using " + dependenciesDir);
+	public void trainNetwork(String trainDir, String modelDir) throws IOException, InterruptedException {
+		logger.info("Training network using " + trainDir);
 
 		int numInput = W2V_LAYER_SIZE * helper.getNumProperties();
 		int numOutput = 2;
@@ -298,7 +298,7 @@ public class NeuralNetwork<T extends NNType> {
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, dependenciesDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HARD_LABELS, helper);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, trainDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HARD_LABELS, helper);
 
 		catEmbeddings = new Embeddings(iter.getCatLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
 		slotEmbeddings = new Embeddings(iter.getSlotLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
