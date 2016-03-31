@@ -382,8 +382,6 @@ public class NeuralNetwork<T extends NNType> {
 	public void testNetwork(String testDir, String logFile) throws IOException, InterruptedException {
 		logger.info("Testing network using " + testDir);
 
-		Evaluation eval = new Evaluation();
-
 		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), true, helper);
 		Pair<DataSet, List<T>> next = iter.next();
 
