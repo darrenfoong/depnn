@@ -6,8 +6,8 @@ import java.util.HashSet;
 import org.canova.api.writable.Writable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import uk.ac.cam.cl.depnn.NeuralNetwork;
 import uk.ac.cam.cl.depnn.embeddings.Embeddings;
+import uk.ac.cam.cl.depnn.nn.NeuralNetwork;
 
 public abstract class NNType extends ArrayList<String> {
 	protected double value;

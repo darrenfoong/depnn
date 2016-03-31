@@ -7,8 +7,8 @@ import org.canova.api.writable.Writable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
-import uk.ac.cam.cl.depnn.NeuralNetwork;
 import uk.ac.cam.cl.depnn.embeddings.Embeddings;
+import uk.ac.cam.cl.depnn.nn.NeuralNetwork;
 
 public class TransDependency extends NNType {
 	private int sigmoidScaleFactor = 20;

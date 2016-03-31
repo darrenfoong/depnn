@@ -13,6 +13,7 @@ import uk.ac.cam.cl.depnn.io.Feature;
 import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.Params;
 import uk.ac.cam.cl.depnn.io.TransDependency;
+import uk.ac.cam.cl.depnn.nn.NeuralNetwork;
 
 public class TestNetwork {
 	public static void main(String[] args) {

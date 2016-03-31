@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.depnn;
+package uk.ac.cam.cl.depnn.nn;
 
 import java.io.BufferedWriter;
 import java.io.File;

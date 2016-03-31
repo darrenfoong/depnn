@@ -20,7 +20,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
-import uk.ac.cam.cl.depnn.NeuralNetwork;
+import uk.ac.cam.cl.depnn.nn.NeuralNetwork;
 
 public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet, List<T>>> {
 	private final NeuralNetwork<T> network;
