@@ -23,19 +23,19 @@ import org.nd4j.linalg.dataset.DataSet;
 import uk.ac.cam.cl.depnn.NeuralNetwork;
 
 public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet, List<T>>> {
-	private final NeuralNetwork<T> depnn;
+	private final NeuralNetwork<T> network;
 
 	private final RecordReader recordReader;
 	private final int batchSize;
-	private int correctDepsPerBatch;
-	private int incorrectDepsPerBatch;
+	private int correctRecordsPerBatch;
+	private int incorrectRecordsPerBatch;
 
 	private final int W2V_LAYER_SIZE;
 	private final int NN_NUM_PROPERTIES;
 	private final boolean NN_HARD_LABELS;
 
-	private ArrayList<T> correctDeps = new ArrayList<T>();
-	private ArrayList<T> incorrectDeps = new ArrayList<T>();
+	private ArrayList<T> correctRecords = new ArrayList<T>();
+	private ArrayList<T> incorrectRecords = new ArrayList<T>();
 
 	private HashSet<String> catLexicon = new HashSet<String>();
 	private HashSet<String> slotLexicon = new HashSet<String>();
@@ -54,11 +54,11 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 
 	public static final Logger logger = LogManager.getLogger(DataSetIterator.class);
 
-	public DataSetIterator(NeuralNetwork<T> depnn, String dependenciesDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
-		this.depnn = depnn;
+	public DataSetIterator(NeuralNetwork<T> network, String recordsDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
+		this.network = network;
 
 		this.recordReader = new CSVRecordReader(0, " ");
-		recordReader.initialize(new FileSplit(new File(dependenciesDir)));
+		recordReader.initialize(new FileSplit(new File(recordsDir)));
 
 		this.batchSize = batchSize;
 		this.W2V_LAYER_SIZE = W2V_LAYER_SIZE;
@@ -88,39 +88,39 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 
 	private void readAll() throws IOException {
 		while ( recordReader.hasNext() ) {
-			ArrayList<Writable> record = (ArrayList<Writable>) recordReader.next();
+			ArrayList<Writable> next = (ArrayList<Writable>) recordReader.next();
 
-			T recordList = (T) helper.makeRecord(record, NN_HARD_LABELS, catLexicon, slotLexicon, distLexicon, posLexicon);
+			T record = (T) helper.makeRecord(next, NN_HARD_LABELS, catLexicon, slotLexicon, distLexicon, posLexicon);
 
-			if ( recordList == null ) {
+			if ( record == null ) {
 				continue;
 			}
 
-			if ( recordList.getValue() >= 0.5 ) {
-				correctDeps.add(recordList);
+			if ( record.getValue() >= 0.5 ) {
+				correctRecords.add(record);
 			} else {
-				incorrectDeps.add(recordList);
+				incorrectRecords.add(record);
 			}
 		}
 
-		int numCorrectDeps = correctDeps.size();
-		int numIncorrectDeps = incorrectDeps.size();
-		int totalDeps = numCorrectDeps + numIncorrectDeps;
-		double ratio = ((double) numCorrectDeps)/((double) totalDeps);
+		int numCorrectRecords = correctRecords.size();
+		int numIncorrectRecords = incorrectRecords.size();
+		int totalRecords = numCorrectRecords + numIncorrectRecords;
+		double ratio = ((double) numCorrectRecords)/((double) totalRecords);
 
 		if ( batchSize == 0 ) {
-			correctDepsPerBatch = numCorrectDeps;
-			incorrectDepsPerBatch = numIncorrectDeps;
+			correctRecordsPerBatch = numCorrectRecords;
+			incorrectRecordsPerBatch = numIncorrectRecords;
 		} else {
-			correctDepsPerBatch = (int) (ratio * batchSize);
-			incorrectDepsPerBatch = batchSize - correctDepsPerBatch;
+			correctRecordsPerBatch = (int) (ratio * batchSize);
+			incorrectRecordsPerBatch = batchSize - correctRecordsPerBatch;
 		}
 
-		logger.info("Number of correct deps: " + numCorrectDeps);
-		logger.info("Number of incorrect deps: " + numIncorrectDeps);
-		logger.info("Number of correct deps per batch: " + correctDepsPerBatch);
-		logger.info("Number of incorrect deps per batch: " + incorrectDepsPerBatch);
-		logger.info("All deps read");
+		logger.info("Number of correct records: " + numCorrectRecords);
+		logger.info("Number of incorrect records: " + numIncorrectRecords);
+		logger.info("Number of correct records per batch: " + correctRecordsPerBatch);
+		logger.info("Number of incorrect records per batch: " + incorrectRecordsPerBatch);
+		logger.info("All records read");
 
 		reset();
 
@@ -128,11 +128,11 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 	}
 
 	public void reset() {
-		Collections.shuffle(correctDeps);
-		Collections.shuffle(incorrectDeps);
+		Collections.shuffle(correctRecords);
+		Collections.shuffle(incorrectRecords);
 
-		correctIter = correctDeps.iterator();
-		incorrectIter = incorrectDeps.iterator();
+		correctIter = correctRecords.iterator();
+		incorrectIter = incorrectRecords.iterator();
 
 		nextDataSet = null;
 		nextList = null;
@@ -140,37 +140,35 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 	}
 
 	private void readDataSet() {
-		ArrayList<T> depsInBatch = new ArrayList<T>();
+		ArrayList<T> recordsInBatch = new ArrayList<T>();
 
-		for ( int i = 0; i < correctDepsPerBatch && correctIter.hasNext(); i++ ) {
-			depsInBatch.add(correctIter.next());
+		for ( int i = 0; i < correctRecordsPerBatch && correctIter.hasNext(); i++ ) {
+			recordsInBatch.add(correctIter.next());
 		}
 
-		for ( int i = 0; i < incorrectDepsPerBatch && incorrectIter.hasNext(); i++ ) {
-			depsInBatch.add(incorrectIter.next());
+		for ( int i = 0; i < incorrectRecordsPerBatch && incorrectIter.hasNext(); i++ ) {
+			recordsInBatch.add(incorrectIter.next());
 		}
 
-		if ( depsInBatch.isEmpty() ) {
+		if ( recordsInBatch.isEmpty() ) {
 			nextDataSet = null;
 			nextList = null;
 			return;
 		}
 
-		INDArray deps = new NDArray(depsInBatch.size(), W2V_LAYER_SIZE * NN_NUM_PROPERTIES);
-		INDArray labels = new NDArray(depsInBatch.size(), 2);
+		INDArray records = new NDArray(recordsInBatch.size(), W2V_LAYER_SIZE * NN_NUM_PROPERTIES);
+		INDArray labels = new NDArray(recordsInBatch.size(), 2);
 
-		for ( int i = 0; i < depsInBatch.size(); i++ ) {
-			T record = depsInBatch.get(i);
+		for ( int i = 0; i < recordsInBatch.size(); i++ ) {
+			T record = recordsInBatch.get(i);
 
-			// make label for labels matrix
 			NDArray label = new NDArray(1, 2);
 			label.putScalar(0, 1 - record.getValue());
 			label.putScalar(1, record.getValue());
 
-			// make dep for deps matrix
-			INDArray dep = record.makeVector(depnn);
+			INDArray vector = record.makeVector(network);
 
-			deps.putRow(i, dep);
+			records.putRow(i, vector);
 			labels.putRow(i, label);
 		}
 
@@ -180,8 +178,8 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 			logger.error(e);
 		}
 
-		nextDataSet = new DataSet(deps, labels);
-		nextList = depsInBatch;
+		nextDataSet = new DataSet(records, labels);
+		nextList = recordsInBatch;
 	}
 
 	@Override
