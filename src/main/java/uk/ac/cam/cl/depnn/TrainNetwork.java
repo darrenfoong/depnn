@@ -10,6 +10,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import uk.ac.cam.cl.depnn.io.Dependency;
 import uk.ac.cam.cl.depnn.io.Feature;
+import uk.ac.cam.cl.depnn.io.LongDependency;
 import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.Params;
 import uk.ac.cam.cl.depnn.io.TransDependency;
@@ -103,6 +104,29 @@ public class TrainNetwork {
 								maxNumBatch,
 								new Dependency());
 						break;
+					case "longdep":
+						network = new NeuralNetwork<LongDependency>(
+								w2vSeed,
+								w2vIterations,
+								w2vBatchSize,
+								w2vLayerSize,
+								w2vWindowSize,
+								w2vMinWordFreq,
+								w2vNegativeSample,
+								w2vLearningRate,
+								nnEpochs,
+								nnSeed,
+								nnIterations,
+								nnBatchSize,
+								nnHiddenLayerSize,
+								nnLearningRate,
+								nnL2Reg,
+								nnDropout,
+								nnEmbedRandomRange,
+								nnHardLabels,
+								maxNumBatch,
+								new LongDependency());
+						break;
 					case "transdep":
 						network = new NeuralNetwork<TransDependency>(
 								w2vSeed,
@@ -170,6 +194,22 @@ public class TrainNetwork {
 								nnHardLabels,
 								maxNumBatch,
 								new Dependency());
+						break;
+					case "longdep":
+						network = new NeuralNetwork<LongDependency>(
+								prevModelFile,
+								nnEpochs,
+								nnSeed,
+								nnIterations,
+								nnBatchSize,
+								nnHiddenLayerSize,
+								nnLearningRate,
+								nnL2Reg,
+								nnDropout,
+								nnEmbedRandomRange,
+								nnHardLabels,
+								maxNumBatch,
+								new LongDependency());
 						break;
 					case "transdep":
 						network = new NeuralNetwork<TransDependency>(

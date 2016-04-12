@@ -10,6 +10,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import uk.ac.cam.cl.depnn.io.Dependency;
 import uk.ac.cam.cl.depnn.io.Feature;
+import uk.ac.cam.cl.depnn.io.LongDependency;
 import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.Params;
 import uk.ac.cam.cl.depnn.io.TransDependency;
@@ -54,6 +55,9 @@ public class TestNetwork {
 			switch ( nnType ) {
 				case "dep":
 					network = new NeuralNetwork<Dependency>(modelDir, new Dependency());
+					break;
+				case "longdep":
+					network = new NeuralNetwork<LongDependency>(modelDir, new LongDependency());
 					break;
 				case "transdep":
 					network = new NeuralNetwork<TransDependency>(modelDir, new TransDependency());
