@@ -40,6 +40,8 @@ public class TestNetwork {
 		String logFile = (String) options.valueOf("log");
 
 		String nnType = (String) options.valueOf("nnType");
+		double nnPosThres = (Double) options.valueOf("nnPosThres");
+		double nnNegThres = (Double) options.valueOf("nnNegThres");
 
 		System.setProperty("logLevel", options.has("verbose") ? "trace" : "info");
 		System.setProperty("logFile", logFile);
@@ -71,7 +73,7 @@ public class TestNetwork {
 
 			logger.info("Network initialized");
 
-			network.testNetwork(testDir, logFile);
+			network.testNetwork(testDir, logFile, nnPosThres, nnNegThres);
 		} catch ( Exception e ) {
 			logger.error("Exception", e);
 		}

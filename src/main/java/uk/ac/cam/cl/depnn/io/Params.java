@@ -28,6 +28,8 @@ public class Params {
 	private final static double NN_DROPOUT = 0.5;
 	private final static double NN_EMBED_RANDOM_RANGE = 0.01;
 	private final static boolean NN_HARD_LABELS = true;
+	private final static double NN_POS_THRES = 0.8;
+	private final static double NN_NEG_THRES = 0.1;
 
 	public static OptionParser getBaseOptionParser() {
 		OptionParser optionParser = new OptionParser();
@@ -97,6 +99,8 @@ public class Params {
 		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
 
 		optionParser.accepts("nnType").withRequiredArg().ofType(String.class).defaultsTo(NN_TYPE);
+		optionParser.accepts("nnPosThres").withRequiredArg().ofType(Double.class).defaultsTo(NN_POS_THRES);
+		optionParser.accepts("nnNegThres").withRequiredArg().ofType(Double.class).defaultsTo(NN_NEG_THRES);
 
 		return optionParser;
 	}

@@ -379,7 +379,7 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Network training complete");
 	}
 
-	public void testNetwork(String testDir, String logFile) throws IOException, InterruptedException {
+	public void testNetwork(String testDir, String logFile, double posThres, double negThres) throws IOException, InterruptedException {
 		logger.info("Testing network using " + testDir);
 
 		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), true, helper);
@@ -392,7 +392,7 @@ public class NeuralNetwork<T extends NNType> {
 
 		INDArray predictions = network.output(test.getFeatures(), false);
 
-		evaluateThresholds(test.getLabels(), predictions);
+		evaluateThresholds(test.getLabels(), predictions, posThres, negThres);
 
 		try ( PrintWriter outCorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified1")));
 				PrintWriter outIncorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified0"))) ) {
@@ -417,7 +417,7 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Network testing complete");
 	}
 
-	private void evaluateThresholds(INDArray labels, INDArray predictions) {
+	private void evaluateThresholds(INDArray labels, INDArray predictions, double posThres, double negThres) {
 		for ( int j = 5; j < 10; j++ ) {
 			double posThreshold = j * 0.1;
 			double negThreshold = (10 - j) * 0.1;
@@ -425,7 +425,7 @@ public class NeuralNetwork<T extends NNType> {
 			evaluateThreshold(labels, predictions, posThreshold, negThreshold);
 		}
 
-		evaluateThreshold(labels, predictions, 0.8, 0.1);
+		evaluateThreshold(labels, predictions, posThres, negThres);
 	}
 
 	private void evaluateThreshold(INDArray labels, INDArray predictions, double posThreshold, double negThreshold) {
