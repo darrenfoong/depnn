@@ -37,10 +37,10 @@ public class Dependency extends NNType {
 		String valueString;
 
 		if ( hardLabels ) {
-			valueString = record.get(7).toString();
+			valueString = record.get(11).toString();
 			result.value = Double.parseDouble(valueString);
 		} else {
-			valueString = record.get(8).toString();
+			valueString = record.get(12).toString();
 			result.value = Math.tanh(Double.parseDouble(valueString) / sigmoidScaleFactor);
 		}
 
