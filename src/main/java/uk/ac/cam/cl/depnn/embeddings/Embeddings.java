@@ -11,17 +11,21 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 public class Embeddings {
-	private final static int UNK = 0;
+	private int UNK = 0;
 	private final static String UNK_STRING = "_UNK_";
 
 	/*
 	 * assumption: no values are null (for performance i.e. avoid calls to
 	 * containKey())
 	 */
+
+	private final static Logger logger = LogManager.getLogger(Embeddings.class);
 
 	private HashMap<String, Integer> map = new HashMap<String, Integer>();
 	private double[][] embeddings;
@@ -70,8 +74,13 @@ public class Embeddings {
 				String[] lineSplit = line.split(" ");
 				map.put(lineSplit[0], count);
 
+				if ( lineSplit[0].equals(UNK_STRING) ) {
+					logger.info("Remapping UNK");
+					UNK = count;
+				}
+
 				for ( int i = 0; i < sizeEmbeddings; i++ ) {
-					embeddings[count][0] = Double.parseDouble(lineSplit[1+i]);
+					embeddings[count][i] = Double.parseDouble(lineSplit[1+i]);
 				}
 
 				count++;
