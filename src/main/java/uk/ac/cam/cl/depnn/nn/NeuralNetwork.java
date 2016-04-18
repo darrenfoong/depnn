@@ -419,8 +419,8 @@ public class NeuralNetwork<T extends NNType> {
 
 	private void evaluateThresholds(INDArray labels, INDArray predictions, double posThres, double negThres) {
 		for ( int j = 5; j < 10; j++ ) {
-			double posThreshold = j * 0.1;
-			double negThreshold = (10 - j) * 0.1;
+			double posThreshold = j / ((double) 10);
+			double negThreshold = (10 - j) / ((double) 10);
 
 			evaluateThreshold(labels, predictions, posThreshold, negThreshold);
 		}
