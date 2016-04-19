@@ -467,9 +467,22 @@ public class NeuralNetwork<T extends NNType> {
 		return network.predict(example.makeVector(this))[0];
 	}
 
+	public int predict(T example, double posThres, double negThres) {
+		double prediction = predictSoft(example);
+
+		if ( prediction >= posThres ) {
+			return 1;
+		} else if ( prediction <= negThres ) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+
 	public double predictSoft(T example) {
 		return network.output(example.makeVector(this)).getDouble(1);
 	}
+
 
 	public INDArray getWordVector(String word) {
 		word = word.toLowerCase();
