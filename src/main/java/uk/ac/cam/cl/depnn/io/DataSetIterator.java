@@ -156,7 +156,7 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 			return;
 		}
 
-		INDArray records = new NDArray(recordsInBatch.size(), W2V_LAYER_SIZE * NN_NUM_PROPERTIES);
+		INDArray records = new NDArray(recordsInBatch.size(), W2V_LAYER_SIZE * helper.getNumProperties());
 		INDArray labels = new NDArray(recordsInBatch.size(), 2);
 
 		for ( int i = 0; i < recordsInBatch.size(); i++ ) {
