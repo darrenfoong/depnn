@@ -11,6 +11,7 @@ import uk.ac.cam.cl.depnn.nn.NeuralNetwork;
 
 public abstract class NNType extends ArrayList<String> {
 	protected double value;
+	protected ArrayList<INDArray> preloadList = new ArrayList<INDArray>();
 
 	public abstract int getNumProperties();
 
@@ -28,6 +29,10 @@ public abstract class NNType extends ArrayList<String> {
 
 	public void setValue(double value) {
 		this.value = value;
+	}
+
+	public void add(INDArray vector) {
+		preloadList.add(vector);
 	}
 
 	public abstract NNType makeRecord(ArrayList<Writable> record,
