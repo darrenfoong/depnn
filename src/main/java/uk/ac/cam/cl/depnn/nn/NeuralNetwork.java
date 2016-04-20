@@ -479,6 +479,31 @@ public class NeuralNetwork<T extends NNType> {
 		}
 	}
 
+	public int predict(ArrayList<T> examples, double posThres, double negThres) {
+		INDArray vectors = new NDArray(examples.size(), W2V_LAYER_SIZE * helper.getNumProperties());
+
+		for ( int i = 0; i < examples.size(); i++ ) {
+			T example = examples.get(i);
+
+			INDArray vector = example.makeVector(this);
+
+			vectors.putRow(i, vector);
+		}
+
+		int[] predictions = network.predict(vectors);
+		int res = 0;
+
+		for ( int prediction : predictions ) {
+			if ( prediction >= posThres ) {
+				res += 1;
+			} else if ( prediction <= negThres ) {
+				res -= 1;
+			}
+		}
+
+		return res;
+	}
+
 	public double predictSoft(T example) {
 		return network.output(example.makeVector(this)).getDouble(1);
 	}
