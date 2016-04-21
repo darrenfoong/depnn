@@ -479,7 +479,7 @@ public class NeuralNetwork<T extends NNType> {
 		}
 	}
 
-	public int predict(ArrayList<T> examples, double posThres, double negThres) {
+	public int[] predict(ArrayList<T> examples, double posThres, double negThres) {
 		INDArray vectors = new NDArray(examples.size(), W2V_LAYER_SIZE * helper.getNumProperties());
 
 		for ( int i = 0; i < examples.size(); i++ ) {
@@ -490,15 +490,31 @@ public class NeuralNetwork<T extends NNType> {
 			vectors.putRow(i, vector);
 		}
 
-		int[] predictions = network.predict(vectors);
+		INDArray predictions = network.output(vectors, false);
+
+		int[] res = new int[examples.size()];
+
+		for ( int i = 0; i < examples.size(); i++ ) {
+			double prediction = predictions.getDouble(i, 1);
+			if ( prediction >= posThres ) {
+				res[i] = 1;
+			} else if ( prediction <= negThres ) {
+				res[i] = -1;
+			} else {
+				res[i] = 0;
+			}
+		}
+
+		return res;
+	}
+
+	public int predictSum(ArrayList<T> examples, double posThres, double negThres) {
+		int[] predictions = predict(examples, posThres, negThres);
+
 		int res = 0;
 
 		for ( int prediction : predictions ) {
-			if ( prediction >= posThres ) {
-				res += 1;
-			} else if ( prediction <= negThres ) {
-				res -= 1;
-			}
+			res += prediction;
 		}
 
 		return res;
@@ -507,7 +523,6 @@ public class NeuralNetwork<T extends NNType> {
 	public double predictSoft(T example) {
 		return network.output(example.makeVector(this)).getDouble(1);
 	}
-
 
 	public INDArray getWordVector(String word) {
 		word = word.toLowerCase();
