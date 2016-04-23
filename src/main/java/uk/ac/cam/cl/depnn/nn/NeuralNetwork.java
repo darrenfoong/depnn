@@ -89,6 +89,9 @@ public class NeuralNetwork<T extends NNType> {
 	}
 
 	// training
+	public NeuralNetwork() {
+	}
+
 	public NeuralNetwork(int w2vSeed,
 	                               int w2vIterations,
 	                               int w2vBatchSize,
