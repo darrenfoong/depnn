@@ -22,6 +22,15 @@ public class Dependency extends NNType {
 		return category.replaceAll("\\[.*?\\]", "");
 	}
 
+	public String stripMarkup(String category) {
+		category = category.replaceAll("<[0-9]>|\\{[A-Z_]\\*?\\}|\\[X\\]", "");
+		if ( category.startsWith("(") ) {
+			category = category.substring(1, category.length()-1);
+		}
+
+		return category;
+	}
+
 	@Override
 	public NNType makeRecord(ArrayList<Writable> record, boolean hardLabels, HashSet<String> catLexicon, HashSet<String> slotLexicon, HashSet<String> distLexicon, HashSet<String> posLexicon) {
 		Dependency result = new Dependency();
