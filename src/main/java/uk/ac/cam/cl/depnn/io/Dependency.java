@@ -18,7 +18,7 @@ public class Dependency extends NNType {
 		return 7;
 	}
 
-	private String stripCategory(String category) {
+	public String stripCategory(String category) {
 		return category.replaceAll("\\[.*?\\]", "");
 	}
 
@@ -74,7 +74,7 @@ public class Dependency extends NNType {
 
 		if ( preloadList.isEmpty() ) {
 			headVector = network.getWordVector(this.get(0));
-			categoryVector = network.catEmbeddings.getINDArray(stripCategory(this.get(1)));
+			categoryVector = network.catEmbeddings.getINDArray(this.get(1));
 			slotVector = network.slotEmbeddings.getINDArray(this.get(2));
 			dependentVector = network.getWordVector(this.get(3));
 			distanceVector = network.distEmbeddings.getINDArray(this.get(4));
@@ -82,7 +82,7 @@ public class Dependency extends NNType {
 			dependentPosVector = network.posEmbeddings.getINDArray(this.get(6));
 		} else {
 			headVector = preloadList.get(0);
-			categoryVector = network.catEmbeddings.getINDArray(stripCategory(this.get(0)));
+			categoryVector = network.catEmbeddings.getINDArray(this.get(0));
 			slotVector = network.slotEmbeddings.getINDArray(this.get(1));
 			dependentVector = preloadList.get(1);
 			distanceVector = network.distEmbeddings.getINDArray(this.get(2));
