@@ -466,6 +466,10 @@ public class NeuralNetwork<T extends NNType> {
 		ModelUtils.saveModelAndParameters(network, new File(configJsonFile), coefficientsFile);
 	}
 
+	public double predictSoft(T example) {
+		return network.output(example.makeVector(this)).getDouble(1);
+	}
+
 	public int predict(T example) {
 		return network.predict(example.makeVector(this))[0];
 	}
@@ -482,7 +486,7 @@ public class NeuralNetwork<T extends NNType> {
 		}
 	}
 
-	public int[] predict(ArrayList<T> examples, double posThres, double negThres) {
+	public double[] predictSoft(ArrayList<T> examples) {
 		INDArray vectors = new NDArray(examples.size(), W2V_LAYER_SIZE * helper.getNumProperties());
 
 		for ( int i = 0; i < examples.size(); i++ ) {
@@ -495,10 +499,23 @@ public class NeuralNetwork<T extends NNType> {
 
 		INDArray predictions = network.output(vectors, false);
 
-		int[] res = new int[examples.size()];
+		double[] res = new double[examples.size()];
 
 		for ( int i = 0; i < examples.size(); i++ ) {
 			double prediction = predictions.getDouble(i, 1);
+			res[i] = prediction;
+		}
+
+		return res;
+	}
+
+	public int[] predict(ArrayList<T> examples, double posThres, double negThres) {
+		double[] predictions = predictSoft(examples);
+		int[] res = new int[examples.size()];
+
+		for ( int i = 0; i < examples.size(); i++ ) {
+			double prediction = predictions[i];
+
 			if ( prediction >= posThres ) {
 				res[i] = 1;
 			} else if ( prediction <= negThres ) {
@@ -521,10 +538,6 @@ public class NeuralNetwork<T extends NNType> {
 		}
 
 		return res;
-	}
-
-	public double predictSoft(T example) {
-		return network.output(example.makeVector(this)).getDouble(1);
 	}
 
 	public INDArray getWordVector(String word) {
