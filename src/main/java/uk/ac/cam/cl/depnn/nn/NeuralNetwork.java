@@ -470,22 +470,6 @@ public class NeuralNetwork<T extends NNType> {
 		return network.output(example.makeVector(this)).getDouble(1);
 	}
 
-	public int predict(T example) {
-		return network.predict(example.makeVector(this))[0];
-	}
-
-	public int predict(T example, double posThres, double negThres) {
-		double prediction = predictSoft(example);
-
-		if ( prediction >= posThres ) {
-			return 1;
-		} else if ( prediction <= negThres ) {
-			return -1;
-		} else {
-			return 0;
-		}
-	}
-
 	public double[] predictSoft(ArrayList<T> examples) {
 		INDArray vectors = new NDArray(examples.size(), W2V_LAYER_SIZE * helper.getNumProperties());
 
@@ -509,9 +493,9 @@ public class NeuralNetwork<T extends NNType> {
 		return res;
 	}
 
-	public int[] predict(ArrayList<T> examples, double posThres, double negThres) {
+	public double[] predict(ArrayList<T> examples, double posThres, double negThres) {
 		double[] predictions = predictSoft(examples);
-		int[] res = new int[examples.size()];
+		double[] res = new double[examples.size()];
 
 		for ( int i = 0; i < examples.size(); i++ ) {
 			double prediction = predictions[i];
@@ -528,12 +512,12 @@ public class NeuralNetwork<T extends NNType> {
 		return res;
 	}
 
-	public int predictSum(ArrayList<T> examples, double posThres, double negThres) {
-		int[] predictions = predict(examples, posThres, negThres);
+	public double predictSum(ArrayList<T> examples, double posThres, double negThres) {
+		double[] predictions = predict(examples, posThres, negThres);
 
-		int res = 0;
+		double res = 0;
 
-		for ( int prediction : predictions ) {
+		for ( double prediction : predictions ) {
 			res += prediction;
 		}
 
