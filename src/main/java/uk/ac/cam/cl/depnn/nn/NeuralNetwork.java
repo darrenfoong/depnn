@@ -45,7 +45,7 @@ public class NeuralNetwork<T extends NNType> {
 	private int W2V_SEED;
 	private int W2V_ITERATIONS;
 	private int W2V_BATCH_SIZE;
-	private int W2V_LAYER_SIZE;
+	protected int W2V_LAYER_SIZE;
 	private int W2V_WINDOW_SIZE;
 	private int W2V_MIN_WORD_FREQUENCY;
 	private int W2V_NEGATIVE_SAMPLE;
@@ -56,7 +56,7 @@ public class NeuralNetwork<T extends NNType> {
 	private int NN_SEED;
 	private int NN_ITERATIONS;
 	private int NN_BATCH_SIZE;
-	private int NN_HIDDEN_LAYER_SIZE;
+	protected int NN_HIDDEN_LAYER_SIZE;
 
 	private double NN_LEARNING_RATE;
 	private double NN_L2_REG;
@@ -76,7 +76,7 @@ public class NeuralNetwork<T extends NNType> {
 	private WordVectors wordVectors;
 	private MultiLayerNetwork network;
 
-	private T helper;
+	protected T helper;
 
 	private final static Logger logger = LogManager.getLogger(NeuralNetwork.class);
 
@@ -420,7 +420,7 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Network testing complete");
 	}
 
-	private void evaluateThresholds(INDArray labels, INDArray predictions, double posThres, double negThres) {
+	protected void evaluateThresholds(INDArray labels, INDArray predictions, double posThres, double negThres) {
 		for ( int j = 5; j < 10; j++ ) {
 			double posThreshold = j / ((double) 10);
 			double negThreshold = (10 - j) / ((double) 10);
