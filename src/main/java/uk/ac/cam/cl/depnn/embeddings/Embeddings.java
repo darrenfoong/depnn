@@ -17,6 +17,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 public class Embeddings {
+	private int numEmbeddings = 0;
+	private int sizeEmbeddings = 0;
 	private int UNK = 0;
 	private final static String UNK_STRING = "_UNK_";
 
@@ -30,8 +32,13 @@ public class Embeddings {
 	private HashMap<String, Integer> map = new HashMap<String, Integer>();
 	private double[][] embeddings;
 
+	public int getSizeEmbeddings() {
+		return sizeEmbeddings;
+	}
+
 	public Embeddings(HashSet<String> lexicon, int sizeEmbeddings, double randomRange) {
-		int numEmbeddings = lexicon.size() + 1;
+		this.numEmbeddings = lexicon.size() + 1;
+		this.sizeEmbeddings = sizeEmbeddings;
 
 		embeddings = new double[numEmbeddings][sizeEmbeddings];
 
@@ -48,8 +55,6 @@ public class Embeddings {
 	}
 
 	public Embeddings(String embeddingsFile) throws IOException {
-		int numEmbeddings = 0;
-		int sizeEmbeddings = 0;
 		int count = 0;
 
 		try ( BufferedReader in = new BufferedReader(new FileReader(embeddingsFile)) ) {
