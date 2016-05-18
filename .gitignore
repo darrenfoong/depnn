@@ -10,4 +10,5 @@ Makefile
 import
 iterateparams
 test
+testsimple
 train
