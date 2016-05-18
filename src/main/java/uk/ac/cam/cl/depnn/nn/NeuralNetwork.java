@@ -313,7 +313,7 @@ public class NeuralNetwork<T extends NNType> {
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, trainDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HARD_LABELS, false, helper);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, trainDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper);
 
 		catEmbeddings = new Embeddings(iter.getCatLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
 		slotEmbeddings = new Embeddings(iter.getSlotLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
@@ -398,7 +398,7 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Testing network using " + testDir);
 		long start = System.nanoTime();
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), true, false, helper);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, true, helper);
 		Pair<DataSet, List<T>> next = iter.next();
 
 		DataSet test = next.getFirst();

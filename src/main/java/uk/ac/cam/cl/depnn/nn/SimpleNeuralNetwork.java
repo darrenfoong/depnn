@@ -44,7 +44,8 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 
 		wordVectors = new WordVectors(modelFile);
 		W2V_LAYER_SIZE = wordVectors.getSizeEmbeddings();
-		network = new SimpleMultiLayerNetwork<T>(coefficientsFile, W2V_LAYER_SIZE * helper.getNumProperties(), 200, 2);
+		NN_HIDDEN_LAYER_SIZE = 200;
+		network = new SimpleMultiLayerNetwork<T>(coefficientsFile, W2V_LAYER_SIZE * helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, 2);
 
 		catEmbeddings = new Embeddings(catEmbeddingsFile);
 		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
@@ -58,18 +59,8 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 		logger.info("Testing network using " + testDir);
 		long start = System.nanoTime();
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), true, precompute, helper);
-		Pair<DataSet, List<T>> next = iter.next();
+		DataSetIterator<T> iter;
 
-		DataSet test = next.getFirst();
-		List<T> list = next.getSecond();
-
-		logger.info("Number of test examples: " + test.numExamples());
-
-		INDArray predictions;
-
-		long startP = System.nanoTime();
-		logger.info("Load time: " + (startP-start));
 		if ( precompute ) {
 			manager = new PrecomputesManager<T>(helper, network, W2V_LAYER_SIZE);
 			manager.add(wordVectors, 0, true);
@@ -87,7 +78,24 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 			manager.add(posEmbeddings, 6, false);
 			logger.info("6 precomputed");
 
-			predictions = network.output(list, manager);
+			iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, true, helper, manager);
+		} else {
+			iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, true, helper);
+		}
+
+		Pair<DataSet, List<T>> next = iter.next();
+
+		DataSet test = next.getFirst();
+		List<T> list = next.getSecond();
+
+		logger.info("Number of test examples: " + test.numExamples());
+
+		INDArray predictions;
+
+		long startP = System.nanoTime();
+		logger.info("Load time: " + (startP-start));
+		if ( precompute ) {
+			predictions = network.outputPrecompute(test.getFeatures(), false);
 		} else {
 			predictions = network.output(test.getFeatures(), false);
 		}

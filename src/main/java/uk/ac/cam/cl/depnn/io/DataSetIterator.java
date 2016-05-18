@@ -19,6 +19,7 @@ import org.deeplearning4j.berkeley.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
 
 import uk.ac.cam.cl.depnn.nn.NeuralNetwork;
 
@@ -32,8 +33,8 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 
 	private final int W2V_LAYER_SIZE;
 	private final int NN_NUM_PROPERTIES;
+	private final int NN_HIDDEN_LAYER_SIZE;
 	private final boolean NN_HARD_LABELS;
-	private final boolean PRECOMPUTE;
 
 	private ArrayList<T> correctRecords = new ArrayList<T>();
 	private ArrayList<T> incorrectRecords = new ArrayList<T>();
@@ -51,11 +52,12 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 	private Iterator<T> correctIter;
 	private Iterator<T> incorrectIter;
 
+	private PrecomputesManager<T> manager;
 	private T helper;
 
 	public static final Logger logger = LogManager.getLogger(DataSetIterator.class);
 
-	public DataSetIterator(NeuralNetwork<T> network, String recordsDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, boolean NN_HARD_LABELS, boolean PRECOMPUTE, T helper) throws IOException, InterruptedException {
+	public DataSetIterator(NeuralNetwork<T> network, String recordsDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, int NN_HIDDEN_LAYER_SIZE, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
 		this.network = network;
 
 		this.recordReader = new CSVRecordReader(0, " ");
@@ -64,12 +66,17 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 		this.batchSize = batchSize;
 		this.W2V_LAYER_SIZE = W2V_LAYER_SIZE;
 		this.NN_NUM_PROPERTIES = NN_NUM_PROPERTIES;
+		this.NN_HIDDEN_LAYER_SIZE = NN_HIDDEN_LAYER_SIZE;
 		this.NN_HARD_LABELS = NN_HARD_LABELS;
-		this.PRECOMPUTE = PRECOMPUTE;
 
 		this.helper = helper;
 
 		readAll();
+	}
+
+	public DataSetIterator(NeuralNetwork<T> network, String recordsDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, int NN_HIDDEN_LAYER_SIZE, boolean NN_HARD_LABELS, T helper, PrecomputesManager<T> manager) throws IOException, InterruptedException {
+		this(network, recordsDir, batchSize, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper);
+		this.manager = manager;
 	}
 
 	public HashSet<String> getCatLexicon() {
@@ -158,7 +165,14 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 			return;
 		}
 
-		INDArray records = new NDArray(recordsInBatch.size(), W2V_LAYER_SIZE * helper.getNumProperties());
+		INDArray records;
+
+		if ( manager != null ) {
+			records = new NDArray(recordsInBatch.size(), NN_HIDDEN_LAYER_SIZE);
+		} else {
+			records = new NDArray(recordsInBatch.size(), W2V_LAYER_SIZE * helper.getNumProperties());
+		}
+
 		INDArray labels = new NDArray(recordsInBatch.size(), 2);
 
 		for ( int i = 0; i < recordsInBatch.size(); i++ ) {
@@ -168,11 +182,19 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 			label.putScalar(0, 1 - record.getValue());
 			label.putScalar(1, record.getValue());
 
-			if ( !PRECOMPUTE ) {
-				INDArray vector = record.makeVector(network);
-				records.putRow(i, vector);
+			INDArray vector;
+
+			if ( manager != null ) {
+				vector = Nd4j.zeros(NN_HIDDEN_LAYER_SIZE);
+
+				for ( int j = 0; j < manager.getNumPrecomputes(); j++ ) {
+					vector.addi(manager.getPrecomputes(j).getINDArray(record.get(j)));
+				}
+			} else {
+				vector = record.makeVector(network);
 			}
 
+			records.putRow(i, vector);
 			labels.putRow(i, label);
 		}
 

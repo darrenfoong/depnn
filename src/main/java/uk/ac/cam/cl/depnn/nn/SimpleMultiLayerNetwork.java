@@ -93,21 +93,8 @@ public class SimpleMultiLayerNetwork<T extends NNType> {
 		return res;
 	}
 
-	public INDArray output(List<T> list, PrecomputesManager<T> manager) {
-		INDArray pre_hidden_layer = new NDArray(list.size(), HIDDEN_LAYER_SIZE);
-
-		for ( int i = 0; i < list.size(); i++ ) {
-			INDArray sub_hidden_layer = Nd4j.zeros(HIDDEN_LAYER_SIZE);
-			NNType example = list.get(i);
-
-			for ( int j = 0; j < manager.getNumPrecomputes(); j++ ) {
-				sub_hidden_layer.addi(manager.getPrecomputes(j).getINDArray(example.get(j)));
-			}
-
-			pre_hidden_layer.putRow(i, sub_hidden_layer);
-		}
-
-		INDArray hidden_layer = Transforms.relu(pre_hidden_layer.addiRowVector(b_h));
+	public INDArray outputPrecompute(INDArray inputs, boolean training) {
+		INDArray hidden_layer = Transforms.relu(inputs.addiRowVector(b_h));
 		INDArray res = softmaxi(hidden_layer.mmul(w_out).addiRowVector(b_out));
 		return res;
 	}
