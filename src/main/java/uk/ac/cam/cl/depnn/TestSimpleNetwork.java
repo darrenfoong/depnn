@@ -14,9 +14,9 @@ import uk.ac.cam.cl.depnn.io.LongDependency;
 import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.Params;
 import uk.ac.cam.cl.depnn.io.TransDependency;
-import uk.ac.cam.cl.depnn.nn.NeuralNetwork;
+import uk.ac.cam.cl.depnn.nn.SimpleNeuralNetwork;
 
-public class TestNetwork {
+public class TestSimpleNetwork {
 	public static void main(String[] args) {
 		OptionParser optionParser = Params.getTestNetworkOptionParser();
 		OptionSet options = null;
@@ -45,27 +45,27 @@ public class TestNetwork {
 
 		System.setProperty("logLevel", options.has("verbose") ? "trace" : "info");
 		System.setProperty("logFile", logFile);
-		final Logger logger = LogManager.getLogger(TestNetwork.class);
+		final Logger logger = LogManager.getLogger(TestSimpleNetwork.class);
 
 		logger.info(Params.printOptions(options));
 
 		try {
-			NeuralNetwork<? extends NNType> network = null;
+			SimpleNeuralNetwork<? extends NNType> network = null;
 
 			logger.info("Initializing network");
 
 			switch ( nnType ) {
 				case "dep":
-					network = new NeuralNetwork<Dependency>(modelDir, new Dependency());
+					network = new SimpleNeuralNetwork<Dependency>(modelDir, new Dependency());
 					break;
 				case "longdep":
-					network = new NeuralNetwork<LongDependency>(modelDir, new LongDependency());
+					network = new SimpleNeuralNetwork<LongDependency>(modelDir, new LongDependency());
 					break;
 				case "transdep":
-					network = new NeuralNetwork<TransDependency>(modelDir, new TransDependency());
+					network = new SimpleNeuralNetwork<TransDependency>(modelDir, new TransDependency());
 					break;
 				case "feature":
-					network = new NeuralNetwork<Feature>(modelDir, new Feature());
+					network = new SimpleNeuralNetwork<Feature>(modelDir, new Feature());
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid nnType");
