@@ -67,13 +67,20 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 		logger.info("Number of test examples: " + test.numExamples());
 
 		manager = new PrecomputesManager<T>(helper, network, W2V_LAYER_SIZE);
-		manager.add(wordVectors, 0);
-		manager.add(catEmbeddings, 1);
-		manager.add(slotEmbeddings, 2);
-		manager.add(wordVectors, 3);
-		manager.add(distEmbeddings, 4);
-		manager.add(posEmbeddings, 5);
-		manager.add(posEmbeddings, 6);
+		manager.add(wordVectors, 0, true);
+		logger.info("0 precomputed");
+		manager.add(catEmbeddings, 1, false);
+		logger.info("1 precomputed");
+		manager.add(slotEmbeddings, 2, false);
+		logger.info("2 precomputed");
+		manager.add(wordVectors, 3, true);
+		logger.info("3 precomputed");
+		manager.add(distEmbeddings, 4, false);
+		logger.info("4 precomputed");
+		manager.add(posEmbeddings, 5, false);
+		logger.info("5 precomputed");
+		manager.add(posEmbeddings, 6, false);
+		logger.info("6 precomputed");
 
 		//INDArray predictions = network.output(test.getFeatures(), false);
 		INDArray predictions = network.output(list, manager);

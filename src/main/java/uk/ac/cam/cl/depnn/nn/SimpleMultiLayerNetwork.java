@@ -33,7 +33,7 @@ public class SimpleMultiLayerNetwork<T extends NNType> {
 		INDArray res = new NDArray(size, HIDDEN_LAYER_SIZE);
 
 		for ( int i = 0; i < size; i++ ) {
-			res.putRow(i, w_h.getRow(offset + i));
+			res.putRow(i, w_h.getRow((offset * size) + i));
 		}
 
 		return res;
