@@ -395,6 +395,7 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Number of test examples: " + test.numExamples());
 
 		long startP = System.nanoTime();
+		logger.info("Load time: " + (startP-start));
 		INDArray predictions = network.output(test.getFeatures(), false);
 		long endP = System.nanoTime();
 		logger.info("Predict time: " + (endP-startP));

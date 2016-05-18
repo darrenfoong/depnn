@@ -69,6 +69,7 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 		INDArray predictions;
 
 		long startP = System.nanoTime();
+		logger.info("Load time: " + (startP-start));
 		if ( precompute ) {
 			manager = new PrecomputesManager<T>(helper, network, W2V_LAYER_SIZE);
 			manager.add(wordVectors, 0, true);
