@@ -33,6 +33,7 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 	private final int W2V_LAYER_SIZE;
 	private final int NN_NUM_PROPERTIES;
 	private final boolean NN_HARD_LABELS;
+	private final boolean PRECOMPUTE;
 
 	private ArrayList<T> correctRecords = new ArrayList<T>();
 	private ArrayList<T> incorrectRecords = new ArrayList<T>();
@@ -54,7 +55,7 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 
 	public static final Logger logger = LogManager.getLogger(DataSetIterator.class);
 
-	public DataSetIterator(NeuralNetwork<T> network, String recordsDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
+	public DataSetIterator(NeuralNetwork<T> network, String recordsDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, boolean NN_HARD_LABELS, boolean PRECOMPUTE, T helper) throws IOException, InterruptedException {
 		this.network = network;
 
 		this.recordReader = new CSVRecordReader(0, " ");
@@ -64,6 +65,7 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 		this.W2V_LAYER_SIZE = W2V_LAYER_SIZE;
 		this.NN_NUM_PROPERTIES = NN_NUM_PROPERTIES;
 		this.NN_HARD_LABELS = NN_HARD_LABELS;
+		this.PRECOMPUTE = PRECOMPUTE;
 
 		this.helper = helper;
 
@@ -166,9 +168,11 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 			label.putScalar(0, 1 - record.getValue());
 			label.putScalar(1, record.getValue());
 
-			INDArray vector = record.makeVector(network);
+			if ( !PRECOMPUTE ) {
+				INDArray vector = record.makeVector(network);
+				records.putRow(i, vector);
+			}
 
-			records.putRow(i, vector);
 			labels.putRow(i, label);
 		}
 

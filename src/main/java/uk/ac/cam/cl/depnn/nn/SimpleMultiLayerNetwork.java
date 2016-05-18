@@ -11,6 +11,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.ops.transforms.Transforms;
 
 import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.PrecomputesManager;
@@ -71,37 +72,25 @@ public class SimpleMultiLayerNetwork<T extends NNType> {
 		idx += range;
 	}
 
-	public INDArray relui(INDArray inputs) {
-		for ( int i = 0; i < inputs.rows(); i++ ) {
-			for ( int j = 0; j < inputs.columns(); j++ ) {
-				if ( inputs.getDouble(i, j) < 0 ) {
-					inputs.put(i, j, 0);
-				}
-			}
-		}
+	private INDArray relui(INDArray inputs) {
+		INDArray mask = inputs.gt(0);
+		inputs.muli(mask);
 
 		return inputs;
 	}
 
-	public INDArray softmaxi(INDArray inputs) {
-		for ( int i = 0; i < inputs.rows(); i++ ) {
-			double sum = 0.0;
-
-			for ( int j = 0; j < inputs.columns(); j++ ) {
-				sum += Math.exp(inputs.getDouble(i, j));
-			}
-
-			for ( int j = 0; j < inputs.columns(); j++ ) {
-				inputs.put(i, j, Math.exp(inputs.getDouble(i, j)) / sum);
-			}
-		}
+	private INDArray softmaxi(INDArray inputs) {
+		Transforms.exp(inputs, false);
+		INDArray sum = inputs.sum(1);
+		inputs.diviColumnVector(sum);
 
 		return inputs;
 	}
 
 	public INDArray output(INDArray inputs, boolean training) {
-		INDArray hidden_layer = relui(inputs.mmul(w_h).addiRowVector(b_h));
-		return softmaxi(hidden_layer.mmul(w_out).addiRowVector(b_out));
+		INDArray hidden_layer = Transforms.relu(inputs.mmul(w_h).addiRowVector(b_h));
+		INDArray res = softmaxi(hidden_layer.mmul(w_out).addiRowVector(b_out));
+		return res;
 	}
 
 	public INDArray output(List<T> list, PrecomputesManager<T> manager) {
@@ -118,7 +107,8 @@ public class SimpleMultiLayerNetwork<T extends NNType> {
 			pre_hidden_layer.putRow(i, sub_hidden_layer);
 		}
 
-		INDArray hidden_layer = relui(pre_hidden_layer.addiRowVector(b_h));
-		return softmaxi(hidden_layer.mmul(w_out).addiRowVector(b_out));
+		INDArray hidden_layer = Transforms.relu(pre_hidden_layer.addiRowVector(b_h));
+		INDArray res = softmaxi(hidden_layer.mmul(w_out).addiRowVector(b_out));
+		return res;
 	}
 }

@@ -18,7 +18,7 @@ import uk.ac.cam.cl.depnn.nn.SimpleNeuralNetwork;
 
 public class TestSimpleNetwork {
 	public static void main(String[] args) {
-		OptionParser optionParser = Params.getTestNetworkOptionParser();
+		OptionParser optionParser = Params.getTestSimpleNetworkOptionParser();
 		OptionSet options = null;
 
 		try {
@@ -42,6 +42,7 @@ public class TestSimpleNetwork {
 		String nnType = (String) options.valueOf("nnType");
 		double nnPosThres = (Double) options.valueOf("nnPosThres");
 		double nnNegThres = (Double) options.valueOf("nnNegThres");
+		boolean precompute = (Boolean) options.valueOf("precompute");
 
 		System.setProperty("logLevel", options.has("verbose") ? "trace" : "info");
 		System.setProperty("logFile", logFile);
@@ -73,7 +74,7 @@ public class TestSimpleNetwork {
 
 			logger.info("Network initialized");
 
-			network.testNetwork(testDir, logFile, nnPosThres, nnNegThres);
+			network.testNetwork(testDir, logFile, nnPosThres, nnNegThres, precompute);
 		} catch ( Exception e ) {
 			logger.error("Exception", e);
 		}

@@ -54,11 +54,11 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 		this.helper = helper;
 	}
 
-	@Override
-	public void testNetwork(String testDir, String logFile, double posThres, double negThres) throws IOException, InterruptedException {
+	public void testNetwork(String testDir, String logFile, double posThres, double negThres, boolean precompute) throws IOException, InterruptedException {
 		logger.info("Testing network using " + testDir);
+		long start = System.nanoTime();
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), true, helper);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), true, precompute, helper);
 		Pair<DataSet, List<T>> next = iter.next();
 
 		DataSet test = next.getFirst();
@@ -66,24 +66,32 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 
 		logger.info("Number of test examples: " + test.numExamples());
 
-		manager = new PrecomputesManager<T>(helper, network, W2V_LAYER_SIZE);
-		manager.add(wordVectors, 0, true);
-		logger.info("0 precomputed");
-		manager.add(catEmbeddings, 1, false);
-		logger.info("1 precomputed");
-		manager.add(slotEmbeddings, 2, false);
-		logger.info("2 precomputed");
-		manager.add(wordVectors, 3, true);
-		logger.info("3 precomputed");
-		manager.add(distEmbeddings, 4, false);
-		logger.info("4 precomputed");
-		manager.add(posEmbeddings, 5, false);
-		logger.info("5 precomputed");
-		manager.add(posEmbeddings, 6, false);
-		logger.info("6 precomputed");
+		INDArray predictions;
 
-		//INDArray predictions = network.output(test.getFeatures(), false);
-		INDArray predictions = network.output(list, manager);
+		long startP = System.nanoTime();
+		if ( precompute ) {
+			manager = new PrecomputesManager<T>(helper, network, W2V_LAYER_SIZE);
+			manager.add(wordVectors, 0, true);
+			logger.info("0 precomputed");
+			manager.add(catEmbeddings, 1, false);
+			logger.info("1 precomputed");
+			manager.add(slotEmbeddings, 2, false);
+			logger.info("2 precomputed");
+			manager.add(wordVectors, 3, true);
+			logger.info("3 precomputed");
+			manager.add(distEmbeddings, 4, false);
+			logger.info("4 precomputed");
+			manager.add(posEmbeddings, 5, false);
+			logger.info("5 precomputed");
+			manager.add(posEmbeddings, 6, false);
+			logger.info("6 precomputed");
+
+			predictions = network.output(list, manager);
+		} else {
+			predictions = network.output(test.getFeatures(), false);
+		}
+		long endP = System.nanoTime();
+		logger.info("Predict time: " + (endP-startP));
 
 		evaluateThresholds(test.getLabels(), predictions, posThres, negThres);
 
@@ -107,7 +115,9 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 			logger.error(e);
 		}
 
+		long end = System.nanoTime();
 		logger.info("Network testing complete");
+		logger.info("Time: " + (end-start));
 	}
 
 	@Override

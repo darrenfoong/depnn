@@ -104,4 +104,19 @@ public class Params {
 
 		return optionParser;
 	}
+
+	public static OptionParser getTestSimpleNetworkOptionParser() {
+		OptionParser optionParser = getBaseOptionParser();
+
+		optionParser.accepts("testDir").withRequiredArg().ofType(String.class).required();
+		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
+		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
+
+		optionParser.accepts("nnType").withRequiredArg().ofType(String.class).defaultsTo(NN_TYPE);
+		optionParser.accepts("nnPosThres").withRequiredArg().ofType(Double.class).defaultsTo(NN_POS_THRES);
+		optionParser.accepts("nnNegThres").withRequiredArg().ofType(Double.class).defaultsTo(NN_NEG_THRES);
+		optionParser.accepts("precompute").withRequiredArg().ofType(Boolean.class).defaultsTo(true);
+
+		return optionParser;
+	}
 }
