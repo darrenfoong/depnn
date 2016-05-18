@@ -3,14 +3,19 @@ package uk.ac.cam.cl.depnn.nn;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 
-public class SimpleMultiLayerNetwork {
+import uk.ac.cam.cl.depnn.io.NNType;
+import uk.ac.cam.cl.depnn.io.PrecomputesManager;
+
+public class SimpleMultiLayerNetwork<T extends NNType> {
 	private int INPUT_LAYER_SIZE;
 	private int HIDDEN_LAYER_SIZE;
 	private int OUTPUT_LAYER_SIZE;
@@ -21,6 +26,10 @@ public class SimpleMultiLayerNetwork {
 	private INDArray b_out;
 
 	private final static Logger logger = LogManager.getLogger(SimpleMultiLayerNetwork.class);
+
+	public INDArray getMatrix(int i, int size) {
+		return w_h.get(NDArrayIndex.point(i * size), NDArrayIndex.interval(i * size, (i+1) * size));
+	}
 
 	public SimpleMultiLayerNetwork(String coefficientsFile, int inputLayerSize, int hiddenLayerSize, int outputLayerSize) throws IOException {
 		INPUT_LAYER_SIZE = inputLayerSize;
@@ -84,6 +93,24 @@ public class SimpleMultiLayerNetwork {
 
 	public INDArray output(INDArray inputs, boolean training) {
 		INDArray hidden_layer = relui(inputs.mmul(w_h).addiRowVector(b_h));
+		return softmaxi(hidden_layer.mmul(w_out).addiRowVector(b_out));
+	}
+
+	public INDArray output(List<T> list, PrecomputesManager<T> manager) {
+		INDArray pre_hidden_layer = new NDArray(list.size(), HIDDEN_LAYER_SIZE);
+
+		for ( int i = 0; i < list.size(); i++ ) {
+			INDArray sub_hidden_layer = Nd4j.zeros(HIDDEN_LAYER_SIZE);
+			NNType example = list.get(i);
+
+			for ( int j = 0; j < manager.getNumPrecomputes(); j++ ) {
+				sub_hidden_layer.addi(manager.getPrecomputes(j).getINDArray(example.get(j)));
+			}
+
+			pre_hidden_layer.putRow(i, sub_hidden_layer);
+		}
+
+		INDArray hidden_layer = relui(pre_hidden_layer.addiRowVector(b_h));
 		return softmaxi(hidden_layer.mmul(w_out).addiRowVector(b_out));
 	}
 }

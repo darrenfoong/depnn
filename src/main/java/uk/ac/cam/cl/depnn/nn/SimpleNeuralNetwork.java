@@ -17,10 +17,13 @@ import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 import uk.ac.cam.cl.depnn.embeddings.WordVectors;
 import uk.ac.cam.cl.depnn.io.DataSetIterator;
 import uk.ac.cam.cl.depnn.io.NNType;
+import uk.ac.cam.cl.depnn.io.PrecomputesManager;
 
 public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 	private WordVectors wordVectors;
-	private SimpleMultiLayerNetwork network;
+	private SimpleMultiLayerNetwork<T> network;
+
+	private PrecomputesManager<T> manager;
 
 	private final static Logger logger = LogManager.getLogger(SimpleNeuralNetwork.class);
 
@@ -41,7 +44,7 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 
 		wordVectors = new WordVectors(modelFile);
 		W2V_LAYER_SIZE = wordVectors.getSizeEmbeddings();
-		network = new SimpleMultiLayerNetwork(coefficientsFile, W2V_LAYER_SIZE * helper.getNumProperties(), 200, 2);
+		network = new SimpleMultiLayerNetwork<T>(coefficientsFile, W2V_LAYER_SIZE * helper.getNumProperties(), 200, 2);
 
 		catEmbeddings = new Embeddings(catEmbeddingsFile);
 		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
@@ -63,7 +66,17 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 
 		logger.info("Number of test examples: " + test.numExamples());
 
-		INDArray predictions = network.output(test.getFeatures(), false);
+		manager = new PrecomputesManager<T>(helper, network, W2V_LAYER_SIZE);
+		manager.add(wordVectors, 0);
+		manager.add(catEmbeddings, 1);
+		manager.add(slotEmbeddings, 2);
+		manager.add(wordVectors, 3);
+		manager.add(distEmbeddings, 4);
+		manager.add(posEmbeddings, 5);
+		manager.add(posEmbeddings, 6);
+
+		//INDArray predictions = network.output(test.getFeatures(), false);
+		INDArray predictions = network.output(list, manager);
 
 		evaluateThresholds(test.getLabels(), predictions, posThres, negThres);
 
