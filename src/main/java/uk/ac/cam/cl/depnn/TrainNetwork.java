@@ -250,10 +250,12 @@ public class TrainNetwork {
 
 			logger.info("Network initialized");
 
+			/*
 			if ( prevModelFile == null ) {
 				network.trainWord2Vec(sentencesFile);
 				network.serializeWord2Vec(modelDir + "/word2vec.model");
 			}
+			*/
 
 			network.trainNetwork(trainDir, modelDir);
 
