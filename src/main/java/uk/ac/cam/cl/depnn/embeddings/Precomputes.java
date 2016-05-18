@@ -1,13 +1,11 @@
 package uk.ac.cam.cl.depnn.embeddings;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.cpu.NDArray;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 
 public class Precomputes {
@@ -21,7 +19,7 @@ public class Precomputes {
 
 	private final static Logger logger = LogManager.getLogger(Precomputes.class);
 
-	private HashMap<String, Integer> map;;
+	private HashMap<String, Integer> map;
 	private INDArray precomputes;
 
 	public Precomputes(Embeddings embeddings, INDArray matrix) {
@@ -29,14 +27,10 @@ public class Precomputes {
 		this.sizePrecomputes = matrix.shape()[1];
 
 		map = embeddings.getMap();
-		precomputes = new NDArray(numPrecomputes, sizePrecomputes);
+		// precomputes = new NDArray(numPrecomputes, sizePrecomputes);
 
-		Iterator<Map.Entry<String, Integer>> iter = map.entrySet().iterator();
-
-		while ( iter.hasNext() ) {
-			Map.Entry<String, Integer> next = iter.next();
-			precomputes.put(next.getValue(), embeddings.getINDArray(next.getKey()).mmul(matrix));
-		}
+		INDArray embeddingsArray = Nd4j.create(embeddings.getEmbeddings());
+		precomputes = embeddingsArray.mmul(matrix);
 	}
 
 	public INDArray getINDArray(String key) {

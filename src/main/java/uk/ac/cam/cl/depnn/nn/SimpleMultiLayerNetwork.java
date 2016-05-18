@@ -27,8 +27,16 @@ public class SimpleMultiLayerNetwork<T extends NNType> {
 
 	private final static Logger logger = LogManager.getLogger(SimpleMultiLayerNetwork.class);
 
-	public INDArray getMatrix(int i, int size) {
-		return w_h.get(NDArrayIndex.point(i * size), NDArrayIndex.interval(i * size, (i+1) * size));
+	public INDArray getMatrix(int offset, int size) {
+		// return w_h.get(NDArrayIndex.point(i * size), NDArrayIndex.interval(i * size, (i+1) * size));
+		// ugly, but certainly works
+		INDArray res = new NDArray(size, HIDDEN_LAYER_SIZE);
+
+		for ( int i = 0; i < size; i++ ) {
+			res.putRow(i, w_h.getRow(offset + i));
+		}
+
+		return res;
 	}
 
 	public SimpleMultiLayerNetwork(String coefficientsFile, int inputLayerSize, int hiddenLayerSize, int outputLayerSize) throws IOException {

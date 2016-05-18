@@ -44,6 +44,10 @@ public class Embeddings {
 		return map;
 	}
 
+	public double[][] getEmbeddings() {
+		return embeddings;
+	}
+
 	public Embeddings() {
 	}
 
