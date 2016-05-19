@@ -20,7 +20,6 @@ import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.PrecomputesManager;
 
 public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
-	private WordVectors wordVectors;
 	private SimpleMultiLayerNetwork<T> network;
 
 	private PrecomputesManager<T> manager;
@@ -35,7 +34,6 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 	public SimpleNeuralNetwork(String modelDir, T helper) throws IOException {
 		String modelFile = modelDir + "/word2vec.txt";
 
-		// String configJsonFile = modelDir + "/config.json";
 		String coefficientsFile = modelDir + "/coeffs";
 		String catEmbeddingsFile = modelDir + "/cat.emb";
 		String slotEmbeddingsFile = modelDir + "/slot.emb";
@@ -127,10 +125,5 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 		long end = System.nanoTime();
 		logger.info("Network testing complete");
 		logger.info("Time: " + (end-start));
-	}
-
-	@Override
-	public INDArray getWordVector(String word) {
-		return wordVectors.getINDArray(word.toLowerCase());
 	}
 }

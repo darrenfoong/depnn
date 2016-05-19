@@ -3,7 +3,6 @@ package uk.ac.cam.cl.depnn.nn;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +13,6 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 import uk.ac.cam.cl.depnn.io.NNType;
-import uk.ac.cam.cl.depnn.io.PrecomputesManager;
 
 public class SimpleMultiLayerNetwork<T extends NNType> {
 	private int INPUT_LAYER_SIZE;

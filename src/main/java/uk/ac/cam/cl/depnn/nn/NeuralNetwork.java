@@ -13,8 +13,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
-import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -24,11 +22,6 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
-import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
-import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -42,15 +35,7 @@ import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.utils.ModelUtils;
 
 public class NeuralNetwork<T extends NNType> {
-	private int W2V_SEED;
-	private int W2V_ITERATIONS;
-	private int W2V_BATCH_SIZE;
 	protected int W2V_LAYER_SIZE;
-	private int W2V_WINDOW_SIZE;
-	private int W2V_MIN_WORD_FREQUENCY;
-	private int W2V_NEGATIVE_SAMPLE;
-
-	private double W2V_LEARNING_RATE;
 
 	private int NN_EPOCHS;
 	private int NN_SEED;
@@ -66,14 +51,12 @@ public class NeuralNetwork<T extends NNType> {
 
 	private int maxNumBatch = Integer.MAX_VALUE;
 
-	private INDArray unkVector;
-
 	public Embeddings catEmbeddings;
 	public Embeddings slotEmbeddings;
 	public Embeddings distEmbeddings;
 	public Embeddings posEmbeddings;
 
-	private WordVectors wordVectors;
+	protected WordVectors wordVectors;
 	private MultiLayerNetwork network;
 
 	protected T helper;
@@ -92,50 +75,6 @@ public class NeuralNetwork<T extends NNType> {
 	public NeuralNetwork() {
 	}
 
-	public NeuralNetwork(int w2vSeed,
-	                               int w2vIterations,
-	                               int w2vBatchSize,
-	                               int w2vLayerSize,
-	                               int w2vWindowSize,
-	                               int w2vMinWordFreq,
-	                               int w2vNegativeSample,
-	                               double w2vLearningRate,
-	                               int nnEpochs,
-	                               int nnSeed,
-	                               int nnIterations,
-	                               int nnBatchSize,
-	                               int nnHiddenLayerSize,
-	                               double nnLearningRate,
-	                               double nnL2Reg,
-	                               double nnDropout,
-	                               double nnEmbedRandomRange,
-	                               boolean nnHardLabels,
-	                               int maxNumBatch,
-	                               T helper) {
-		W2V_SEED = w2vSeed;
-		W2V_ITERATIONS = w2vIterations;
-		W2V_BATCH_SIZE = w2vBatchSize;
-		W2V_LAYER_SIZE = w2vLayerSize;
-		W2V_WINDOW_SIZE = w2vWindowSize;
-		W2V_MIN_WORD_FREQUENCY = w2vMinWordFreq;
-		W2V_NEGATIVE_SAMPLE = w2vNegativeSample;
-		W2V_LEARNING_RATE = w2vLearningRate;
-
-		NN_EPOCHS = nnEpochs;
-		NN_SEED = nnSeed;
-		NN_ITERATIONS = nnIterations;
-		NN_BATCH_SIZE = nnBatchSize;
-		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
-		NN_LEARNING_RATE = nnLearningRate;
-		NN_L2_REG = nnL2Reg;
-		NN_DROPOUT = nnDropout;
-		NN_EMBED_RANDOM_RANGE = nnEmbedRandomRange;
-		NN_HARD_LABELS = nnHardLabels;
-
-		this.maxNumBatch = maxNumBatch;
-		this.helper = helper;
-	}
-
 	public NeuralNetwork(String prevModelFile,
 	                               int nnEpochs,
 	                               int nnSeed,
@@ -149,7 +88,6 @@ public class NeuralNetwork<T extends NNType> {
 	                               boolean nnHardLabels,
 	                               int maxNumBatch,
 	                               T helper) throws IOException {
-		//wordVectors = loadWordVectors(prevModelFile);
 		wordVectors = new WordVectors(prevModelFile);
 		W2V_LAYER_SIZE = wordVectors.getSizeEmbeddings();
 
@@ -169,43 +107,8 @@ public class NeuralNetwork<T extends NNType> {
 	}
 
 	// running
-	public NeuralNetwork(String modelFile,
-	                               String configJsonFile,
-	                               String coefficientsFile,
-	                               String catEmbeddingsFile,
-	                               String slotEmbeddingsFile,
-	                               String distEmbeddingsFile,
-	                               String posEmbeddingsFile,
-	                               T helper) throws IOException {
-		//wordVectors = loadWordVectors(modelFile);
-		wordVectors = new WordVectors(modelFile);
-		W2V_LAYER_SIZE = wordVectors.getSizeEmbeddings();
-		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
-
-		catEmbeddings = new Embeddings(catEmbeddingsFile);
-		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
-		distEmbeddings = new Embeddings(distEmbeddingsFile);
-		posEmbeddings = new Embeddings(posEmbeddingsFile);
-
-		this.helper = helper;
-	}
-
 	public NeuralNetwork(String modelDir, T helper) throws IOException {
 		String modelFile = modelDir + "/word2vec.txt";
-
-		/*
-		String modelFile;
-
-		if ( new File(modelDir + "/word2vec.bin").isFile() ) {
-			modelFile = modelDir + "/word2vec.bin";
-		} else if ( new File(modelDir + "/word2vec.txt").isFile() ) {
-			modelFile = modelDir + "/word2vec.txt";
-		} else if ( new File(modelDir + "/word2vec.model").isFile() ) {
-			modelFile = modelDir + "/word2vec.model";
-		} else {
-			throw new FileNotFoundException("Missing word2vec model");
-		}
-		*/
 
 		String configJsonFile = modelDir + "/config.json";
 		String coefficientsFile = modelDir + "/coeffs";
@@ -214,7 +117,6 @@ public class NeuralNetwork<T extends NNType> {
 		String distEmbeddingsFile = modelDir + "/dist.emb";
 		String posEmbeddingsFile = modelDir + "/pos.emb";
 
-		//wordVectors = loadWordVectors(modelFile);
 		wordVectors = new WordVectors(modelFile);
 		W2V_LAYER_SIZE = wordVectors.getSizeEmbeddings();
 		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
@@ -226,82 +128,6 @@ public class NeuralNetwork<T extends NNType> {
 
 		this.helper = helper;
 	}
-
-	/*
-	private void checkUnk(WordVectors wordVectors) {
-		if ( wordVectors.hasWord(wordVectors.getUNK()) ) {
-			logger.info("wordVectors has UNK");
-		} else {
-			logger.info("wordVectors does not have UNK");
-
-			String[] otherUnks = { "UNKNOWN", "*UNKNOWN*" };
-
-			for ( String otherUnk : otherUnks ) {
-				if ( wordVectors.hasWord(otherUnk) ) {
-					logger.info("wordVectors has previous UNK: " + otherUnk);
-					logger.info("Remapping UNK");
-					wordVectors.setUNK(otherUnk);
-					return;
-				}
-			}
-
-			logger.info("wordVectors still does not have UNK");
-			unkVector = Nd4j.zeros(W2V_LAYER_SIZE);
-		}
-	}
-
-	protected WordVectors loadWordVectors(String modelFile) throws IOException {
-		WordVectors w2v = null;
-
-		if ( modelFile.endsWith(".bin") ) {
-			w2v = WordVectorSerializer.loadGoogleModel(new File(modelFile), true);
-		} else if ( modelFile.endsWith("txt") ) {
-			w2v = WordVectorSerializer.loadTxtVectors(new File(modelFile));
-		} else {
-			w2v = WordVectorSerializer.loadFullModel(modelFile);
-		}
-
-		W2V_LAYER_SIZE = w2v.lookupTable().layerSize();
-		checkUnk(w2v);
-
-		return w2v;
-	}
-
-	public void trainWord2Vec(String sentencesFile) throws FileNotFoundException {
-		logger.info("Training word2vec using " + sentencesFile);
-
-		SentenceIterator iter = new BasicLineIterator(sentencesFile);
-		TokenizerFactory t = new DefaultTokenizerFactory();
-		t.setTokenPreProcessor(new CommonPreprocessor());
-
-		wordVectors = new Word2Vec.Builder()
-				.seed(W2V_SEED)
-				.iterations(W2V_ITERATIONS)
-				.learningRate(W2V_LEARNING_RATE)
-				.batchSize(W2V_BATCH_SIZE)
-				.layerSize(W2V_LAYER_SIZE)
-				.windowSize(W2V_WINDOW_SIZE)
-				.minWordFrequency(W2V_MIN_WORD_FREQUENCY)
-				.negativeSample(W2V_NEGATIVE_SAMPLE)
-				//.useUnknown(true)
-				.iterate(iter)
-				.tokenizerFactory(t)
-				.build();
-
-		((Word2Vec) wordVectors).fit();
-
-		logger.info("word2vec training complete");
-	}
-
-	public void serializeWord2Vec(String modelFile) {
-		if ( wordVectors instanceof Word2Vec ) {
-			logger.info("Serializing word2vec to " + modelFile);
-			WordVectorSerializer.writeFullModel((Word2Vec) wordVectors, modelFile);
-		} else {
-			logger.error("wordVectors not Word2Vec; cannot serialize");
-		}
-	}
-	*/
 
 	public void trainNetwork(String trainDir, String modelDir) throws IOException, InterruptedException {
 		logger.info("Training network using " + trainDir);
@@ -546,27 +372,6 @@ public class NeuralNetwork<T extends NNType> {
 	public INDArray getWordVector(String word) {
 		return wordVectors.getINDArray(word.toLowerCase());
 	}
-
-	/*
-	public INDArray getWordVector(String word) {
-		word = word.toLowerCase();
-
-		INDArray vector = wordVectors.getWordVectorMatrixNormalized(word);
-
-		if ( vector == null ) {
-			vector = wordVectors.getWordVectorMatrixNormalized(wordVectors.getUNK());
-
-			if ( vector == null ) {
-				vector = unkVector;
-			}
-		}
-
-		// ideally, loadWordVectors() should normalise all the word vectors
-		// but stick with this for now
-
-		return vector;
-	}
-	*/
 
 	public void serializeEmbeddings(String catEmbeddingsFile,
 	                                String slotEmbeddingsFile,
