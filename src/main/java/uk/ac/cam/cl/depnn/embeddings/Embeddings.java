@@ -17,9 +17,10 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 public class Embeddings {
-	private int numEmbeddings = 0;
-	private int sizeEmbeddings = 0;
-	private int UNK = 0;
+	protected int numEmbeddings = 0;
+	protected int sizeEmbeddings = 0;
+	protected int UNK = 0;
+
 	private final static String UNK_STRING = "_UNK_";
 
 	/*
@@ -29,11 +30,26 @@ public class Embeddings {
 
 	private final static Logger logger = LogManager.getLogger(Embeddings.class);
 
-	private HashMap<String, Integer> map = new HashMap<String, Integer>();
-	private double[][] embeddings;
+	protected HashMap<String, Integer> map = new HashMap<String, Integer>();
+	protected double[][] embeddings;
+
+	public int getNumEmbeddings() {
+		return numEmbeddings;
+	}
 
 	public int getSizeEmbeddings() {
 		return sizeEmbeddings;
+	}
+
+	public HashMap<String, Integer> getMap() {
+		return map;
+	}
+
+	public double[][] getEmbeddings() {
+		return embeddings;
+	}
+
+	public Embeddings() {
 	}
 
 	public Embeddings(HashSet<String> lexicon, int sizeEmbeddings, double randomRange) {
@@ -129,7 +145,7 @@ public class Embeddings {
 		}
 	}
 
-	private double[] getArray(String key) {
+	protected double[] getArray(String key) {
 		// method set to private to prevent external mutation of embeddings
 		// assumes that callers will not modify the array
 		// return actual array instead of clone for performance
@@ -180,7 +196,7 @@ public class Embeddings {
 		updateEmbedding(key, embedding, 0);
 	}
 
-	private void normalizeEmbedding(double[] embedding) {
+	protected void normalizeEmbedding(double[] embedding) {
 		// modifies embedding in-place
 		double sumOfSquares = 0.0;
 

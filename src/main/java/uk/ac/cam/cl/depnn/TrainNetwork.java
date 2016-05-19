@@ -35,24 +35,10 @@ public class TrainNetwork {
 			return;
 		}
 
-		String sentencesFile = (String) options.valueOf("sentencesFile");
 		String trainDir = (String) options.valueOf("trainDir");
 		String modelDir = (String) options.valueOf("modelDir");
 		String logFile = (String) options.valueOf("log");
-		String prevModelFile = null;
-
-		if ( options.has("prevModel") ) {
-			prevModelFile = (String) options.valueOf("prevModel");
-		}
-
-		int w2vSeed = (Integer) options.valueOf("w2vSeed");
-		int w2vIterations = (Integer) options.valueOf("w2vIterations");
-		int w2vBatchSize = (Integer) options.valueOf("w2vBatchSize");
-		int w2vLayerSize = (Integer) options.valueOf("w2vLayerSize");
-		int w2vWindowSize = (Integer) options.valueOf("w2vWindowSize");
-		int w2vMinWordFreq = (Integer) options.valueOf("w2vMinWordFreq");
-		int w2vNegativeSample = (Integer) options.valueOf("w2vNegativeSample");
-		double w2vLearningRate = (Double) options.valueOf("w2vLearningRate");
+		String prevModelFile = (String) options.valueOf("prevModel");
 
 		String nnType = (String) options.valueOf("nnType");
 		int nnEpochs = (Integer) options.valueOf("nnEpochs");
@@ -78,182 +64,77 @@ public class TrainNetwork {
 			NeuralNetwork<? extends NNType> network = null;
 
 			logger.info("Initializing network");
-
-			if ( prevModelFile == null ) {
-				switch ( nnType ) {
-					case "dep":
-						network = new NeuralNetwork<Dependency>(
-								w2vSeed,
-								w2vIterations,
-								w2vBatchSize,
-								w2vLayerSize,
-								w2vWindowSize,
-								w2vMinWordFreq,
-								w2vNegativeSample,
-								w2vLearningRate,
-								nnEpochs,
-								nnSeed,
-								nnIterations,
-								nnBatchSize,
-								nnHiddenLayerSize,
-								nnLearningRate,
-								nnL2Reg,
-								nnDropout,
-								nnEmbedRandomRange,
-								nnHardLabels,
-								maxNumBatch,
-								new Dependency());
-						break;
-					case "longdep":
-						network = new NeuralNetwork<LongDependency>(
-								w2vSeed,
-								w2vIterations,
-								w2vBatchSize,
-								w2vLayerSize,
-								w2vWindowSize,
-								w2vMinWordFreq,
-								w2vNegativeSample,
-								w2vLearningRate,
-								nnEpochs,
-								nnSeed,
-								nnIterations,
-								nnBatchSize,
-								nnHiddenLayerSize,
-								nnLearningRate,
-								nnL2Reg,
-								nnDropout,
-								nnEmbedRandomRange,
-								nnHardLabels,
-								maxNumBatch,
-								new LongDependency());
-						break;
-					case "transdep":
-						network = new NeuralNetwork<TransDependency>(
-								w2vSeed,
-								w2vIterations,
-								w2vBatchSize,
-								w2vLayerSize,
-								w2vWindowSize,
-								w2vMinWordFreq,
-								w2vNegativeSample,
-								w2vLearningRate,
-								nnEpochs,
-								nnSeed,
-								nnIterations,
-								nnBatchSize,
-								nnHiddenLayerSize,
-								nnLearningRate,
-								nnL2Reg,
-								nnDropout,
-								nnEmbedRandomRange,
-								nnHardLabels,
-								maxNumBatch,
-								new TransDependency());
-						break;
-					case "feature":
-						network = new NeuralNetwork<Feature>(
-								w2vSeed,
-								w2vIterations,
-								w2vBatchSize,
-								w2vLayerSize,
-								w2vWindowSize,
-								w2vMinWordFreq,
-								w2vNegativeSample,
-								w2vLearningRate,
-								nnEpochs,
-								nnSeed,
-								nnIterations,
-								nnBatchSize,
-								nnHiddenLayerSize,
-								nnLearningRate,
-								nnL2Reg,
-								nnDropout,
-								nnEmbedRandomRange,
-								nnHardLabels,
-								maxNumBatch,
-								new Feature());
-						break;
-					default:
-						throw new IllegalArgumentException("Invalid nnType");
-				}
-			} else {
-				logger.info("Using previous word2vec model: " + prevModelFile);
-				switch ( nnType ) {
-					case "dep":
-						network = new NeuralNetwork<Dependency>(
-								prevModelFile,
-								nnEpochs,
-								nnSeed,
-								nnIterations,
-								nnBatchSize,
-								nnHiddenLayerSize,
-								nnLearningRate,
-								nnL2Reg,
-								nnDropout,
-								nnEmbedRandomRange,
-								nnHardLabels,
-								maxNumBatch,
-								new Dependency());
-						break;
-					case "longdep":
-						network = new NeuralNetwork<LongDependency>(
-								prevModelFile,
-								nnEpochs,
-								nnSeed,
-								nnIterations,
-								nnBatchSize,
-								nnHiddenLayerSize,
-								nnLearningRate,
-								nnL2Reg,
-								nnDropout,
-								nnEmbedRandomRange,
-								nnHardLabels,
-								maxNumBatch,
-								new LongDependency());
-						break;
-					case "transdep":
-						network = new NeuralNetwork<TransDependency>(
-								prevModelFile,
-								nnEpochs,
-								nnSeed,
-								nnIterations,
-								nnBatchSize,
-								nnHiddenLayerSize,
-								nnLearningRate,
-								nnL2Reg,
-								nnDropout,
-								nnEmbedRandomRange,
-								nnHardLabels,
-								maxNumBatch,
-								new TransDependency());
-						break;
-					case "feature":
-						network = new NeuralNetwork<Feature>(
-								prevModelFile,
-								nnEpochs,
-								nnSeed,
-								nnIterations,
-								nnBatchSize,
-								nnHiddenLayerSize,
-								nnLearningRate,
-								nnL2Reg,
-								nnDropout,
-								nnEmbedRandomRange,
-								nnHardLabels,
-								maxNumBatch,
-								new Feature());
-						break;
-					default:
-						throw new IllegalArgumentException("Invalid nnType");
-				}
+			logger.info("Using previous word2vec model: " + prevModelFile);
+			switch ( nnType ) {
+				case "dep":
+					network = new NeuralNetwork<Dependency>(
+							prevModelFile,
+							nnEpochs,
+							nnSeed,
+							nnIterations,
+							nnBatchSize,
+							nnHiddenLayerSize,
+							nnLearningRate,
+							nnL2Reg,
+							nnDropout,
+							nnEmbedRandomRange,
+							nnHardLabels,
+							maxNumBatch,
+							new Dependency());
+					break;
+				case "longdep":
+					network = new NeuralNetwork<LongDependency>(
+							prevModelFile,
+							nnEpochs,
+							nnSeed,
+							nnIterations,
+							nnBatchSize,
+							nnHiddenLayerSize,
+							nnLearningRate,
+							nnL2Reg,
+							nnDropout,
+							nnEmbedRandomRange,
+							nnHardLabels,
+							maxNumBatch,
+							new LongDependency());
+					break;
+				case "transdep":
+					network = new NeuralNetwork<TransDependency>(
+							prevModelFile,
+							nnEpochs,
+							nnSeed,
+							nnIterations,
+							nnBatchSize,
+							nnHiddenLayerSize,
+							nnLearningRate,
+							nnL2Reg,
+							nnDropout,
+							nnEmbedRandomRange,
+							nnHardLabels,
+							maxNumBatch,
+							new TransDependency());
+					break;
+				case "feature":
+					network = new NeuralNetwork<Feature>(
+							prevModelFile,
+							nnEpochs,
+							nnSeed,
+							nnIterations,
+							nnBatchSize,
+							nnHiddenLayerSize,
+							nnLearningRate,
+							nnL2Reg,
+							nnDropout,
+							nnEmbedRandomRange,
+							nnHardLabels,
+							maxNumBatch,
+							new Feature());
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid nnType");
 			}
 
 			logger.info("Network initialized");
-
-			if ( prevModelFile == null ) {
-				network.trainWord2Vec(sentencesFile);
-				network.serializeWord2Vec(modelDir + "/word2vec.model");
-			}
 
 			network.trainNetwork(trainDir, modelDir);
 

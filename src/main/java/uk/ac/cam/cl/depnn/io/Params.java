@@ -8,15 +8,6 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 public class Params {
-	private final static int W2V_SEED = 42;
-	private final static int W2V_ITERATIONS = 5;
-	private final static int W2V_BATCH_SIZE = 1000;
-	private final static int W2V_LAYER_SIZE = 300;
-	private final static int W2V_WINDOW_SIZE = 5;
-	private final static int W2V_MIN_WORD_FREQUENCY = 5;
-	private final static int W2V_NEGATIVE_SAMPLE = 10;
-	private final static double W2V_LEARNING_RATE = 0.025;
-
 	private final static String NN_TYPE = "dep";
 	private final static int NN_EPOCHS = 30;
 	private final static int NN_SEED = 123;
@@ -59,20 +50,10 @@ public class Params {
 	public static OptionParser getTrainNetworkOptionParser() {
 		OptionParser optionParser = getBaseOptionParser();
 
-		optionParser.accepts("sentencesFile").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("trainDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
 		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
-		optionParser.accepts("prevModel").withRequiredArg().ofType(String.class);
-
-		optionParser.accepts("w2vSeed").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_SEED);
-		optionParser.accepts("w2vIterations").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_ITERATIONS);
-		optionParser.accepts("w2vBatchSize").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_BATCH_SIZE);
-		optionParser.accepts("w2vLayerSize").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_LAYER_SIZE);
-		optionParser.accepts("w2vWindowSize").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_WINDOW_SIZE);
-		optionParser.accepts("w2vMinWordFreq").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_MIN_WORD_FREQUENCY);
-		optionParser.accepts("w2vNegativeSample").withRequiredArg().ofType(Integer.class).defaultsTo(W2V_NEGATIVE_SAMPLE);
-		optionParser.accepts("w2vLearningRate").withRequiredArg().ofType(Double.class).defaultsTo(W2V_LEARNING_RATE);
+		optionParser.accepts("prevModel").withRequiredArg().ofType(String.class).required();
 
 		optionParser.accepts("nnType").withRequiredArg().ofType(String.class).defaultsTo(NN_TYPE);
 		optionParser.accepts("nnEpochs").withRequiredArg().ofType(Integer.class).defaultsTo(NN_EPOCHS);
@@ -101,6 +82,21 @@ public class Params {
 		optionParser.accepts("nnType").withRequiredArg().ofType(String.class).defaultsTo(NN_TYPE);
 		optionParser.accepts("nnPosThres").withRequiredArg().ofType(Double.class).defaultsTo(NN_POS_THRES);
 		optionParser.accepts("nnNegThres").withRequiredArg().ofType(Double.class).defaultsTo(NN_NEG_THRES);
+
+		return optionParser;
+	}
+
+	public static OptionParser getTestSimpleNetworkOptionParser() {
+		OptionParser optionParser = getBaseOptionParser();
+
+		optionParser.accepts("testDir").withRequiredArg().ofType(String.class).required();
+		optionParser.accepts("modelDir").withRequiredArg().ofType(String.class).required();
+		optionParser.accepts("log").withRequiredArg().ofType(String.class).required();
+
+		optionParser.accepts("nnType").withRequiredArg().ofType(String.class).defaultsTo(NN_TYPE);
+		optionParser.accepts("nnPosThres").withRequiredArg().ofType(Double.class).defaultsTo(NN_POS_THRES);
+		optionParser.accepts("nnNegThres").withRequiredArg().ofType(Double.class).defaultsTo(NN_NEG_THRES);
+		optionParser.accepts("precompute").withRequiredArg().ofType(Boolean.class).defaultsTo(true);
 
 		return optionParser;
 	}
