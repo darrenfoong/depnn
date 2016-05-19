@@ -337,7 +337,7 @@ public class NeuralNetwork<T extends NNType> {
 			vectors.putRow(i, vector);
 		}
 
-		INDArray predictions = network.output(vectors, false);
+		INDArray predictions = predict(vectors, false);
 
 		double[] res = new double[examples.size()];
 
