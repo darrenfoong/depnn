@@ -57,7 +57,7 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 
 	public static final Logger logger = LogManager.getLogger(DataSetIterator.class);
 
-	public DataSetIterator(NeuralNetwork<T> network, String recordsDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, int NN_HIDDEN_LAYER_SIZE, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
+	public DataSetIterator(NeuralNetwork<T> network, String recordsDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, int NN_HIDDEN_LAYER_SIZE, boolean NN_HARD_LABELS, T helper, PrecomputesManager<T> manager) throws IOException, InterruptedException {
 		this.network = network;
 
 		this.recordReader = new CSVRecordReader(0, " ");
@@ -70,13 +70,9 @@ public class DataSetIterator<T extends NNType> implements Iterator<Pair<DataSet,
 		this.NN_HARD_LABELS = NN_HARD_LABELS;
 
 		this.helper = helper;
+		this.manager = manager;
 
 		readAll();
-	}
-
-	public DataSetIterator(NeuralNetwork<T> network, String recordsDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, int NN_HIDDEN_LAYER_SIZE, boolean NN_HARD_LABELS, T helper, PrecomputesManager<T> manager) throws IOException, InterruptedException {
-		this(network, recordsDir, batchSize, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper);
-		this.manager = manager;
 	}
 
 	public HashSet<String> getCatLexicon() {

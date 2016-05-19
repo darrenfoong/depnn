@@ -1,21 +1,13 @@
 package uk.ac.cam.cl.depnn.nn;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.deeplearning4j.berkeley.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 
 import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 import uk.ac.cam.cl.depnn.embeddings.WordVectors;
-import uk.ac.cam.cl.depnn.io.DataSetIterator;
 import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.PrecomputesManager;
 
@@ -31,7 +23,7 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 	}
 
 	// running
-	public SimpleNeuralNetwork(String modelDir, T helper) throws IOException {
+	public SimpleNeuralNetwork(String modelDir, boolean precompute, T helper) throws IOException {
 		String modelFile = modelDir + "/word2vec.txt";
 
 		String coefficientsFile = modelDir + "/coeffs";
@@ -51,13 +43,6 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 		posEmbeddings = new Embeddings(posEmbeddingsFile);
 
 		this.helper = helper;
-	}
-
-	public void testNetwork(String testDir, String logFile, double posThres, double negThres, boolean precompute) throws IOException, InterruptedException {
-		logger.info("Testing network using " + testDir);
-		long start = System.nanoTime();
-
-		DataSetIterator<T> iter;
 
 		if ( precompute ) {
 			manager = new PrecomputesManager<T>(helper, network, W2V_LAYER_SIZE);
@@ -75,55 +60,15 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 			logger.info("5 precomputed");
 			manager.add(posEmbeddings, 6, false);
 			logger.info("6 precomputed");
+		}
+	}
 
-			iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, true, helper, manager);
+	@Override
+	public INDArray predict(INDArray inputs, boolean training) {
+		if ( manager != null ) {
+			return network.outputPrecompute(inputs, training);
 		} else {
-			iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, true, helper);
+			return network.output(inputs, training);
 		}
-
-		Pair<DataSet, List<T>> next = iter.next();
-
-		DataSet test = next.getFirst();
-		List<T> list = next.getSecond();
-
-		logger.info("Number of test examples: " + test.numExamples());
-
-		INDArray predictions;
-
-		long startP = System.nanoTime();
-		logger.info("Load time: " + (startP-start));
-		if ( precompute ) {
-			predictions = network.outputPrecompute(test.getFeatures(), false);
-		} else {
-			predictions = network.output(test.getFeatures(), false);
-		}
-		long endP = System.nanoTime();
-		logger.info("Predict time: " + (endP-startP));
-
-		evaluateThresholds(test.getLabels(), predictions, posThres, negThres);
-
-		try ( PrintWriter outCorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified1")));
-				PrintWriter outIncorrect = new PrintWriter(new BufferedWriter(new FileWriter(logFile + ".classified0"))) ) {
-			logger.info("Writing to files");
-
-			for ( int i = 0; i < list.size(); i++ ) {
-				String example = list.get(i).toString();
-				double prediction = predictions.getDouble(i, 1);
-
-				if ( prediction >= 0.5 ) {
-					outCorrect.println(example);
-				} else {
-					outIncorrect.println(example);
-				}
-			}
-		} catch ( FileNotFoundException e ) {
-			logger.error(e);
-		} catch ( IOException e ) {
-			logger.error(e);
-		}
-
-		long end = System.nanoTime();
-		logger.info("Network testing complete");
-		logger.info("Time: " + (end-start));
 	}
 }

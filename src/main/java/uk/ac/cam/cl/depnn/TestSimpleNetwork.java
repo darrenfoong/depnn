@@ -57,16 +57,16 @@ public class TestSimpleNetwork {
 
 			switch ( nnType ) {
 				case "dep":
-					network = new SimpleNeuralNetwork<Dependency>(modelDir, new Dependency());
+					network = new SimpleNeuralNetwork<Dependency>(modelDir, precompute, new Dependency());
 					break;
 				case "longdep":
-					network = new SimpleNeuralNetwork<LongDependency>(modelDir, new LongDependency());
+					network = new SimpleNeuralNetwork<LongDependency>(modelDir, precompute, new LongDependency());
 					break;
 				case "transdep":
-					network = new SimpleNeuralNetwork<TransDependency>(modelDir, new TransDependency());
+					network = new SimpleNeuralNetwork<TransDependency>(modelDir, precompute, new TransDependency());
 					break;
 				case "feature":
-					network = new SimpleNeuralNetwork<Feature>(modelDir, new Feature());
+					network = new SimpleNeuralNetwork<Feature>(modelDir, precompute, new Feature());
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid nnType");
@@ -74,7 +74,7 @@ public class TestSimpleNetwork {
 
 			logger.info("Network initialized");
 
-			network.testNetwork(testDir, logFile, nnPosThres, nnNegThres, precompute);
+			network.testNetwork(testDir, logFile, nnPosThres, nnNegThres);
 		} catch ( Exception e ) {
 			logger.error("Exception", e);
 		}

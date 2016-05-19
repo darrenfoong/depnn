@@ -139,7 +139,7 @@ public class NeuralNetwork<T extends NNType> {
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, trainDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, trainDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper, null);
 
 		catEmbeddings = new Embeddings(iter.getCatLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
 		slotEmbeddings = new Embeddings(iter.getSlotLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
@@ -224,7 +224,7 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Testing network using " + testDir);
 		long start = System.nanoTime();
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, true, helper);
+		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, true, helper, null);
 		Pair<DataSet, List<T>> next = iter.next();
 
 		DataSet test = next.getFirst();
@@ -234,7 +234,9 @@ public class NeuralNetwork<T extends NNType> {
 
 		long startP = System.nanoTime();
 		logger.info("Load time: " + (startP-start));
-		INDArray predictions = network.output(test.getFeatures(), false);
+
+		INDArray predictions = predict(test.getFeatures(), false);
+
 		long endP = System.nanoTime();
 		logger.info("Predict time: " + (endP-startP));
 
@@ -260,9 +262,10 @@ public class NeuralNetwork<T extends NNType> {
 			logger.error(e);
 		}
 
-		long end = System.nanoTime();
 		logger.info("Network testing complete");
-		logger.info("Time: " + (end-start));
+
+		long end = System.nanoTime();
+		logger.info("Total time: " + (end-start));
 	}
 
 	protected void evaluateThresholds(INDArray labels, INDArray predictions, double posThres, double negThres) {
@@ -309,6 +312,10 @@ public class NeuralNetwork<T extends NNType> {
 	public void serializeNetwork(String configJsonFile, String coefficientsFile) throws IOException {
 		logger.info("Serializing network to " + configJsonFile + ", " + coefficientsFile);
 		ModelUtils.saveModelAndParameters(network, new File(configJsonFile), coefficientsFile);
+	}
+
+	public INDArray predict(INDArray inputs, boolean training) {
+		return network.output(inputs, training);
 	}
 
 	public double predictSoft(T example) {
