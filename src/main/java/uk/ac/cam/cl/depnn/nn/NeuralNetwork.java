@@ -139,7 +139,7 @@ public class NeuralNetwork<T extends NNType> {
 		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
 		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, trainDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper, null);
+		DataSetIterator<T> iter = genDataSetIterator(trainDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper);
 
 		catEmbeddings = new Embeddings(iter.getCatLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
 		slotEmbeddings = new Embeddings(iter.getSlotLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
@@ -224,7 +224,7 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("Testing network using " + testDir);
 		long start = System.nanoTime();
 
-		DataSetIterator<T> iter = new DataSetIterator<T>(this, testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, true, helper, null);
+		DataSetIterator<T> iter = genDataSetIterator(testDir, 0, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, true, helper);
 		Pair<DataSet, List<T>> next = iter.next();
 
 		DataSet test = next.getFirst();
@@ -312,6 +312,10 @@ public class NeuralNetwork<T extends NNType> {
 	public void serializeNetwork(String configJsonFile, String coefficientsFile) throws IOException {
 		logger.info("Serializing network to " + configJsonFile + ", " + coefficientsFile);
 		ModelUtils.saveModelAndParameters(network, new File(configJsonFile), coefficientsFile);
+	}
+
+	public DataSetIterator<T> genDataSetIterator(String testDir, int NN_BATCH_SIZE, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, int NN_HIDDEN_LAYER_SIZE, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
+		return new DataSetIterator<T>(this, testDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper, null);
 	}
 
 	public INDArray predict(INDArray inputs, boolean training) {

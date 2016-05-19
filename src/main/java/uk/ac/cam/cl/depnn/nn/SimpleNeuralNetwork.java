@@ -8,6 +8,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 import uk.ac.cam.cl.depnn.embeddings.WordVectors;
+import uk.ac.cam.cl.depnn.io.DataSetIterator;
 import uk.ac.cam.cl.depnn.io.NNType;
 import uk.ac.cam.cl.depnn.io.PrecomputesManager;
 
@@ -61,6 +62,11 @@ public class SimpleNeuralNetwork<T extends NNType> extends NeuralNetwork<T> {
 			manager.add(posEmbeddings, 6, false);
 			logger.info("6 precomputed");
 		}
+	}
+
+	@Override
+	public DataSetIterator<T> genDataSetIterator(String testDir, int batchSize, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, int NN_HIDDEN_LAYER_SIZE, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
+		return new DataSetIterator<T>(this, testDir, batchSize, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper, manager);
 	}
 
 	@Override
