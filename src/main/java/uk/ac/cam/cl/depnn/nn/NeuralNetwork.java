@@ -1,7 +1,6 @@
 package uk.ac.cam.cl.depnn.nn;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,43 +12,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.deeplearning4j.berkeley.Pair;
 import org.deeplearning4j.eval.Evaluation;
-import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
-import org.deeplearning4j.nn.conf.layers.DenseLayer;
-import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.cpu.NDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import uk.ac.cam.cl.depnn.embeddings.Embeddings;
 import uk.ac.cam.cl.depnn.embeddings.WordVectors;
 import uk.ac.cam.cl.depnn.io.DataSetIterator;
 import uk.ac.cam.cl.depnn.io.NNType;
-import uk.ac.cam.cl.depnn.utils.ModelUtils;
 
 public class NeuralNetwork<T extends NNType> {
 	protected int W2V_LAYER_SIZE;
-
-	private int NN_EPOCHS;
-	private int NN_SEED;
-	private int NN_ITERATIONS;
-	private int NN_BATCH_SIZE;
 	protected int NN_HIDDEN_LAYER_SIZE;
-
-	private double NN_LEARNING_RATE;
-	private double NN_L2_REG;
-	private double NN_DROPOUT;
-	private double NN_EMBED_RANDOM_RANGE;
-	private boolean NN_HARD_LABELS;
-
-	private int maxNumBatch = Integer.MAX_VALUE;
 
 	public Embeddings catEmbeddings;
 	public Embeddings slotEmbeddings;
@@ -69,155 +44,6 @@ public class NeuralNetwork<T extends NNType> {
 
 	public MultiLayerNetwork getNetwork() {
 		return network;
-	}
-
-	// training
-	public NeuralNetwork() {
-	}
-
-	public NeuralNetwork(String prevModelFile,
-	                               int nnEpochs,
-	                               int nnSeed,
-	                               int nnIterations,
-	                               int nnBatchSize,
-	                               int nnHiddenLayerSize,
-	                               double nnLearningRate,
-	                               double nnL2Reg,
-	                               double nnDropout,
-	                               double nnEmbedRandomRange,
-	                               boolean nnHardLabels,
-	                               int maxNumBatch,
-	                               T helper) throws IOException {
-		wordVectors = new WordVectors(prevModelFile);
-		W2V_LAYER_SIZE = wordVectors.getSizeEmbeddings();
-
-		NN_EPOCHS = nnEpochs;
-		NN_SEED = nnSeed;
-		NN_ITERATIONS = nnIterations;
-		NN_BATCH_SIZE = nnBatchSize;
-		NN_HIDDEN_LAYER_SIZE = nnHiddenLayerSize;
-		NN_LEARNING_RATE = nnLearningRate;
-		NN_L2_REG = nnL2Reg;
-		NN_DROPOUT = nnDropout;
-		NN_EMBED_RANDOM_RANGE = nnEmbedRandomRange;
-		NN_HARD_LABELS = nnHardLabels;
-
-		this.maxNumBatch = maxNumBatch;
-		this.helper = helper;
-	}
-
-	// running
-	public NeuralNetwork(String modelDir, T helper) throws IOException {
-		String modelFile = modelDir + "/word2vec.txt";
-
-		String configJsonFile = modelDir + "/config.json";
-		String coefficientsFile = modelDir + "/coeffs";
-		String catEmbeddingsFile = modelDir + "/cat.emb";
-		String slotEmbeddingsFile = modelDir + "/slot.emb";
-		String distEmbeddingsFile = modelDir + "/dist.emb";
-		String posEmbeddingsFile = modelDir + "/pos.emb";
-
-		wordVectors = new WordVectors(modelFile);
-		W2V_LAYER_SIZE = wordVectors.getSizeEmbeddings();
-		network = ModelUtils.loadModelAndParameters(new File(configJsonFile), coefficientsFile);
-
-		catEmbeddings = new Embeddings(catEmbeddingsFile);
-		slotEmbeddings = new Embeddings(slotEmbeddingsFile);
-		distEmbeddings = new Embeddings(distEmbeddingsFile);
-		posEmbeddings = new Embeddings(posEmbeddingsFile);
-
-		this.helper = helper;
-	}
-
-	public void trainNetwork(String trainDir, String modelDir) throws IOException, InterruptedException {
-		logger.info("Training network using " + trainDir);
-
-		int numInput = W2V_LAYER_SIZE * helper.getNumProperties();
-		int numOutput = 2;
-
-		Nd4j.MAX_SLICES_TO_PRINT = -1;
-		Nd4j.MAX_ELEMENTS_PER_SLICE = -1;
-		Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
-
-		DataSetIterator<T> iter = genDataSetIterator(trainDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, helper.getNumProperties(), NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper);
-
-		catEmbeddings = new Embeddings(iter.getCatLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
-		slotEmbeddings = new Embeddings(iter.getSlotLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
-		distEmbeddings = new Embeddings(iter.getDistLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
-		posEmbeddings = new Embeddings(iter.getPosLexicon(), W2V_LAYER_SIZE, NN_EMBED_RANDOM_RANGE);
-
-		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-				.seed(NN_SEED)
-				.iterations(NN_ITERATIONS)
-				.learningRate(NN_LEARNING_RATE)
-				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-				.regularization(true)
-				.l2(NN_L2_REG)
-				//.useDropConnect(true)
-				.list(2)
-				.layer(0, new DenseLayer.Builder()
-								.nIn(numInput)
-								.nOut(NN_HIDDEN_LAYER_SIZE)
-								.activation("relu")
-								.weightInit(WeightInit.RELU)
-								.biasInit(0.1)
-								.updater(Updater.ADAGRAD)
-								.dropOut(NN_DROPOUT)
-								.build()
-				)
-				.layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
-								.nIn(NN_HIDDEN_LAYER_SIZE)
-								.nOut(numOutput)
-								.activation("softmax")
-								.weightInit(WeightInit.XAVIER)
-								.biasInit(0.0)
-								.dropOut(NN_DROPOUT)
-								.build()
-				)
-				.pretrain(false)
-				.backprop(true)
-				.build();
-
-		network = new MultiLayerNetwork(conf);
-		network.init();
-
-		network.setListeners(new ScoreIterationListener(1));
-
-		for ( int epochCount = 1; epochCount <= NN_EPOCHS; epochCount++ ) {
-			logger.info("Training epoch " + epochCount);
-
-			for ( int batchCount = 1; iter.hasNext() && batchCount <= maxNumBatch; batchCount++ ) {
-				logger.info("Training batch " + epochCount + "/" + batchCount);
-
-				Pair<DataSet, List<T>> next = iter.next();
-				DataSet trainBatch = next.getFirst();
-				List<T> trainList = next.getSecond();
-
-				// trainBatch.normalizeZeroMeanZeroUnitVariance();
-				network.fit(trainBatch);
-
-				logger.info("Network updated");
-
-				INDArray epsilon = network.epsilon();
-
-				for ( int i = 0; i < epsilon.rows(); i++ ) {
-					INDArray errors = epsilon.getRow(i);
-
-					T record = trainList.get(i);
-
-					record.updateEmbeddings(errors.muli(NN_LEARNING_RATE), W2V_LAYER_SIZE, catEmbeddings, slotEmbeddings, distEmbeddings, posEmbeddings);
-				}
-
-				logger.info("Embeddings updated");
-			}
-
-			(new File(modelDir + "/epoch" + epochCount + "/")).mkdir();
-			serialize(modelDir + "/epoch" + epochCount + "/");
-
-			iter.reset();
-		}
-
-		logger.info("Network training complete");
 	}
 
 	public void testNetwork(String testDir, String logFile, double posThres, double negThres) throws IOException, InterruptedException {
@@ -309,11 +135,6 @@ public class NeuralNetwork<T extends NNType> {
 		logger.info("");
 	}
 
-	public void serializeNetwork(String configJsonFile, String coefficientsFile) throws IOException {
-		logger.info("Serializing network to " + configJsonFile + ", " + coefficientsFile);
-		ModelUtils.saveModelAndParameters(network, new File(configJsonFile), coefficientsFile);
-	}
-
 	public DataSetIterator<T> genDataSetIterator(String testDir, int NN_BATCH_SIZE, int W2V_LAYER_SIZE, int NN_NUM_PROPERTIES, int NN_HIDDEN_LAYER_SIZE, boolean NN_HARD_LABELS, T helper) throws IOException, InterruptedException {
 		return new DataSetIterator<T>(this, testDir, NN_BATCH_SIZE, W2V_LAYER_SIZE, NN_NUM_PROPERTIES, NN_HIDDEN_LAYER_SIZE, NN_HARD_LABELS, helper, null);
 	}
@@ -396,17 +217,5 @@ public class NeuralNetwork<T extends NNType> {
 		slotEmbeddings.serializeEmbeddings(slotEmbeddingsFile);
 		distEmbeddings.serializeEmbeddings(distEmbeddingsFile);
 		posEmbeddings.serializeEmbeddings(posEmbeddingsFile);
-	}
-
-	public void serialize(String modelDir) throws IOException {
-		String configJsonFile = modelDir + "/config.json";
-		String coefficientsFile = modelDir + "/coeffs";
-		String catEmbeddingsFile = modelDir + "/cat.emb";
-		String slotEmbeddingsFile = modelDir + "/slot.emb";
-		String distEmbeddingsFile = modelDir + "/dist.emb";
-		String posEmbeddingsFile = modelDir + "/pos.emb";
-
-		serializeNetwork(configJsonFile, coefficientsFile);
-		serializeEmbeddings(catEmbeddingsFile, slotEmbeddingsFile, distEmbeddingsFile, posEmbeddingsFile);
 	}
 }

@@ -9,7 +9,7 @@
     <description>Dependency Neural Network</description>
     <properties>
         <nd4j.version>0.4-rc3.8</nd4j.version>
-        <dl4j.version>0.4-rc3.8.1</dl4j.version>
+        <dl4j.version>0.4-rc3.8</dl4j.version>
         <log4j2.version>2.5</log4j2.version>
         <jopt-simple.version>4.9</jopt-simple.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
